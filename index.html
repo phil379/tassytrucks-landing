@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tassy Trucks — Reliable rides. White-glove care.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+    }
+    html, body { background: var(--bg); color: var(--ink); }
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; font-feature-settings: "ss01" on; }
+    .ink { color: var(--ink); }
+    .ink-soft { color: var(--ink-soft); }
+    .ink-mute { color: var(--ink-mute); }
+    .gold { color: var(--gold); }
+    .bg-cream { background: var(--bg); }
+    .bg-ink { background: var(--ink); color: #F4EFE0; }
+    .bg-surface { background: var(--surface); }
+    .border-line { border-color: var(--line); }
+    .btn-primary {
+      background: var(--ink); color: #F4EFE0; padding: 0.95rem 1.6rem;
+      border-radius: 10px; font-weight: 500; letter-spacing: -0.01em;
+      transition: transform .2s ease, background .2s ease;
+      display: inline-flex; align-items: center; gap: 0.6rem;
+    }
+    .btn-primary:hover { background: #000; transform: translateY(-1px); }
+    .btn-gold {
+      background: var(--gold-warm); color: var(--ink); padding: 0.95rem 1.6rem;
+      border-radius: 10px; font-weight: 600; letter-spacing: -0.01em;
+      transition: transform .2s ease, background .2s ease;
+      display: inline-flex; align-items: center; gap: 0.6rem;
+    }
+    .btn-gold:hover { background: #D49A2E; transform: translateY(-1px); }
+    .btn-call {
+      background: var(--surface); color: var(--ink); padding: 0.95rem 1.4rem;
+      border-radius: 10px; font-weight: 500; letter-spacing: -0.01em;
+      border: 1px solid var(--ink);
+      transition: transform .2s ease, background .2s ease, color .2s ease;
+      display: inline-flex; align-items: center; gap: 0.6rem;
+    }
+    .btn-call:hover { background: var(--ink); color: #F4EFE0; transform: translateY(-1px); }
+    .btn-ghost {
+      color: var(--ink); padding: 0.95rem 1.2rem;
+      border-radius: 10px; font-weight: 500; letter-spacing: -0.01em;
+      transition: color .2s ease;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-ghost:hover { color: var(--gold); }
+    .nav-link { color: var(--ink-soft); font-weight: 500; font-size: 0.92rem; letter-spacing: -0.005em; transition: color .15s ease; }
+    .nav-link:hover { color: var(--ink); }
+    .hairline { border-top: 1px solid var(--line); }
+    .card-tile {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: transform .25s ease, box-shadow .25s ease;
+      display: flex; flex-direction: column; height: 100%;
+    }
+    .card-tile:hover { transform: translateY(-2px); box-shadow: 0 12px 32px -16px rgba(27,26,23,0.18); }
+    .number-bullet {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--gold-warm); color: var(--ink);
+      font-weight: 700; font-size: 0.85rem;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.8rem; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--surface);
+      font-size: 0.78rem; color: var(--ink-soft); font-weight: 500;
+    }
+    .pill-vet {
+      background: rgba(229,169,59,0.12);
+      border-color: rgba(229,169,59,0.3);
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #2EA868; display: inline-block; }
+    .hero-image {
+      background-image: linear-gradient(135deg, rgba(27,26,23,0.18), rgba(27,26,23,0.5)),
+                        url('https://images.unsplash.com/photo-1559076610-c1e5cfb37b65?auto=format&fit=crop&w=1400&q=80');
+      background-size: cover; background-position: center;
+    }
+    .quote-mark { font-family: 'Newsreader', serif; font-size: 6rem; line-height: 1; color: var(--gold-warm); }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+    .float-slow { animation: float 6s ease-in-out infinite; }
+    /* Live trip rotator */
+    .trip-rotator { position: relative; height: 6rem; overflow: hidden; }
+    .trip-card {
+      position: absolute; inset: 0;
+      opacity: 0; transform: translateY(12px);
+      animation: tripCycle 12s infinite;
+      padding: 0.85rem 1rem;
+      background: rgba(255,255,255,0.97);
+      border-radius: 14px;
+      box-shadow: 0 8px 28px -8px rgba(27,26,23,0.3);
+    }
+    .trip-card:nth-child(1) { animation-delay: 0s; }
+    .trip-card:nth-child(2) { animation-delay: 4s; }
+    .trip-card:nth-child(3) { animation-delay: 8s; }
+    @keyframes tripCycle {
+      0%, 5%   { opacity: 0; transform: translateY(12px); }
+      10%, 28% { opacity: 1; transform: translateY(0); }
+      33%, 100%{ opacity: 0; transform: translateY(-12px); }
+    }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.15rem 0.55rem; border-radius: 999px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .status-en-route { background: #DEF7E5; color: #1B5E20; }
+    .status-confirmed { background: #FFF4DA; color: #8A6310; }
+    .status-completed { background: #E8E5FF; color: #3C2E8B; }
+    .logo-mark {
+      width: 40px; height: 40px;
+      background: var(--ink);
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 7px;
+    }
+    .testimonial-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 2rem;
+      height: 100%;
+      display: flex; flex-direction: column;
+    }
+    .founder-portrait {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background-image: url('https://www.tassytrucks.com/assets/Founder-O89dn133.png');
+      background-size: cover; background-position: center top;
+      border-radius: 20px;
+      box-shadow: 0 24px 48px -24px rgba(27,26,23,0.4);
+    }
+  </style>
+</head>
+<body class="bg-cream">
+
+  <!-- NAV -->
+  <header class="border-b border-line bg-cream/95 sticky top-0 z-30 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <div class="logo-mark">
+          <img src="https://www.tassytrucks.com/assets/logo%20tt-BxKNZqLK.png" alt="Tassy Trucks" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <div class="serif text-xl font-semibold ink leading-none">Tassy Trucks</div>
+          <div class="text-[10px] tracking-[0.18em] uppercase ink-mute mt-1">Premium Transport · Veteran-Owned</div>
+        </div>
+      </a>
+      <nav class="hidden lg:flex items-center gap-8">
+        <a class="nav-link" href="#services">Services</a>
+        <a class="nav-link" href="#how">How it works</a>
+        <a class="nav-link" href="#facilities">For Facilities</a>
+        <a class="nav-link" href="#drivers">Drivers</a>
+        <a class="nav-link" href="#founder">About</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="tel:+17049418508" class="nav-link hidden md:inline-flex items-center gap-1.5 text-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M3 5a2 2 0 0 1 2-2h2.5a1 1 0 0 1 .96.73l1 3.5a1 1 0 0 1-.27 1L7.7 9.79a14 14 0 0 0 6.5 6.5l1.57-1.49a1 1 0 0 1 1-.27l3.5 1a1 1 0 0 1 .73.96V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5z"/></svg>
+          (704) 941-8508
+        </a>
+        <a href="https://tassytrucksops.vercel.app/login" class="btn-ghost hidden sm:inline-flex text-sm">Sign in</a>
+        <a href="#book" class="btn-gold text-sm">Book a Ride
+          <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-24 grid lg:grid-cols-[1.1fr_1fr] gap-14 items-center">
+      <div>
+        <div class="pill pill-vet mb-6">
+          <span>★</span>
+          <span>Veteran-Owned · SDVOSB Certified · Charlotte, NC</span>
+        </div>
+        <h1 class="serif text-5xl lg:text-7xl font-semibold ink leading-[1.02] tracking-[-0.02em]">
+          Reliable rides.<br>
+          <span class="italic font-normal" style="color: var(--gold);">White-glove</span> care.
+        </h1>
+        <p class="mt-7 text-lg lg:text-xl ink-soft leading-relaxed max-w-xl">
+          From hospital discharges to post-procedure concierge transport, Tassy moves the people who matter to you with discretion, dignity, and Army-grade reliability.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href="#book" class="btn-gold">
+            Book a Ride
+            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
+          </a>
+          <a href="tel:+17049418508" class="btn-call">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M3 5a2 2 0 0 1 2-2h2.5a1 1 0 0 1 .96.73l1 3.5a1 1 0 0 1-.27 1L7.7 9.79a14 14 0 0 0 6.5 6.5l1.57-1.49a1 1 0 0 1 1-.27l3.5 1a1 1 0 0 1 .73.96V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5z"/></svg>
+            Call (704) 941-8508
+          </a>
+        </div>
+        <p class="mt-4 text-xs ink-mute flex items-center gap-2">
+          <span class="dot"></span>
+          Dispatchers online now · Avg. response 8 min
+        </p>
+        <!-- Trust strip -->
+        <div class="mt-10 pt-8 hairline grid grid-cols-2 sm:grid-cols-4 gap-6">
+          <div>
+            <div class="serif text-3xl ink font-semibold">15,000+</div>
+            <div class="text-xs ink-mute uppercase tracking-wider mt-1">Rides since 2021</div>
+          </div>
+          <div>
+            <div class="serif text-3xl ink font-semibold">4.9 ★</div>
+            <div class="text-xs ink-mute uppercase tracking-wider mt-1">Google rating</div>
+          </div>
+          <div>
+            <div class="serif text-3xl ink font-semibold">HIPAA</div>
+            <div class="text-xs ink-mute uppercase tracking-wider mt-1">PHI-compliant</div>
+          </div>
+          <div>
+            <div class="serif text-3xl ink font-semibold">SDVOSB</div>
+            <div class="text-xs ink-mute uppercase tracking-wider mt-1">VA-eligible</div>
+          </div>
+        </div>
+      </div>
+      <!-- Hero visual -->
+      <div class="relative">
+        <div class="hero-image rounded-3xl aspect-[4/5] shadow-2xl relative overflow-hidden">
+          <!-- Animated trip rotator -->
+          <div class="absolute bottom-6 left-6 right-6">
+            <div class="text-[10px] uppercase tracking-[0.2em] text-white/85 mb-2 font-semibold">Live Trip Board</div>
+            <div class="trip-rotator">
+              <div class="trip-card">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-semibold ink">Airport Transfer — CLT</span>
+                  <span class="status-badge status-en-route">● En route</span>
+                </div>
+                <div class="text-xs ink-mute">Premium Luxury SUV · 12 min to pickup</div>
+              </div>
+              <div class="trip-card">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-semibold ink">Post-Procedure Concierge</span>
+                  <span class="status-badge status-confirmed">● Confirmed</span>
+                </div>
+                <div class="text-xs ink-mute">Cosmetic surgery recovery · Driver waiting on-site</div>
+              </div>
+              <div class="trip-card">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-semibold ink">NEMT Dialysis Pickup</span>
+                  <span class="status-badge status-completed">● Completed</span>
+                </div>
+                <div class="text-xs ink-mute">Atrium Health · "Outstanding service!" ★★★★★</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Floating stat card -->
+        <div class="absolute -top-6 -left-6 bg-surface border border-line rounded-2xl p-4 shadow-xl float-slow hidden md:block">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-ink flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-5 h-5">
+                <path d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xs ink-mute uppercase tracking-wider">Average pickup</div>
+              <div class="serif text-xl ink font-semibold">2 min early</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="bg-surface border-y border-line">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-20">
+      <div class="grid lg:grid-cols-3 gap-10 items-end mb-14">
+        <div class="lg:col-span-2">
+          <div class="text-xs ink-mute uppercase tracking-[0.2em] mb-3">What we move</div>
+          <h2 class="serif text-4xl lg:text-5xl ink font-semibold leading-tight tracking-[-0.02em]">
+            One platform.<br>Four lines of care.
+          </h2>
+        </div>
+        <p class="ink-soft text-lg">
+          Pick the service that fits the moment. Same drivers, same standards, same accountability.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- NEMT -->
+        <a href="#" class="card-tile group">
+          <div class="w-12 h-12 rounded-xl bg-ink flex items-center justify-center mb-6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-6 h-6">
+              <path d="M12 2v20M2 12h20"/>
+            </svg>
+          </div>
+          <div class="text-xs ink-mute uppercase tracking-wider">Service line</div>
+          <h3 class="serif text-xl ink font-semibold mt-1 mb-3">NEMT</h3>
+          <p class="ink-soft text-sm leading-relaxed mb-5 flex-grow">
+            Non-emergency medical transport for dialysis, recurring appointments, doctor visits, and Medicaid-covered care.
+          </p>
+          <ul class="text-xs ink-soft space-y-1 mb-5">
+            <li>· ADA compliant</li>
+            <li>· Broker partners accepted</li>
+          </ul>
+          <div class="text-sm font-medium ink group-hover:text-amber-600 flex items-center gap-2">
+            Book NEMT trip
+            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
+          </div>
+        </a>
+        <!-- VIP / Post-Procedure -->
+        <a href="#" class="card-tile group">
+          <div class="w-12 h-12 rounded-xl bg-ink flex items-center justify-center mb-6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-6 h-6">
+              <path d="M12 2l3 7h7l-5.5 5 2 8L12 18l-6.5 4 2-8L2 9h7z"/>
+            </svg>
+          </div>
+          <div class="text-xs ink-mute uppercase tracking-wider">Service line</div>
+          <h3 class="serif text-xl ink font-semibold mt-1 mb-3">VIP Concierge</h3>
+          <p class="ink-soft text-sm leading-relaxed mb-5 flex-grow">
+            Discreet, professional post-procedure transport. Driver arrives early, waits on-site, brings you home safely.
+          </p>
+          <ul class="text-xs ink-soft space-y-1 mb-5">
+            <li>· Female drivers on request</li>
+            <li>· HIPAA-aware, judgment-free</li>
+          </ul>
+          <div class="text-sm font-medium ink group-hover:text-amber-600 flex items-center gap-2">
+            Book VIP trip
+            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
+          </div>
+        </a>
+        <!-- Wheelchair / Accessible -->
+        <a href="#" class="card-tile group">
+          <div class="w-12 h-12 rounded-xl bg-ink flex items-center justify-center mb-6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-6 h-6">
+              <circle cx="12" cy="4" r="2"/>
+              <path d="M12 6v8M8 14h8l3 6M8 14a4 4 0 0 0 4 4"/>
+            </svg>
+          </div>
+          <div class="text-xs ink-mute uppercase tracking-wider">Service line</div>
+          <h3 class="serif text-xl ink font-semibold mt-1 mb-3">Wheelchair &amp; Stretcher</h3>
+          <p class="ink-soft text-sm leading-relaxed mb-5 flex-grow">
+            Specialized accessible transport with wheelchair ramps and stretcher-capable vehicles for non-ambulatory patients.
+          </p>
+          <ul class="text-xs ink-soft space-y-1 mb-5">
+            <li>· WAV-certified fleet</li>
+            <li>· Trained transport operators</li>
+          </ul>
+          <div class="text-sm font-medium ink group-hover:text-amber-600 flex items-center gap-2">
+            Book accessible ride
+            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
+          </div>
+        </a>
+        <!-- Winnie -->
+        <a href="#" class="card-tile group">
+          <div class="w-12 h-12 rounded-xl bg-ink flex items-center justify-center mb-6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-6 h-6">
+              <circle cx="5" cy="9" r="2"/><circle cx="9" cy="5" r="2"/>
+              <circle cx="15" cy="5" r="2"/><circle cx="19" cy="9" r="2"/>
+              <path d="M8 14c0-2 1.5-4 4-4s4 2 4 4-1.5 6-4 6-4-4-4-6z"/>
+            </svg>
+          </div>
+          <div class="text-xs ink-mute uppercase tracking-wider">Service line</div>
+          <h3 class="serif text-xl ink font-semibold mt-1 mb-3">Winnie Pet Transport</h3>
+          <p class="ink-soft text-sm leading-relaxed mb-5 flex-grow">
+            Vet visits, grooming pickups, doggy daycare runs. Trained drivers, climate-controlled vehicles, GPS tracking.
+          </p>
+          <ul class="text-xs ink-soft space-y-1 mb-5">
+            <li>· Photo + chip verification</li>
+            <li>· Owner gets real-time updates</li>
+          </ul>
+          <div class="text-sm font-medium ink group-hover:text-amber-600 flex items-center gap-2">
+            Book pet pickup
+            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="bg-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <div class="text-xs ink-mute uppercase tracking-[0.2em] mb-3">How it works</div>
+        <h2 class="serif text-4xl lg:text-5xl ink font-semibold leading-tight tracking-[-0.02em]">
+          Three steps. Zero surprises.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-10">
+        <div>
+          <span class="number-bullet">1</span>
+          <h3 class="serif text-2xl ink font-semibold mt-5 mb-3">Book</h3>
+          <p class="ink-soft leading-relaxed">
+            Tell us where, when, and who. See the price upfront — no surge, no hidden fees, no booking fees.
+          </p>
+        </div>
+        <div>
+          <span class="number-bullet">2</span>
+          <h3 class="serif text-2xl ink font-semibold mt-5 mb-3">Match</h3>
+          <p class="ink-soft leading-relaxed">
+            A licensed, insured driver is assigned within minutes. You'll get their name, photo, vehicle, and ETA by text.
+          </p>
+        </div>
+        <div>
+          <span class="number-bullet">3</span>
+          <h3 class="serif text-2xl ink font-semibold mt-5 mb-3">Travel</h3>
+          <p class="ink-soft leading-relaxed">
+            Track in real time. Family gets pickup &amp; dropoff alerts. Pay only when the trip completes. Receipt by email.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FACILITIES CTA -->
+  <section id="facilities" class="bg-ink">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-24 grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <div class="text-xs uppercase tracking-[0.2em] mb-3" style="color: var(--gold-warm);">For hospitals &amp; facilities</div>
+        <h2 class="serif text-4xl lg:text-5xl font-semibold leading-tight tracking-[-0.02em] mb-6" style="color: #F4EFE0;">
+          Discharge transport shouldn't be a daily fire drill.
+        </h2>
+        <p class="text-lg leading-relaxed mb-6" style="color: rgba(244,239,224,0.75);">
+          Tassy partners with hospitals across the Carolinas to handle every NEMT, every discharge, every recurring patient transport — under one master contract, one billing portal, one accountable team.
+        </p>
+        <blockquote class="serif italic text-lg leading-relaxed mb-8 pl-4 border-l-2" style="color: rgba(244,239,224,0.9); border-color: var(--gold-warm);">
+          "Phil's team is HIPAA-aware, professional, and I've never had a complaint. Top-tier service."
+          <footer class="text-sm not-italic mt-2" style="color: rgba(244,239,224,0.6);">— Dr. Kim, RN · Discharge Planner, Atrium Health</footer>
+        </blockquote>
+        <div class="flex flex-wrap gap-3">
+          <a href="mailto:hello@tassytrucks.com?subject=Facility%20Partnership%20Inquiry" class="btn-gold">Request a partnership call</a>
+          <a href="#" class="btn-ghost" style="color: #F4EFE0;">Create facility account →</a>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-surface rounded-2xl p-6">
+          <div class="serif text-3xl ink font-semibold">&lt; 30 min</div>
+          <div class="text-xs ink-mute uppercase tracking-wider mt-1">Avg. discharge pickup</div>
+        </div>
+        <div class="bg-surface rounded-2xl p-6">
+          <div class="serif text-3xl ink font-semibold">98%</div>
+          <div class="text-xs ink-mute uppercase tracking-wider mt-1">On-time arrival</div>
+        </div>
+        <div class="bg-surface rounded-2xl p-6 col-span-2">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Current facility partners</div>
+          <div class="flex flex-wrap gap-3 items-center">
+            <span class="pill">Atrium Health Charlotte</span>
+            <span class="pill">Aesthetic Carolina</span>
+            <span class="pill">Bataclan Pets</span>
+            <span class="pill" style="opacity: 0.5;">+ your facility</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="bg-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <div class="text-xs ink-mute uppercase tracking-[0.2em] mb-3">What clients say</div>
+        <h2 class="serif text-4xl lg:text-5xl ink font-semibold leading-tight tracking-[-0.02em]">
+          Trusted by Charlotte families<br>&amp; healthcare teams.
+        </h2>
+        <p class="text-sm ink-mute mt-4">4.9 ★ on Google · 15,000+ rides completed since 2021</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="testimonial-card">
+          <div class="text-3xl serif gold leading-none mb-4">"</div>
+          <blockquote class="serif text-base ink-soft leading-relaxed mb-6 flex-grow">
+            Tassy Transportation has been my lifeline for 8 months. They're always on time, the drivers are respectful, and I never miss my dialysis appointments. Worth every penny.
+          </blockquote>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-ink flex items-center justify-center">
+              <span class="text-xs text-white font-semibold serif">MH</span>
+            </div>
+            <div>
+              <div class="ink font-medium text-sm">Margaret H.</div>
+              <div class="ink-mute text-xs">Dialysis patient · Google Review</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="text-3xl serif gold leading-none mb-4">"</div>
+          <blockquote class="serif text-base ink-soft leading-relaxed mb-6 flex-grow">
+            We regularly refer patients to Tassy Transportation for post-procedure rides. Phil's team is HIPAA-aware, professional, and I've never had a complaint. Top-tier service.
+          </blockquote>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-ink flex items-center justify-center">
+              <span class="text-xs text-white font-semibold serif">DK</span>
+            </div>
+            <div>
+              <div class="ink font-medium text-sm">Dr. Kim, RN</div>
+              <div class="ink-mute text-xs">Discharge Planner · Atrium Health</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="text-3xl serif gold leading-none mb-4">"</div>
+          <blockquote class="serif text-base ink-soft leading-relaxed mb-6 flex-grow">
+            As a disabled vet, reliable transport is everything. Tassy treats you like family, not just a trip number. Phil truly built this with veterans in mind.
+          </blockquote>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-ink flex items-center justify-center">
+              <span class="text-xs text-white font-semibold serif">JT</span>
+            </div>
+            <div>
+              <div class="ink font-medium text-sm">James T.</div>
+              <div class="ink-mute text-xs">Army Veteran · Charlotte, NC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDER -->
+  <section id="founder" class="bg-surface border-y border-line">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-24 grid lg:grid-cols-[1fr_1.2fr] gap-14 items-center">
+      <div class="order-2 lg:order-1">
+        <div class="founder-portrait"></div>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="pill">🎖️ U.S. Army Veteran</span>
+          <span class="pill">SDVOSB Certified</span>
+          <span class="pill">Charlotte, NC</span>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2">
+        <div class="text-xs ink-mute uppercase tracking-[0.2em] mb-3">Built on service</div>
+        <h2 class="serif text-4xl lg:text-5xl ink font-semibold leading-tight tracking-[-0.02em] mb-6">
+          Driven by purpose.<br>Backed by uniform.
+        </h2>
+        <p class="ink-soft text-lg leading-relaxed mb-5">
+          Philippe "Phil" Tassy didn't take the easy road. Born and raised in Cameroon, he earned his Master's in the U.S. before enlisting in the U.S. Army — where he spent six years mastering logistics, strategic planning, and supply chain.
+        </p>
+        <p class="ink-soft text-lg leading-relaxed mb-5">
+          Today, Phil leads Tassy Transportation in Charlotte — a mission-driven company built on Army values: <em class="ink">on time, compliant, and caring</em>. We serve veterans, families, and patients with the same standard we'd want for our own.
+        </p>
+        <a href="#" class="btn-ghost text-sm font-medium ink">
+          Read Phil's full story →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRIVER RECRUITING -->
+  <section id="drivers" class="bg-cream border-b border-line">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-20 flex flex-col lg:flex-row items-center justify-between gap-10">
+      <div class="max-w-xl">
+        <div class="text-xs ink-mute uppercase tracking-[0.2em] mb-3">Drive with Tassy</div>
+        <h2 class="serif text-3xl lg:text-4xl ink font-semibold leading-tight tracking-[-0.02em] mb-4">
+          Steady medical trips. Real benefits. Customers who say thank you.
+        </h2>
+        <p class="ink-soft leading-relaxed">
+          We hire CNA-trained chauffeurs for VIP Concierge, and reliable owner-operators for NEMT and Winnie pet runs. Weekly pay, predictable routes, and a dispatcher who actually answers the phone.
+        </p>
+      </div>
+      <div class="flex flex-col items-end gap-3">
+        <a href="mailto:hello@tassytrucks.com?subject=Driver%20Application" class="btn-primary">Apply to drive →</a>
+        <a href="https://tassytrucksops.vercel.app/login" class="text-sm ink-mute hover:text-ink">Existing driver? Sign in to the app →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMING SOON MODAL -->
+  <div id="comingSoonModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4" style="background: rgba(27,26,23,0.6);">
+    <div class="bg-surface rounded-2xl shadow-2xl max-w-md w-full p-8 relative" onclick="event.stopPropagation()">
+      <button onclick="closeComingSoon()" class="absolute top-4 right-4 ink-mute hover:text-ink" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+      <div class="text-center">
+        <div class="w-14 h-14 rounded-full bg-ink mx-auto mb-5 flex items-center justify-center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-7 h-7"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="text-xs ink-mute uppercase tracking-[0.2em] mb-2">Coming soon</div>
+        <h3 class="serif text-2xl ink font-semibold mb-3" id="comingSoonFeature">Online Booking</h3>
+        <p class="ink-soft text-base leading-relaxed mb-6">
+          We're putting the finishing touches on this. In the meantime, our dispatch team is standing by — call us and we'll book your trip in under 2 minutes.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="tel:+17049418508" class="btn-gold justify-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M3 5a2 2 0 0 1 2-2h2.5a1 1 0 0 1 .96.73l1 3.5a1 1 0 0 1-.27 1L7.7 9.79a14 14 0 0 0 6.5 6.5l1.57-1.49a1 1 0 0 1 1-.27l3.5 1a1 1 0 0 1 .73.96V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5z"/></svg>
+            Call (704) 941-8508
+          </a>
+          <a href="mailto:hello@tassytrucks.com" class="btn-call justify-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email us
+          </a>
+        </div>
+        <p class="text-xs ink-mute mt-5">
+          Open 24/7 for medical &amp; emergency transport
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Intercept all placeholder links (href="#" or href="#book") and show the Coming Soon modal
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('comingSoonModal');
+      const featureLabel = document.getElementById('comingSoonFeature');
+      document.querySelectorAll('a').forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href === '#' || href === '#book') {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Try to derive a friendly feature name from the link text
+            const text = (link.textContent || '').trim().replace(/[→]/g, '').trim();
+            let feature = 'Online Booking';
+            if (text.toLowerCase().includes('book')) feature = text.replace(/book(\s+a)?/i, 'Book').trim() || 'Online Booking';
+            else if (text.toLowerCase().includes('facility')) feature = 'Facility Self-Onboarding';
+            else if (text.toLowerCase().includes('drive')) feature = 'Driver Applications';
+            else if (text.toLowerCase().includes('story') || text.toLowerCase().includes('about')) feature = 'About Page';
+            else if (text.toLowerCase().includes('safety')) feature = 'Safety Page';
+            else if (text.toLowerCase().includes('nemt')) feature = 'NEMT Service Page';
+            else if (text.toLowerCase().includes('vip')) feature = 'VIP Concierge Service Page';
+            else if (text.toLowerCase().includes('wheelchair')) feature = 'Wheelchair Service Page';
+            else if (text.toLowerCase().includes('winnie') || text.toLowerCase().includes('pet')) feature = 'Winnie Pet Service Page';
+            else if (text.toLowerCase().includes('student')) feature = 'Student Transport Service Page';
+            featureLabel.textContent = feature;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+          });
+        }
+      });
+      modal.addEventListener('click', closeComingSoon);
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeComingSoon();
+      });
+    });
+    function closeComingSoon() {
+      const modal = document.getElementById('comingSoonModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  </script>
+
+  <!-- FOOTER -->
+  <footer class="bg-ink">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
+      <div class="grid lg:grid-cols-5 gap-10 mb-12">
+        <div class="lg:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="logo-mark" style="background: rgba(229,169,59,0.15);">
+              <img src="https://www.tassytrucks.com/assets/logo%20tt-BxKNZqLK.png" alt="Tassy Trucks" class="w-full h-full object-contain">
+            </div>
+            <div>
+              <div class="serif text-xl font-semibold leading-none" style="color: #F4EFE0;">Tassy Trucks</div>
+              <div class="text-[10px] tracking-[0.18em] uppercase mt-1" style="color: rgba(244,239,224,0.55);">Premium Transport · Veteran-Owned</div>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed max-w-sm mb-6" style="color: rgba(244,239,224,0.65);">
+            We transport with care. Veteran-owned, Charlotte-rooted, proudly serving our community since 2021.
+          </p>
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="pill" style="background: rgba(229,169,59,0.12); border-color: rgba(229,169,59,0.3); color: var(--gold-warm);">🎖️ SDVOSB</span>
+            <span class="pill" style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: rgba(244,239,224,0.8);">HIPAA Compliant</span>
+            <span class="pill" style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: rgba(244,239,224,0.8);">NC DOT Licensed</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-[0.2em] mb-4" style="color: rgba(244,239,224,0.45);">Services</div>
+          <ul class="space-y-2 text-sm" style="color: rgba(244,239,224,0.8);">
+            <li><a href="#" style="opacity: 0.85;">NEMT</a></li>
+            <li><a href="#" style="opacity: 0.85;">VIP Concierge</a></li>
+            <li><a href="#" style="opacity: 0.85;">Wheelchair &amp; Stretcher</a></li>
+            <li><a href="#" style="opacity: 0.85;">Winnie Pet</a></li>
+            <li><a href="#" style="opacity: 0.85;">Student transport</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-[0.2em] mb-4" style="color: rgba(244,239,224,0.45);">Company</div>
+          <ul class="space-y-2 text-sm" style="color: rgba(244,239,224,0.8);">
+            <li><a href="#facilities" style="opacity: 0.85;">For Facilities</a></li>
+            <li><a href="#drivers" style="opacity: 0.85;">Drivers</a></li>
+            <li><a href="#founder" style="opacity: 0.85;">About Phil</a></li>
+            <li><a href="#" style="opacity: 0.85;">Safety</a></li>
+            <li><a href="mailto:hello@tassytrucks.com" style="opacity: 0.85;">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-[0.2em] mb-4" style="color: rgba(244,239,224,0.45);">Sign in</div>
+          <ul class="space-y-2 text-sm" style="color: rgba(244,239,224,0.8);">
+            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Customer</a></li>
+            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Facility portal</a></li>
+            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Driver app</a></li>
+            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Staff &amp; dispatch</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4" style="border-top: 1px solid rgba(244,239,224,0.1);">
+        <div class="text-xs" style="color: rgba(244,239,224,0.45);">
+          © 2026 Tassy Transportation LLC · USDOT #3104152 · MC #79222 · Licensed &amp; insured
+        </div>
+        <div class="text-xs flex items-center gap-4" style="color: rgba(244,239,224,0.45);">
+          <span>Charlotte, NC</span>
+          <a href="tel:+17049418508" class="hover:text-white" style="color: var(--gold-warm);">(704) 941-8508</a>
+          <a href="mailto:hello@tassytrucks.com" class="hover:text-white">hello@tassytrucks.com</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
