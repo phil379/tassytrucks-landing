@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tassy Trucks — Customer Flow Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --danger: #D4544A;
+    }
+    html, body { background: var(--bg); color: var(--ink); }
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); }
+    .ink-soft { color: var(--ink-soft); }
+    .ink-mute { color: var(--ink-mute); }
+    .gold { color: var(--gold); }
+    .bg-cream { background: var(--bg); }
+    .bg-ink { background: var(--ink); color: #F4EFE0; }
+    .bg-surface { background: var(--surface); }
+    .border-line { border-color: var(--line); }
+    .btn-gold {
+      background: var(--gold-warm); color: var(--ink); padding: 0.85rem 1.6rem;
+      border-radius: 10px; font-weight: 600; transition: transform .2s ease;
+      display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer;
+      border: none;
+    }
+    .btn-gold:hover { background: #D49A2E; transform: translateY(-1px); }
+    .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: transparent; color: var(--ink); padding: 0.85rem 1.4rem;
+      border-radius: 10px; font-weight: 500; cursor: pointer;
+      border: 1px solid var(--line);
+    }
+    .btn-ghost:hover { background: var(--surface); }
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.8rem; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--surface);
+      font-size: 0.78rem; color: var(--ink-soft); font-weight: 500;
+    }
+    .pill-gold {
+      background: rgba(229,169,59,0.12);
+      border-color: rgba(229,169,59,0.3);
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .service-card {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 2rem;
+      transition: all .25s ease;
+      cursor: pointer;
+    }
+    .service-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px -16px rgba(27,26,23,0.25);
+      border-color: var(--gold-warm);
+    }
+    .option-tile {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      cursor: pointer;
+      transition: all .15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+    .option-tile:hover { border-color: var(--gold); background: rgba(229,169,59,0.04); }
+    .option-tile.selected {
+      border-color: var(--gold-warm);
+      background: rgba(229,169,59,0.08);
+      box-shadow: 0 0 0 3px rgba(229,169,59,0.12);
+    }
+    .input-field {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      color: var(--ink);
+      transition: border-color .15s ease;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--gold-warm);
+      box-shadow: 0 0 0 3px rgba(229,169,59,0.15);
+    }
+    .step-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.8rem;
+      background: var(--line); color: var(--ink-soft);
+    }
+    .step-dot.active { background: var(--gold-warm); color: var(--ink); }
+    .step-dot.done { background: var(--ink); color: #F4EFE0; }
+    .progress-line {
+      flex: 1; height: 2px; background: var(--line); margin: 0 0.5rem;
+    }
+    .progress-line.done { background: var(--ink); }
+    /* Mock phone */
+    .phone-mock {
+      max-width: 380px;
+      background: #1B1A17;
+      border-radius: 36px;
+      padding: 20px;
+      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.4);
+      border: 8px solid #2A2722;
+    }
+    .phone-screen {
+      background: #F4F4F7;
+      border-radius: 24px;
+      overflow: hidden;
+      min-height: 600px;
+      position: relative;
+    }
+    .sms-bubble {
+      background: #FFFFFF;
+      border-radius: 18px;
+      padding: 10px 14px;
+      max-width: 80%;
+      font-size: 0.85rem;
+      color: #1B1A17;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .sms-meta { font-size: 0.65rem; color: #8E8E93; margin-bottom: 4px; padding: 0 8px; }
+    .hidden { display: none !important; }
+    /* Map placeholder */
+    .map-mock {
+      background:
+        linear-gradient(135deg, rgba(46,168,104,0.1), transparent),
+        repeating-linear-gradient(45deg, #E8E1D1 0 2px, transparent 2px 12px),
+        linear-gradient(to bottom, #E0E8DC, #D0DEC6);
+      border-radius: 14px;
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .map-route {
+      position: absolute;
+      top: 30%; left: 15%; right: 15%;
+      height: 3px; background: var(--gold-warm);
+      border-radius: 999px;
+      transform: rotate(-8deg);
+    }
+    .map-pin {
+      position: absolute;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .map-pin.pickup { background: #2EA868; top: 20%; left: 12%; }
+    .map-pin.dropoff { background: #D4544A; top: 50%; right: 10%; }
+    .nemt-color { color: #3B6EAA; }
+    .vip-color { color: #C8932E; }
+    .winnie-color { color: #5E8C4A; }
+    .nemt-bg { background: #3B6EAA; }
+    .vip-bg { background: var(--ink); }
+    .winnie-bg { background: #5E8C4A; }
+    .scroll-snap-wrap { scroll-snap-type: x mandatory; }
+    .scroll-snap-card { scroll-snap-align: start; }
+    .toast {
+      position: fixed; top: 24px; right: 24px;
+      background: var(--ink); color: #F4EFE0;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 12px 24px -8px rgba(0,0,0,0.25);
+      transform: translateX(120%); transition: transform .3s ease;
+      z-index: 100;
+    }
+    .toast.show { transform: translateX(0); }
+  </style>
+</head>
+<body class="bg-cream">
+
+<!-- DEV BANNER (always visible) -->
+<div class="bg-ink text-white py-2 text-center text-xs tracking-wider" style="background: var(--ink); color: rgba(244,239,224,0.85);">
+  🚧 CUSTOMER FLOW MOCKUP · INTERACTIVE PREVIEW · Click any service card to start
+  <button onclick="goHome()" class="ml-3 underline hover:text-white" style="color: var(--gold-warm);">↺ Reset</button>
+</div>
+
+<!-- ============================ HOME ============================ -->
+<section id="screen-home" class="screen min-h-screen">
+  <div class="max-w-6xl mx-auto px-6 py-16">
+    <div class="text-center mb-12">
+      <div class="pill pill-gold inline-flex mb-5">
+        <span>★</span><span>Customer Flow Preview · Tassy Trucks</span>
+      </div>
+      <h1 class="serif text-5xl lg:text-6xl ink font-semibold leading-[1.05] mb-5">
+        Pick a ride.<br><span class="italic" style="color: var(--gold);">See the entire journey.</span>
+      </h1>
+      <p class="ink-soft text-lg max-w-2xl mx-auto leading-relaxed">
+        Mockup of what your customers will experience after clicking a service card on tassytrucks.com. Click any card below to walk through the full booking flow — fields, steps, confirmation, and SMS preview included.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <!-- NEMT -->
+      <div class="service-card" onclick="startFlow('nemt')">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style="background: #3B6EAA;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-7 h-7"><path d="M12 2v20M2 12h20"/></svg>
+        </div>
+        <div class="text-xs ink-mute uppercase tracking-wider mb-1">Healthcare</div>
+        <h3 class="serif text-2xl ink font-semibold mb-3">NEMT</h3>
+        <p class="ink-soft text-sm leading-relaxed mb-5">
+          Non-emergency medical transport. Medicaid, broker, VA Community Care, or self-pay.
+        </p>
+        <ul class="text-xs ink-mute space-y-1.5 mb-5">
+          <li>· 8 steps to book</li>
+          <li>· Auto-validates broker auth</li>
+          <li>· ADA-compliant fleet</li>
+        </ul>
+        <div class="text-sm font-medium nemt-color flex items-center gap-2">
+          Start NEMT flow →
+        </div>
+      </div>
+
+      <!-- VIP -->
+      <div class="service-card" onclick="startFlow('vip')">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style="background: #1B1A17;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-7 h-7"><path d="M12 2l3 7h7l-5.5 5 2 8L12 18l-6.5 4 2-8L2 9h7z"/></svg>
+        </div>
+        <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--gold);">Premium</div>
+        <h3 class="serif text-2xl ink font-semibold mb-3">VIP Concierge</h3>
+        <p class="ink-soft text-sm leading-relaxed mb-5">
+          Discreet luxury transport for post-procedure, premium airport, and executive engagements.
+        </p>
+        <ul class="text-xs ink-mute space-y-1.5 mb-5">
+          <li>· 10 steps to book</li>
+          <li>· Discretion tiers + NDA</li>
+          <li>· Black Sedan + Black SUV</li>
+        </ul>
+        <div class="text-sm font-medium vip-color flex items-center gap-2">
+          Start VIP flow →
+        </div>
+      </div>
+
+      <!-- WINNIE -->
+      <div class="service-card" onclick="startFlow('winnie')">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style="background: #5E8C4A;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2" class="w-7 h-7">
+            <circle cx="5" cy="9" r="2"/><circle cx="9" cy="5" r="2"/>
+            <circle cx="15" cy="5" r="2"/><circle cx="19" cy="9" r="2"/>
+            <path d="M8 14c0-2 1.5-4 4-4s4 2 4 4-1.5 6-4 6-4-4-4-6z"/>
+          </svg>
+        </div>
+        <div class="text-xs ink-mute uppercase tracking-wider mb-1">Pet Care</div>
+        <h3 class="serif text-2xl ink font-semibold mb-3">Winnie Ride</h3>
+        <p class="ink-soft text-sm leading-relaxed mb-5">
+          Vet visits, grooming, daycare. Photo-verified pickups, climate-controlled vehicles.
+        </p>
+        <ul class="text-xs ink-mute space-y-1.5 mb-5">
+          <li>· 9 steps to book</li>
+          <li>· Vaccination auto-check</li>
+          <li>· Real-time tracking + photos</li>
+        </ul>
+        <div class="text-sm font-medium winnie-color flex items-center gap-2">
+          Start Winnie Ride flow →
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 max-w-4xl mx-auto bg-surface border border-line rounded-2xl p-7">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-3">What you'll see in each flow</div>
+      <div class="grid md:grid-cols-3 gap-6 text-sm">
+        <div>
+          <div class="font-semibold ink mb-1">1. Step-by-step wizard</div>
+          <p class="ink-soft">Each question tailored to the service. Skip irrelevant fields, validate in real-time.</p>
+        </div>
+        <div>
+          <div class="font-semibold ink mb-1">2. Live price preview</div>
+          <p class="ink-soft">Estimated fare updates as customer fills the form. No surge, no hidden fees.</p>
+        </div>
+        <div>
+          <div class="font-semibold ink mb-1">3. Confirmation + SMS</div>
+          <p class="ink-soft">PDF receipt + mock SMS thread showing the trip lifecycle from booking → completion.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ NEMT WIZARD ============================ -->
+<section id="screen-nemt" class="screen min-h-screen hidden">
+  <!-- Header -->
+  <div class="bg-ink py-4">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: #3B6EAA;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2.5" class="w-5 h-5"><path d="M12 2v20M2 12h20"/></svg>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Booking</div>
+          <div class="serif text-lg font-semibold" style="color: #F4EFE0;">NEMT Transport</div>
+        </div>
+      </div>
+      <button onclick="goHome()" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="bg-surface border-b border-line py-4">
+    <div class="max-w-3xl mx-auto px-6 flex items-center">
+      <div id="nemt-progress" class="flex items-center w-full"></div>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto px-6 py-10 pb-32">
+    <!-- Step 1: Who's paying -->
+    <div class="nemt-step" data-step="1">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 1 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Who's paying for this trip?</h2>
+      <p class="ink-soft mb-7">We tailor the booking to your payment source — no surprise charges.</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="option-tile" onclick="selectNemt('payer','medicaid', this)">
+          <div class="text-2xl">🟦</div>
+          <div>
+            <div class="font-semibold ink">Medicaid</div>
+            <div class="text-xs ink-mute">NC or SC Medicaid</div>
+          </div>
+        </div>
+        <div class="option-tile" onclick="selectNemt('payer','broker', this)">
+          <div class="text-2xl">🚐</div>
+          <div>
+            <div class="font-semibold ink">Medicare Advantage broker</div>
+            <div class="text-xs ink-mute">ModivCare, MTM, LogistiCare, Veyo, Access2Care</div>
+          </div>
+        </div>
+        <div class="option-tile" onclick="selectNemt('payer','va', this)">
+          <div class="text-2xl">🎖️</div>
+          <div>
+            <div class="font-semibold ink">VA Community Care</div>
+            <div class="text-xs ink-mute">Veteran benefit-eligible</div>
+          </div>
+        </div>
+        <div class="option-tile" onclick="selectNemt('payer','insurance', this)">
+          <div class="text-2xl">🏥</div>
+          <div>
+            <div class="font-semibold ink">Other insurance</div>
+            <div class="text-xs ink-mute">Blue Cross, Aetna, United, etc.</div>
+          </div>
+        </div>
+        <div class="option-tile sm:col-span-2" onclick="selectNemt('payer','self', this)">
+          <div class="text-2xl">💳</div>
+          <div>
+            <div class="font-semibold ink">Self-pay</div>
+            <div class="text-xs ink-mute">Pay by card · receipt by email</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Patient info -->
+    <div class="nemt-step hidden" data-step="2">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 2 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Patient information</h2>
+      <p class="ink-soft mb-7">Who's traveling? Booking on behalf of someone else? That's fine too.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Patient name</label>
+          <input type="text" class="input-field" placeholder="Margaret Holloway" value="Margaret Holloway">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Date of birth</label>
+            <input type="text" class="input-field" placeholder="MM/DD/YYYY" value="03/14/1948">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Phone</label>
+            <input type="text" class="input-field" placeholder="(704) 555-0100" value="(704) 555-0100">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Medicaid / broker member ID</label>
+          <input type="text" class="input-field" placeholder="NCMD-123456789" value="NCMD-789456123">
+        </div>
+        <label class="flex items-start gap-3 p-3 bg-cream rounded-lg cursor-pointer">
+          <input type="checkbox" class="mt-1">
+          <div>
+            <div class="font-medium ink text-sm">I'm booking for someone else</div>
+            <div class="text-xs ink-mute mt-0.5">Caregiver / family member workflow — adds your contact info as secondary</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 3: Trip details -->
+    <div class="nemt-step hidden" data-step="3">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 3 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Trip details</h2>
+      <p class="ink-soft mb-7">Where to, when, one-way or round trip.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pickup address</label>
+          <input type="text" class="input-field" placeholder="Home address" value="3106 Aransas Rd, Charlotte, NC 28214">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Destination</label>
+          <input type="text" class="input-field" placeholder="Search dialysis center, hospital, doctor's office" value="Atrium Health Dialysis — Pineville">
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span class="pill text-xs cursor-pointer hover:bg-cream">Atrium Pineville</span>
+            <span class="pill text-xs cursor-pointer hover:bg-cream">Novant Charlotte</span>
+            <span class="pill text-xs cursor-pointer hover:bg-cream">CMC Main</span>
+            <span class="pill text-xs cursor-pointer hover:bg-cream">+ Save for next time</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Date</label>
+            <input type="text" class="input-field" value="June 12, 2026">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pickup time</label>
+            <input type="text" class="input-field" value="8:30 AM">
+          </div>
+        </div>
+        <label class="flex items-start gap-3 p-3 bg-cream rounded-lg cursor-pointer">
+          <input type="checkbox" checked class="mt-1">
+          <div>
+            <div class="font-medium ink text-sm">Need a return ride</div>
+            <div class="text-xs ink-mute mt-0.5">Round trip — driver waits or returns on call</div>
+          </div>
+        </label>
+        <label class="flex items-start gap-3 p-3 bg-cream rounded-lg cursor-pointer">
+          <input type="checkbox" class="mt-1">
+          <div>
+            <div class="font-medium ink text-sm">Recurring trip</div>
+            <div class="text-xs ink-mute mt-0.5">Weekly schedule (Mon/Wed/Fri dialysis pattern) — set end date or "until cancelled"</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 4: Mobility -->
+    <div class="nemt-step hidden" data-step="4">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 4 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Mobility needs</h2>
+      <p class="ink-soft mb-7">Tells us what kind of vehicle to send.</p>
+      <div class="space-y-3">
+        <div class="option-tile" onclick="selectNemt('mobility','ambulatory', this)">
+          <div class="text-2xl">🚶</div>
+          <div>
+            <div class="font-semibold ink">Ambulatory</div>
+            <div class="text-xs ink-mute">Walks on own — standard sedan</div>
+          </div>
+        </div>
+        <div class="option-tile selected" onclick="selectNemt('mobility','walker', this)">
+          <div class="text-2xl">🦯</div>
+          <div>
+            <div class="font-semibold ink">Walker / cane</div>
+            <div class="text-xs ink-mute">Standard sedan with assistance</div>
+          </div>
+        </div>
+        <div class="option-tile" onclick="selectNemt('mobility','wheelchair', this)">
+          <div class="text-2xl">♿</div>
+          <div>
+            <div class="font-semibold ink">Wheelchair (standard or power)</div>
+            <div class="text-xs ink-mute">WAV-certified vehicle with ramp</div>
+          </div>
+        </div>
+        <div class="option-tile" onclick="selectNemt('mobility','stretcher', this)">
+          <div class="text-2xl">🛏</div>
+          <div>
+            <div class="font-semibold ink">Stretcher</div>
+            <div class="text-xs ink-mute">Stretcher-capable vehicle + 2 trained operators</div>
+          </div>
+        </div>
+        <div class="option-tile" onclick="selectNemt('mobility','bariatric', this)">
+          <div class="text-2xl">⚖️</div>
+          <div>
+            <div class="font-semibold ink">Bariatric (&gt; 350 lbs)</div>
+            <div class="text-xs ink-mute">Reinforced lift + trained team</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Preferences -->
+    <div class="nemt-step hidden" data-step="5">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 5 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Trip preferences</h2>
+      <p class="ink-soft mb-7">Any special needs for pickup or dropoff?</p>
+      <div class="space-y-3">
+        <div class="option-tile selected">
+          <div class="text-2xl">🚪</div>
+          <div>
+            <div class="font-semibold ink">Door-to-door (standard)</div>
+            <div class="text-xs ink-mute">Driver greets you at the door, walks you to the vehicle</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">🛗</div>
+          <div>
+            <div class="font-semibold ink">Door-through-door</div>
+            <div class="text-xs ink-mute">Driver escorts patient inside lobby, signs in at front desk (+$15)</div>
+          </div>
+        </div>
+        <div class="font-semibold text-sm ink mt-6 mb-2">Special needs</div>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer">
+          <input type="checkbox" class="text-gold"> <span class="text-sm ink-soft">Patient travels with oxygen</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer">
+          <input type="checkbox"> <span class="text-sm ink-soft">Caregiver escort traveling (no extra charge)</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer">
+          <input type="checkbox"> <span class="text-sm ink-soft">Sign language interpreter needed</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 6: Authorization -->
+    <div class="nemt-step hidden" data-step="6">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 6 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Broker authorization</h2>
+      <p class="ink-soft mb-7">For Medicaid/broker-paid trips, your authorization number unlocks the booking instantly.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Authorization #</label>
+          <div class="flex gap-2">
+            <input type="text" class="input-field flex-1" placeholder="MTM-789456-25" value="MTM-789456-25">
+            <button class="btn-gold text-sm">Verify</button>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-xs" style="color: var(--success);">
+            <span>✓</span>
+            <span>Authorization verified · MTM · Approved for round-trip dialysis · $0 copay</span>
+          </div>
+        </div>
+        <div class="p-4 rounded-lg" style="background: rgba(46,168,104,0.08); border: 1px solid rgba(46,168,104,0.2);">
+          <div class="font-medium ink text-sm mb-1">No authorization number?</div>
+          <p class="text-xs ink-soft mb-2">We can request pre-authorization on your behalf — typically 1-2 business days.</p>
+          <button class="text-xs font-medium" style="color: var(--success);">Request pre-authorization →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7: Review -->
+    <div class="nemt-step hidden" data-step="7">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 7 of 8</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Review your trip</h2>
+      <p class="ink-soft mb-7">Look it over before we lock it in.</p>
+      <div class="map-mock mb-6">
+        <div class="map-route"></div>
+        <div class="map-pin pickup"></div>
+        <div class="map-pin dropoff"></div>
+        <div class="absolute top-4 right-4 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow">
+          📍 11.4 mi · ~18 min
+        </div>
+      </div>
+      <div class="bg-surface border border-line rounded-xl divide-y divide-line">
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Patient</span><span class="text-sm font-medium ink">Margaret Holloway</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Payer</span><span class="text-sm font-medium ink">MTM · Auth verified ✓</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Pickup</span><span class="text-sm font-medium ink text-right">3106 Aransas Rd<br><span class="ink-mute">June 12 · 8:30 AM</span></span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Dropoff</span><span class="text-sm font-medium ink text-right">Atrium Pineville Dialysis</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Mobility</span><span class="text-sm font-medium ink">Walker, door-to-door</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Return</span><span class="text-sm font-medium ink">Yes — driver waits or returns on call</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Your cost</span><span class="text-lg font-bold gold">$0.00</span></div>
+      </div>
+    </div>
+
+    <!-- Step 8: Confirmation -->
+    <div class="nemt-step hidden" data-step="8">
+      <div class="text-center mb-10 mt-8">
+        <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-5" style="background: rgba(46,168,104,0.15);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2EA868" stroke-width="3" class="w-10 h-10"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--success);">Trip Booked</div>
+        <h2 class="serif text-4xl ink font-semibold mt-3 mb-2">TT-2415</h2>
+        <p class="ink-soft">Confirmation sent to (704) 555-0100 and your email.</p>
+      </div>
+      <div class="bg-surface border border-line rounded-2xl p-6 mb-6">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">What happens next</div>
+        <div class="space-y-3 text-sm">
+          <div class="flex items-start gap-3"><span class="serif font-bold text-lg gold">1</span><div><div class="font-medium ink">Driver assigned within 20 minutes</div><div class="ink-mute text-xs">You'll get driver name, photo, vehicle, and ETA via SMS.</div></div></div>
+          <div class="flex items-start gap-3"><span class="serif font-bold text-lg gold">2</span><div><div class="font-medium ink">Real-time tracking 24 hrs before pickup</div><div class="ink-mute text-xs">Live map link arrives the morning of your trip.</div></div></div>
+          <div class="flex items-start gap-3"><span class="serif font-bold text-lg gold">3</span><div><div class="font-medium ink">Driver arrives 5-10 min early</div><div class="ink-mute text-xs">If you need to reschedule, reply STOP to the SMS or call us.</div></div></div>
+        </div>
+      </div>
+      <button onclick="showSmsPreview()" class="btn-ghost w-full text-sm">📱 Preview SMS thread you'll see</button>
+    </div>
+
+    <!-- Nav buttons -->
+    <div class="mt-10 flex justify-between" id="nemt-nav">
+      <button onclick="navStep('nemt', -1)" class="btn-ghost" id="nemt-back">← Back</button>
+      <button onclick="navStep('nemt', 1)" class="btn-gold" id="nemt-next">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Sticky price bar -->
+  <div class="fixed bottom-0 left-0 right-0 bg-surface border-t border-line py-3" id="nemt-pricebar">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div>
+        <div class="text-xs ink-mute uppercase tracking-wider">Estimated cost</div>
+        <div class="serif text-xl ink font-semibold">$0.00 <span class="text-xs ink-mute font-normal">· Covered by MTM</span></div>
+      </div>
+      <a href="tel:+17049418508" class="text-xs ink-mute hover:ink">Need help? (704) 941-8508</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ VIP WIZARD ============================ -->
+<section id="screen-vip" class="screen min-h-screen hidden">
+  <div class="bg-ink py-4">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--gold-warm);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1B1A17" stroke-width="2.5" class="w-5 h-5"><path d="M12 2l3 7h7l-5.5 5 2 8L12 18l-6.5 4 2-8L2 9h7z"/></svg>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: var(--gold-warm);">Booking</div>
+          <div class="serif text-lg font-semibold" style="color: #F4EFE0;">VIP Concierge</div>
+        </div>
+      </div>
+      <button onclick="goHome()" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+    </div>
+  </div>
+
+  <div class="bg-surface border-b border-line py-4">
+    <div class="max-w-3xl mx-auto px-6 flex items-center">
+      <div id="vip-progress" class="flex items-center w-full"></div>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto px-6 py-10 pb-32">
+    <!-- Step 1: Engagement type -->
+    <div class="vip-step" data-step="1">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 1 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">What's this engagement for?</h2>
+      <p class="ink-soft mb-7">Helps us match the right driver and vehicle.</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="option-tile" onclick="selectVip('engagement','pre', this)"><div class="text-2xl">🏥</div><div><div class="font-semibold ink">Pre-procedure</div><div class="text-xs ink-mute">Taking you to the facility</div></div></div>
+        <div class="option-tile selected" onclick="selectVip('engagement','post', this)"><div class="text-2xl">🏠</div><div><div class="font-semibold ink">Post-procedure</div><div class="text-xs ink-mute">Recovery — bringing you home</div></div></div>
+        <div class="option-tile" onclick="selectVip('engagement','round', this)"><div class="text-2xl">↩️</div><div><div class="font-semibold ink">Round trip</div><div class="text-xs ink-mute">Both legs · driver waits</div></div></div>
+        <div class="option-tile" onclick="selectVip('engagement','airport', this)"><div class="text-2xl">✈️</div><div><div class="font-semibold ink">Premium airport</div><div class="text-xs ink-mute">CLT / private terminals</div></div></div>
+        <div class="option-tile sm:col-span-2" onclick="selectVip('engagement','event', this)"><div class="text-2xl">🎩</div><div><div class="font-semibold ink">Event chauffeur</div><div class="text-xs ink-mute">Premiere, gala, wedding · hourly rate</div></div></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Passenger count -->
+    <div class="vip-step hidden" data-step="2">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 2 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Who's traveling?</h2>
+      <p class="ink-soft mb-7">Companion or family members → companion details captured for vehicle access.</p>
+      <div class="space-y-3">
+        <div class="option-tile selected"><div class="text-2xl">👤</div><div><div class="font-semibold ink">Solo</div><div class="text-xs ink-mute">Just you · Black Sedan recommended</div></div></div>
+        <div class="option-tile"><div class="text-2xl">👥</div><div><div class="font-semibold ink">With companion</div><div class="text-xs ink-mute">Spouse, assistant, family member — name + contact required</div></div></div>
+        <div class="option-tile"><div class="text-2xl">👨‍👩‍👧</div><div><div class="font-semibold ink">Family entourage (3+)</div><div class="text-xs ink-mute">Auto-upgrades to Luxury SUV</div></div></div>
+      </div>
+    </div>
+
+    <!-- Step 3: Discretion -->
+    <div class="vip-step hidden" data-step="3">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 3 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Discretion level</h2>
+      <p class="ink-soft mb-7">Our protocol scales to your privacy needs.</p>
+      <div class="space-y-3">
+        <div class="option-tile selected">
+          <div class="text-2xl">⚪</div>
+          <div>
+            <div class="font-semibold ink">Standard</div>
+            <div class="text-xs ink-soft mt-1">Professional discreet service · standard arrival and departure protocols</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">🟡</div>
+          <div>
+            <div class="font-semibold ink">Heightened</div>
+            <div class="text-xs ink-soft mt-1">No client identification by name · side entrance preferred · vehicle make enforced per saved preference · NDA acknowledged</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">🔴</div>
+          <div>
+            <div class="font-semibold ink">Maximum</div>
+            <div class="text-xs ink-soft mt-1">No client callouts at any point · mandatory NDA per engagement · photo-free status updates · press-avoidance routing · driver signed confidentiality brief on arrival</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Trip details -->
+    <div class="vip-step hidden" data-step="4">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 4 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Trip details</h2>
+      <p class="ink-soft mb-7">Addresses are encrypted at rest. Driver sees them only at pickup time.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pickup</label>
+          <input type="text" class="input-field" value="Aesthetic Carolina · 500 S College St" placeholder="Facility / hotel / home">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Destination</label>
+          <input type="text" class="input-field" value="4425 Sharon Rd · Charlotte, NC 28211" placeholder="Where to">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Date</label>
+            <input type="text" class="input-field" value="June 12, 2026">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pickup time</label>
+            <input type="text" class="input-field" value="2:30 PM">
+          </div>
+        </div>
+        <div class="map-mock">
+          <div class="map-route"></div>
+          <div class="map-pin pickup"></div>
+          <div class="map-pin dropoff"></div>
+          <div class="absolute top-4 right-4 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow">📍 6.3 mi · ~14 min</div>
+        </div>
+        <label class="flex items-center gap-3 p-3 bg-cream rounded-lg cursor-pointer">
+          <input type="checkbox" class="mt-1">
+          <div>
+            <div class="font-medium ink text-sm">Return ride needed</div>
+            <div class="text-xs ink-mute mt-0.5">Driver waits or returns on call (flexible up to 6 hrs)</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 5: Vehicle -->
+    <div class="vip-step hidden" data-step="5">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 5 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Vehicle class</h2>
+      <p class="ink-soft mb-7">All black, all premium.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="option-tile selected flex-col items-stretch p-6">
+          <div class="text-4xl mb-3">🚙</div>
+          <div class="font-semibold ink text-lg">Luxury Sedan</div>
+          <div class="text-xs ink-mute mt-1">Black · Up to 3 passengers</div>
+          <div class="text-xs ink-soft mt-3">Cadillac CT5 / Mercedes E-Class / BMW 5 Series equivalent</div>
+        </div>
+        <div class="option-tile flex-col items-stretch p-6">
+          <div class="text-4xl mb-3">🚐</div>
+          <div class="font-semibold ink text-lg">Luxury SUV</div>
+          <div class="text-xs ink-mute mt-1">Black · Up to 6 passengers</div>
+          <div class="text-xs ink-soft mt-3">Cadillac Escalade / Lincoln Navigator / Mercedes GLS equivalent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: Special requests -->
+    <div class="vip-step hidden" data-step="6">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 6 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Special requests</h2>
+      <p class="ink-soft mb-7">Optional — anything we should know.</p>
+      <div class="space-y-3">
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer"><input type="checkbox" checked> <span class="text-sm ink-soft">No interim stops</span></label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer"><input type="checkbox"> <span class="text-sm ink-soft">Silent entry / no greeting protocol</span></label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer"><input type="checkbox"> <span class="text-sm ink-soft">Female driver requested</span></label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer"><input type="checkbox" checked> <span class="text-sm ink-soft">Private entrance preferred</span></label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer"><input type="checkbox"> <span class="text-sm ink-soft">NDA required for driver</span></label>
+        <label class="flex items-center gap-3 p-3 border border-line rounded-lg cursor-pointer"><input type="checkbox"> <span class="text-sm ink-soft">Companion privacy (no visible interaction with driver)</span></label>
+      </div>
+    </div>
+
+    <!-- Step 7: Client info -->
+    <div class="vip-step hidden" data-step="7">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 7 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Your information</h2>
+      <p class="ink-soft mb-7">Save profile for one-tap rebooking next time.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Name</label>
+          <input type="text" class="input-field" value="Lauren Bart">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Phone</label>
+            <input type="text" class="input-field" value="(704) 555-0142">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Email</label>
+            <input type="text" class="input-field" value="lauren@example.com">
+          </div>
+        </div>
+        <label class="flex items-start gap-3 p-3 bg-cream rounded-lg cursor-pointer">
+          <input type="checkbox" checked class="mt-1">
+          <div>
+            <div class="font-medium ink text-sm">Save as VIP profile</div>
+            <div class="text-xs ink-mute mt-0.5">Enables one-tap rebook, preference memory, discretion settings persist</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 8: Payment -->
+    <div class="vip-step hidden" data-step="8">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 8 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Payment</h2>
+      <p class="ink-soft mb-7">Premium luxury rate · Final billed at completion · No insurance billing.</p>
+      <div class="space-y-3">
+        <div class="option-tile selected">
+          <div class="text-2xl">💳</div>
+          <div>
+            <div class="font-semibold ink">Private Card</div>
+            <div class="text-xs ink-mute">Stripe · saved card on profile</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">🎫</div>
+          <div>
+            <div class="font-semibold ink">Concierge Pass</div>
+            <div class="text-xs ink-mute">Subscription members · 15% credit applied</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">🏥</div>
+          <div>
+            <div class="font-semibold ink">Practice Account</div>
+            <div class="text-xs ink-mute">Bill to facility on file (Aesthetic Carolina)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 9: Review -->
+    <div class="vip-step hidden" data-step="9">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 9 of 10</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Confirm engagement</h2>
+      <p class="ink-soft mb-7">Review and confirm — receipt generates on confirmation.</p>
+      <div class="bg-surface border border-line rounded-xl divide-y divide-line">
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Engagement</span><span class="text-sm font-medium ink">Post-procedure · Solo</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Discretion</span><span class="text-sm font-medium ink">Standard</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Pickup</span><span class="text-sm font-medium ink text-right">Aesthetic Carolina<br><span class="ink-mute">June 12 · 2:30 PM</span></span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Destination</span><span class="text-sm font-medium ink">4425 Sharon Rd</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Vehicle</span><span class="text-sm font-medium ink">Luxury Sedan (Black)</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Special</span><span class="text-sm font-medium ink text-right">No interim stops<br>Private entrance</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Payment</span><span class="text-sm font-medium ink">Private Card · •••• 4242</span></div>
+        <div class="p-4 flex justify-between items-center"><span class="text-sm ink-mute">Estimated total</span><span class="serif text-2xl font-bold gold">$202.35</span></div>
+      </div>
+    </div>
+
+    <!-- Step 10: Done -->
+    <div class="vip-step hidden" data-step="10">
+      <div class="text-center mb-8 mt-8">
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--gold);">Engagement Confirmed</div>
+        <h2 class="serif text-5xl ink font-semibold mt-3 mb-2">B-52 · LB</h2>
+        <p class="ink-soft">Engagement #1 · Trip #46 · Audit log written</p>
+      </div>
+      <div class="bg-ink rounded-2xl p-6 mb-6" style="color: #F4EFE0;">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--gold-warm);">TASSY TRUCKS</div>
+        <div class="serif text-xs mb-4" style="color: rgba(244,239,224,0.6);">VIP CONCIERGE · ENGAGEMENT RECEIPT</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span style="color: rgba(244,239,224,0.6);">Facility</span><span>Aesthetic Carolina</span></div>
+          <div class="flex justify-between"><span style="color: rgba(244,239,224,0.6);">Client</span><span>B-52 · LB</span></div>
+          <div class="flex justify-between"><span style="color: rgba(244,239,224,0.6);">Engagement</span><span>Post-procedure</span></div>
+          <div class="flex justify-between"><span style="color: rgba(244,239,224,0.6);">Departure</span><span>June 12 · 2:30 PM</span></div>
+          <div class="flex justify-between"><span style="color: rgba(244,239,224,0.6);">Vehicle</span><span>Luxury Sedan</span></div>
+          <div class="flex justify-between"><span style="color: rgba(244,239,224,0.6);">Total estimate</span><span class="font-bold" style="color: var(--gold-warm);">$202.35</span></div>
+        </div>
+        <div class="text-[10px] mt-5 pt-3 border-t" style="color: rgba(244,239,224,0.4); border-color: rgba(244,239,224,0.1);">USDOT #3104152 · MC #79222 · (704) 941-8508</div>
+      </div>
+      <div class="flex gap-3 mb-6">
+        <button class="btn-gold flex-1">📄 Download Receipt</button>
+        <button class="btn-ghost flex-1">✉️ Email Receipt</button>
+      </div>
+      <button onclick="showSmsPreview('vip')" class="btn-ghost w-full text-sm">📱 Preview SMS thread</button>
+    </div>
+
+    <div class="mt-10 flex justify-between" id="vip-nav">
+      <button onclick="navStep('vip', -1)" class="btn-ghost" id="vip-back">← Back</button>
+      <button onclick="navStep('vip', 1)" class="btn-gold" id="vip-next">Continue →</button>
+    </div>
+  </div>
+
+  <div class="fixed bottom-0 left-0 right-0 bg-surface border-t border-line py-3" id="vip-pricebar">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div>
+        <div class="text-xs ink-mute uppercase tracking-wider">Estimated total</div>
+        <div class="serif text-xl ink font-semibold">$202.35 <span class="text-xs ink-mute font-normal">· Premium luxury</span></div>
+      </div>
+      <a href="tel:+17049418508" class="text-xs ink-mute hover:ink">Concierge: (704) 941-8508</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WINNIE WIZARD ============================ -->
+<section id="screen-winnie" class="screen min-h-screen hidden">
+  <div class="bg-ink py-4">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: #5E8C4A;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E5A93B" stroke-width="2.5" class="w-5 h-5">
+            <circle cx="5" cy="9" r="2"/><circle cx="9" cy="5" r="2"/>
+            <circle cx="15" cy="5" r="2"/><circle cx="19" cy="9" r="2"/>
+            <path d="M8 14c0-2 1.5-4 4-4s4 2 4 4-1.5 6-4 6-4-4-4-6z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Booking</div>
+          <div class="serif text-lg font-semibold" style="color: #F4EFE0;">Winnie Ride</div>
+        </div>
+      </div>
+      <button onclick="goHome()" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+    </div>
+  </div>
+
+  <div class="bg-surface border-b border-line py-4">
+    <div class="max-w-3xl mx-auto px-6 flex items-center">
+      <div id="winnie-progress" class="flex items-center w-full"></div>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto px-6 py-10 pb-32">
+    <!-- Step 1: Pet -->
+    <div class="winnie-step" data-step="1">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 1 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Who's riding today?</h2>
+      <p class="ink-soft mb-7">Pick a saved pet or add a new one.</p>
+      <div class="grid sm:grid-cols-3 gap-3 mb-4">
+        <div class="option-tile selected flex-col items-stretch p-4">
+          <div class="text-3xl">🐕</div>
+          <div class="font-semibold ink mt-2">Biscuit</div>
+          <div class="text-xs ink-mute">Golden Retriever · 7 yrs</div>
+        </div>
+        <div class="option-tile flex-col items-stretch p-4">
+          <div class="text-3xl">🐈</div>
+          <div class="font-semibold ink mt-2">Mochi</div>
+          <div class="text-xs ink-mute">Calico · 4 yrs</div>
+        </div>
+        <div class="option-tile flex-col items-stretch p-4 justify-center text-center">
+          <div class="text-3xl">+</div>
+          <div class="font-semibold ink mt-2">Add a pet</div>
+        </div>
+      </div>
+      <div class="bg-cream rounded-lg p-4 text-xs ink-soft">
+        Biscuit · 65 lbs · Microchipped · Rabies through 11/2026 · Bordetella through 09/2026
+      </div>
+    </div>
+
+    <!-- Step 2: Care needs -->
+    <div class="winnie-step hidden" data-step="2">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 2 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Care needs for Biscuit</h2>
+      <p class="ink-soft mb-7">Helps us prep the right driver and vehicle.</p>
+      <div class="space-y-3">
+        <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+          <div class="flex items-center gap-3"><span class="text-xl">📦</span> <div><div class="font-medium ink text-sm">I'll provide a carrier</div><div class="text-xs ink-mute">Otherwise we bring one</div></div></div>
+          <input type="checkbox" checked>
+        </label>
+        <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+          <div class="flex items-center gap-3"><span class="text-xl">💊</span> <div><div class="font-medium ink text-sm">Sedation required</div><div class="text-xs ink-mute">Vet name + medication needed</div></div></div>
+          <input type="checkbox">
+        </label>
+        <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+          <div class="flex items-center gap-3"><span class="text-xl">♿</span> <div><div class="font-medium ink text-sm">Service animal</div><div class="text-xs ink-mute">ADA · never refused · no fee</div></div></div>
+          <input type="checkbox">
+        </label>
+        <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+          <div class="flex items-center gap-3"><span class="text-xl">🦴</span> <div><div class="font-medium ink text-sm">Treats OK during trip</div><div class="text-xs ink-mute">List allergies if any</div></div></div>
+          <input type="checkbox" checked>
+        </label>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5 mt-3">Anxiety / handling notes</label>
+          <textarea class="input-field" rows="3" placeholder="Biscuit gets nervous in unfamiliar vehicles. Loves belly rubs.">Biscuit is calm but doesn't love strangers at first. Treats help. Calm voice works best.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Trip type -->
+    <div class="winnie-step hidden" data-step="3">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 3 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Where to?</h2>
+      <p class="ink-soft mb-7">Pick the trip type.</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="option-tile selected"><div class="text-2xl">🩺</div><div><div class="font-semibold ink">Vet visit</div><div class="text-xs ink-mute">Round trip standard</div></div></div>
+        <div class="option-tile"><div class="text-2xl">✂️</div><div><div class="font-semibold ink">Grooming</div><div class="text-xs ink-mute">Round trip · waits at salon</div></div></div>
+        <div class="option-tile"><div class="text-2xl">🐾</div><div><div class="font-semibold ink">Daycare drop-off</div><div class="text-xs ink-mute">One-way</div></div></div>
+        <div class="option-tile"><div class="text-2xl">🏠</div><div><div class="font-semibold ink">Daycare pickup</div><div class="text-xs ink-mute">One-way</div></div></div>
+        <div class="option-tile"><div class="text-2xl">🏨</div><div><div class="font-semibold ink">Boarding drop-off</div><div class="text-xs ink-mute">One-way · long-term boarding</div></div></div>
+        <div class="option-tile"><div class="text-2xl">🚪</div><div><div class="font-semibold ink">Boarding pickup</div><div class="text-xs ink-mute">One-way</div></div></div>
+      </div>
+      <label class="flex items-start gap-3 p-3 bg-cream rounded-lg cursor-pointer mt-4">
+        <input type="checkbox" class="mt-1">
+        <div>
+          <div class="font-medium ink text-sm">Make this recurring</div>
+          <div class="text-xs ink-mute mt-0.5">Weekly daycare schedule · auto-book each Monday</div>
+        </div>
+      </label>
+    </div>
+
+    <!-- Step 4: Trip details -->
+    <div class="winnie-step hidden" data-step="4">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 4 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Trip details</h2>
+      <p class="ink-soft mb-7">Where, when, how many pets.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pickup (home)</label>
+          <input type="text" class="input-field" value="1247 Magnolia Ave, Charlotte, NC 28203">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Destination</label>
+          <input type="text" class="input-field" value="Carolina Animal Hospital · Pineville">
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span class="pill text-xs cursor-pointer">Carolina Animal Hospital</span>
+            <span class="pill text-xs cursor-pointer">Bataclan Pets Grooming</span>
+            <span class="pill text-xs cursor-pointer">Camp Bow Wow</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Date</label>
+            <input type="text" class="input-field" value="June 12">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pickup time</label>
+            <input type="text" class="input-field" value="10:00 AM">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Return</label>
+            <input type="text" class="input-field" value="12:30 PM">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Pets traveling</label>
+          <select class="input-field">
+            <option>1 — just Biscuit</option>
+            <option>2 pets</option>
+            <option>3+ pets (vehicle upgrade)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Owner info -->
+    <div class="winnie-step hidden" data-step="5">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 5 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Owner information</h2>
+      <p class="ink-soft mb-7">We'll text you tracking, photos, and status updates.</p>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Your name</label>
+            <input type="text" class="input-field" value="Sarah Mitchell">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Phone</label>
+            <input type="text" class="input-field" value="(704) 555-0188">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Email</label>
+          <input type="text" class="input-field" value="sarah@example.com">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Emergency contact</label>
+          <input type="text" class="input-field" value="Marcus (husband) · (704) 555-0189">
+          <div class="text-xs ink-mute mt-1">Used if you're unreachable at dropoff</div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Veterinarian contact</label>
+          <input type="text" class="input-field" value="Dr. Patel · Carolina Animal Hospital · (704) 555-VETS">
+          <div class="text-xs ink-mute mt-1">For medical emergencies en route</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: Vaccination check -->
+    <div class="winnie-step hidden" data-step="6">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 6 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Vaccination check</h2>
+      <p class="ink-soft mb-7">We verify against destination requirements automatically.</p>
+      <div class="space-y-3">
+        <div class="p-4 rounded-lg border" style="background: rgba(46,168,104,0.06); border-color: rgba(46,168,104,0.2);">
+          <div class="flex justify-between items-center"><span class="text-sm font-medium ink">💉 Rabies</span><span class="text-xs font-medium" style="color: var(--success);">✓ Valid through 11/2026</span></div>
+        </div>
+        <div class="p-4 rounded-lg border" style="background: rgba(46,168,104,0.06); border-color: rgba(46,168,104,0.2);">
+          <div class="flex justify-between items-center"><span class="text-sm font-medium ink">💉 Bordetella</span><span class="text-xs font-medium" style="color: var(--success);">✓ Valid through 09/2026</span></div>
+        </div>
+        <div class="p-4 rounded-lg border" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.2);">
+          <div class="flex justify-between items-center"><span class="text-sm font-medium ink">💉 Distemper / Parvo (DHPP)</span><span class="text-xs font-medium" style="color: var(--gold);">⚠ Not on file</span></div>
+          <div class="text-xs ink-soft mt-2">Carolina Animal Hospital recommends DHPP. Upload record or proceed without — your call.</div>
+          <div class="flex gap-2 mt-2">
+            <button class="text-xs btn-ghost py-1 px-3">Upload record</button>
+            <button class="text-xs btn-ghost py-1 px-3">Skip for now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7: Payment -->
+    <div class="winnie-step hidden" data-step="7">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 7 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Payment</h2>
+      <p class="ink-soft mb-7">Save for future bookings — one-tap rebook.</p>
+      <div class="space-y-3">
+        <div class="option-tile selected">
+          <div class="text-2xl">💳</div>
+          <div>
+            <div class="font-semibold ink">Visa •••• 4242</div>
+            <div class="text-xs ink-mute">Saved on file · expires 09/2028</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">➕</div>
+          <div>
+            <div class="font-semibold ink">Use a different card</div>
+            <div class="text-xs ink-mute">Add new payment method</div>
+          </div>
+        </div>
+        <div class="option-tile">
+          <div class="text-2xl">💰</div>
+          <div>
+            <div class="font-semibold ink">Pay at completion</div>
+            <div class="text-xs ink-mute">Driver collects via app at dropoff</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8: Review -->
+    <div class="winnie-step hidden" data-step="8">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-2">Step 8 of 9</div>
+      <h2 class="serif text-3xl ink font-semibold mb-2">Review trip</h2>
+      <p class="ink-soft mb-7">Confirm and we're off.</p>
+      <div class="map-mock mb-6">
+        <div class="map-route"></div>
+        <div class="map-pin pickup"></div>
+        <div class="map-pin dropoff"></div>
+        <div class="absolute top-4 right-4 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow">📍 8.1 mi · ~16 min</div>
+      </div>
+      <div class="bg-surface border border-line rounded-xl divide-y divide-line">
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Pet</span><span class="text-sm font-medium ink">Biscuit (Golden Retriever, 65 lbs)</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Trip type</span><span class="text-sm font-medium ink">Vet visit · round trip</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Pickup</span><span class="text-sm font-medium ink text-right">1247 Magnolia Ave<br><span class="ink-mute">June 12 · 10:00 AM</span></span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Destination</span><span class="text-sm font-medium ink">Carolina Animal Hospital</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Return</span><span class="text-sm font-medium ink">12:30 PM (driver waits)</span></div>
+        <div class="p-4 flex justify-between"><span class="text-sm ink-mute">Care</span><span class="text-sm font-medium ink text-right">Own carrier · treats OK</span></div>
+        <div class="p-4 flex justify-between items-center"><span class="text-sm ink-mute">Estimated total</span><span class="serif text-2xl font-bold gold">$72.40</span></div>
+      </div>
+    </div>
+
+    <!-- Step 9: Done -->
+    <div class="winnie-step hidden" data-step="9">
+      <div class="text-center mb-8 mt-8">
+        <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-5" style="background: rgba(46,168,104,0.15);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2EA868" stroke-width="3" class="w-10 h-10"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--success);">Pickup Booked</div>
+        <h2 class="serif text-4xl ink font-semibold mt-3 mb-2">WIN-1203</h2>
+        <p class="ink-soft">Biscuit's ride is scheduled. We'll text you when the driver is assigned.</p>
+      </div>
+      <div class="bg-cream rounded-2xl p-5 mb-6 border border-line">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">🐕</div>
+          <div class="flex-1">
+            <div class="font-semibold ink mb-1">What we'll send you</div>
+            <ul class="text-xs ink-soft space-y-1">
+              <li>📸 <strong>Photo verification</strong> of Biscuit when driver arrives</li>
+              <li>📍 <strong>Live tracking link</strong> during the trip</li>
+              <li>🏥 <strong>Photo at the vet</strong> confirming safe handoff</li>
+              <li>🏠 <strong>Drop-off photo</strong> when Biscuit's home safe</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <button onclick="showSmsPreview('winnie')" class="btn-ghost w-full text-sm">📱 Preview SMS thread</button>
+    </div>
+
+    <div class="mt-10 flex justify-between" id="winnie-nav">
+      <button onclick="navStep('winnie', -1)" class="btn-ghost" id="winnie-back">← Back</button>
+      <button onclick="navStep('winnie', 1)" class="btn-gold" id="winnie-next">Continue →</button>
+    </div>
+  </div>
+
+  <div class="fixed bottom-0 left-0 right-0 bg-surface border-t border-line py-3" id="winnie-pricebar">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div>
+        <div class="text-xs ink-mute uppercase tracking-wider">Estimated total</div>
+        <div class="serif text-xl ink font-semibold">$72.40 <span class="text-xs ink-mute font-normal">· 1 pet · round trip</span></div>
+      </div>
+      <a href="tel:+17049418508" class="text-xs ink-mute hover:ink">Need help? (704) 941-8508</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SMS PREVIEW ============================ -->
+<section id="screen-sms" class="screen min-h-screen hidden">
+  <div class="bg-ink py-4">
+    <div class="max-w-4xl mx-auto px-6 flex items-center justify-between">
+      <div>
+        <div class="text-xs uppercase tracking-wider" style="color: var(--gold-warm);">Post-Booking · Universal</div>
+        <div class="serif text-lg font-semibold" style="color: #F4EFE0;">What your customer sees on their phone</div>
+      </div>
+      <button onclick="goHome()" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-6 py-10">
+    <div class="text-center mb-10">
+      <h2 class="serif text-3xl ink font-semibold mb-3">The lifecycle, in 6 messages</h2>
+      <p class="ink-soft max-w-2xl mx-auto">Every service line — NEMT, VIP, Winnie Ride — gets the same world-class post-booking experience. SMS lands automatically as the trip moves through its lifecycle.</p>
+    </div>
+
+    <div class="phone-mock mx-auto">
+      <div class="phone-screen p-4 pt-12">
+        <!-- Header bar -->
+        <div class="absolute top-0 left-0 right-0 bg-white px-4 py-2 flex items-center gap-3 border-b" style="border-color: #E5E5EA;">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center bg-ink" style="background: var(--ink);">
+            <span class="text-xs font-bold" style="color: var(--gold-warm);">T</span>
+          </div>
+          <div>
+            <div class="text-sm font-semibold">Tassy Trucks</div>
+            <div class="text-[10px] text-gray-500">(704) 941-8508</div>
+          </div>
+        </div>
+
+        <div class="space-y-3 mt-6">
+          <div class="sms-meta text-center">Today 8:14 AM</div>
+          <div class="sms-bubble">
+            <strong>Trip TT-2415 booked.</strong> Driver will be assigned shortly. We'll text you their name + photo + ETA. Reply STOP to cancel.
+          </div>
+
+          <div class="sms-meta text-center">8:32 AM</div>
+          <div class="sms-bubble">
+            Your driver is <strong>Marcus T.</strong> 🚐 Black Cadillac Escalade · plate XYZ-1234. ETA 22 minutes.<br><br>
+            <span style="color: #007AFF;">View profile + live track →</span>
+          </div>
+
+          <div class="sms-meta text-center">8:50 AM</div>
+          <div class="sms-bubble">
+            Marcus is <strong>8 minutes away.</strong> 📍
+          </div>
+
+          <div class="sms-meta text-center">8:58 AM</div>
+          <div class="sms-bubble">
+            ✅ Marcus has arrived. Black Cadillac Escalade.
+          </div>
+
+          <div class="sms-meta text-center">9:02 AM</div>
+          <div class="sms-bubble">
+            🚗 Trip started. Estimated arrival 9:24 AM.<br><br>
+            <span style="color: #007AFF;">Live tracking →</span>
+          </div>
+
+          <div class="sms-meta text-center">9:28 AM</div>
+          <div class="sms-bubble">
+            ✓ Trip complete. Thanks for riding Tassy.<br><br>
+            ⭐ Rate Marcus · <span style="color: #007AFF;">Receipt sent to lauren@…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto mt-10 bg-surface border border-line rounded-2xl p-6">
+      <div class="text-xs ink-mute uppercase tracking-wider mb-3">Why this matters</div>
+      <div class="grid md:grid-cols-3 gap-5 text-sm">
+        <div>
+          <div class="font-semibold ink mb-1">Zero anxiety</div>
+          <p class="ink-soft">Customer never wonders "is my driver coming?" — they know the answer the moment it changes.</p>
+        </div>
+        <div>
+          <div class="font-semibold ink mb-1">Family loop-in</div>
+          <p class="ink-soft">For NEMT and pet trips, the family/owner gets the same texts. Trust by transparency.</p>
+        </div>
+        <div>
+          <div class="font-semibold ink mb-1">Repeat customer hook</div>
+          <p class="ink-soft">Receipt + rating + one-tap rebook builds a loyalty loop without manual follow-up.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-10">
+      <button onclick="goHome()" class="btn-gold">← Back to flows</button>
+    </div>
+  </div>
+</section>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const state = { nemt: 1, vip: 1, winnie: 1 };
+  const steps = { nemt: 8, vip: 10, winnie: 9 };
+  let suppressHistory = false;
+
+  // -----------------------------------------------------------------
+  // URL hash <-> state mapping for browser back/forward + shareable links
+  //   #home              → home screen
+  //   #nemt-3            → NEMT wizard, step 3
+  //   #vip-7             → VIP wizard, step 7
+  //   #winnie-5          → Winnie wizard, step 5
+  //   #sms               → SMS preview
+  // -----------------------------------------------------------------
+
+  function buildHash(screen, step) {
+    if (screen === 'home') return '#home';
+    if (screen === 'sms') return '#sms';
+    return `#${screen}-${step || 1}`;
+  }
+
+  function pushHistory(screen, step) {
+    if (suppressHistory) return;
+    const hash = buildHash(screen, step);
+    if (location.hash !== hash) {
+      history.pushState({ screen, step }, '', hash);
+    }
+  }
+
+  function parseHash() {
+    const h = location.hash.replace('#', '');
+    if (!h || h === 'home') return { screen: 'home' };
+    if (h === 'sms') return { screen: 'sms' };
+    const [screen, step] = h.split('-');
+    if (['nemt','vip','winnie'].includes(screen)) {
+      const s = parseInt(step) || 1;
+      return { screen, step: Math.min(Math.max(s, 1), steps[screen]) };
+    }
+    return { screen: 'home' };
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-' + id).classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goHome() {
+    showScreen('home');
+    pushHistory('home');
+  }
+
+  function startFlow(svc) {
+    state[svc] = 1;
+    renderProgress(svc);
+    renderStep(svc);
+    showScreen(svc);
+    pushHistory(svc, 1);
+  }
+
+  function renderProgress(svc) {
+    const container = document.getElementById(svc + '-progress');
+    const total = steps[svc];
+    const current = state[svc];
+    let html = '';
+    for (let i = 1; i <= total; i++) {
+      const cls = i < current ? 'done' : i === current ? 'active' : '';
+      html += `<span class="step-dot ${cls}">${i < current ? '✓' : i}</span>`;
+      if (i < total) html += `<span class="progress-line ${i < current ? 'done' : ''}"></span>`;
+    }
+    container.innerHTML = html;
+  }
+
+  function renderStep(svc) {
+    document.querySelectorAll('.' + svc + '-step').forEach(el => {
+      el.classList.toggle('hidden', parseInt(el.dataset.step) !== state[svc]);
+    });
+    const last = state[svc] === steps[svc];
+    const isReview = state[svc] === steps[svc] - 1;
+    const nextBtn = document.getElementById(svc + '-next');
+    if (last) {
+      nextBtn.textContent = 'Book another →';
+      nextBtn.onclick = () => goHome();
+    } else if (isReview) {
+      nextBtn.textContent = svc === 'vip' ? '✓ Confirm Engagement' : '✓ Book Trip';
+      nextBtn.onclick = () => navStep(svc, 1);
+    } else {
+      nextBtn.textContent = 'Continue →';
+      nextBtn.onclick = () => navStep(svc, 1);
+    }
+    document.getElementById(svc + '-back').style.visibility = state[svc] === 1 ? 'hidden' : 'visible';
+    // Wire the in-page Back button to also go back in browser history
+    document.getElementById(svc + '-back').onclick = () => {
+      if (state[svc] > 1) {
+        navStep(svc, -1);
+      }
+    };
+    // Hide pricebar on confirmation screen
+    document.getElementById(svc + '-pricebar').style.display = last ? 'none' : 'block';
+  }
+
+  function navStep(svc, dir) {
+    state[svc] = Math.min(Math.max(state[svc] + dir, 1), steps[svc]);
+    renderProgress(svc);
+    renderStep(svc);
+    pushHistory(svc, state[svc]);
+    if (dir > 0 && state[svc] === steps[svc]) {
+      toast(svc === 'vip' ? 'Engagement confirmed · Receipt sent' : 'Trip booked · SMS sent');
+    }
+  }
+
+  function selectNemt(field, val, el) {
+    if (el) {
+      el.parentNode.querySelectorAll('.option-tile').forEach(t => t.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  }
+  function selectVip(field, val, el) { selectNemt(field, val, el); }
+  function selectWinnie(field, val, el) { selectNemt(field, val, el); }
+
+  function showSmsPreview(svc) {
+    showScreen('sms');
+    pushHistory('sms');
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✓ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // -----------------------------------------------------------------
+  // Browser back/forward — sync state from URL hash without pushing again
+  // -----------------------------------------------------------------
+  function syncFromHash() {
+    const { screen, step } = parseHash();
+    suppressHistory = true;
+    try {
+      if (screen === 'home') {
+        showScreen('home');
+      } else if (screen === 'sms') {
+        showScreen('sms');
+      } else {
+        state[screen] = step;
+        renderProgress(screen);
+        renderStep(screen);
+        showScreen(screen);
+      }
+    } finally {
+      suppressHistory = false;
+    }
+  }
+
+  window.addEventListener('popstate', syncFromHash);
+
+  // On first load, honor a deep-linked hash (e.g. someone shared #vip-3)
+  window.addEventListener('DOMContentLoaded', () => {
+    if (location.hash) {
+      syncFromHash();
+    } else {
+      // Set initial history entry so first Back works
+      history.replaceState({ screen: 'home' }, '', '#home');
+    }
+  });
+</script>
+
+</body>
+</html>
