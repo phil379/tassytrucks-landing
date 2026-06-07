@@ -243,6 +243,21 @@
       </div>
     </div>
 
+    <!-- Onboarding banner (new driver entry) -->
+    <div class="px-4 pt-4">
+      <div onclick="goto('onboard', 1)" class="card" style="background: linear-gradient(135deg, var(--ink) 0%, #2A2722 100%); color: #F4EFE0; border-color: var(--gold-warm); cursor: pointer;">
+        <div class="flex items-start gap-3">
+          <div class="text-3xl">🎓</div>
+          <div class="flex-1">
+            <div class="text-[10px] uppercase tracking-wider" style="color: var(--gold-warm);">Preview · Driver onboarding</div>
+            <div class="font-semibold mt-1" style="color: #F4EFE0;">See how a new driver gets activated</div>
+            <div class="text-xs mt-1" style="color: rgba(244,239,224,0.6);">10-step walkthrough · application → first trip</div>
+          </div>
+          <div class="text-xl" style="color: var(--gold-warm);">→</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Trip list -->
     <div class="p-4 space-y-3">
       <!-- ACTIVE -->
@@ -696,6 +711,397 @@
     </div>
   </div>
 
+  <!-- ============================ ONBOARDING ============================ -->
+  <div id="screen-onboard" class="screen content hidden">
+    <!-- Header (no tabs during onboarding) -->
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, #2A2722 100%);">
+      <div class="flex items-center justify-between">
+        <button onclick="goto('trips')" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit preview</button>
+        <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Driver onboarding</div>
+        <span class="text-xs" style="color: rgba(244,239,224,0.5);" id="onboard-counter">1 / 10</span>
+      </div>
+      <div class="flex gap-1 mt-4" id="onboard-progress"></div>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <div class="onboard-step" data-step="1">
+      <div class="p-5 space-y-4">
+        <div class="text-center pt-4">
+          <div class="serif text-5xl mb-3">🚛</div>
+          <h2 class="serif text-3xl ink font-semibold leading-tight">Drive with Tassy.<br><span class="gold italic">Earn with purpose.</span></h2>
+          <p class="ink-soft mt-3 text-sm">Veteran-owned. Healthcare-grade. Real benefits.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-6">
+          <div class="card text-center"><div class="text-2xl">💰</div><div class="serif text-base font-bold gold mt-1">$89/hr</div><div class="text-[10px] ink-mute uppercase">Avg active pay</div></div>
+          <div class="card text-center"><div class="text-2xl">📅</div><div class="serif text-base font-bold gold mt-1">Weekly</div><div class="text-[10px] ink-mute uppercase">Direct deposit</div></div>
+          <div class="card text-center"><div class="text-2xl">🚐</div><div class="serif text-base font-bold gold mt-1">Choose</div><div class="text-[10px] ink-mute uppercase">Your services</div></div>
+        </div>
+        <div class="card mt-4">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">What you need to start</div>
+          <div class="space-y-2 text-sm ink-soft">
+            <div class="flex items-center gap-2">✓ <span>Valid driver's license (Class C or higher)</span></div>
+            <div class="flex items-center gap-2">✓ <span>Reliable vehicle (or rent ours · $0 down)</span></div>
+            <div class="flex items-center gap-2">✓ <span>Clean background &amp; driving record</span></div>
+            <div class="flex items-center gap-2">✓ <span>Smartphone for the driver app</span></div>
+          </div>
+        </div>
+        <div class="text-xs ink-mute text-center mt-2">~15 min to complete · Activation in 3-5 business days</div>
+      </div>
+    </div>
+
+    <!-- Step 2: About you -->
+    <div class="onboard-step hidden" data-step="2">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Tell us about you</h2>
+        <p class="ink-soft text-sm">We'll verify against your driver's license at the next step.</p>
+        <div class="space-y-3 mt-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">First name</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="James">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Last name</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="Thornton">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Date of birth</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="MM/DD/YYYY">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Phone</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="(704) 555-0188">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Email</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="james@example.com">
+          </div>
+          <label class="flex items-start gap-2 p-3 rounded-lg cursor-pointer" style="background: rgba(229,169,59,0.08); border:1px solid rgba(229,169,59,0.25);">
+            <input type="checkbox" class="mt-1">
+            <div class="text-sm">
+              <div class="font-semibold ink">I'm a veteran 🎖️</div>
+              <div class="text-xs ink-mute">Tassy is SDVOSB. We prioritize veteran drivers + give you a $250 sign-on bonus.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Driver's license -->
+    <div class="onboard-step hidden" data-step="3">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Driver's license</h2>
+        <p class="ink-soft text-sm">Snap a photo or enter manually. We verify against state DMV.</p>
+        <button class="btn-gold w-full mt-2" style="padding: 22px;">📸 Scan license</button>
+        <div class="text-center text-xs ink-mute">or enter manually</div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">License number</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="NC 8847291">
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Class</label>
+              <select class="input-field" style="font-size:.9rem;padding:.6rem .6rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;">
+                <option>C</option><option>B</option><option>A</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">State</label>
+              <select class="input-field" style="font-size:.9rem;padding:.6rem .6rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;">
+                <option>NC</option><option>SC</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Expires</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="08/2028">
+            </div>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(46,168,104,0.06); border-color: rgba(46,168,104,0.25);">
+          <div class="text-xs" style="color: var(--success);">✓ NC DMV verification typically takes ~2 hours</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Medical + background -->
+    <div class="onboard-step hidden" data-step="4">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Medical &amp; background</h2>
+        <p class="ink-soft text-sm">Required for commercial transport. We run a fast check via Checkr.</p>
+        <div class="card">
+          <div class="font-semibold ink mb-1">DOT medical card</div>
+          <p class="text-xs ink-mute mb-3">Required for all commercial drivers. We can refer you to a clinic if needed.</p>
+          <button class="btn-ghost w-full text-sm">📄 Upload medical card</button>
+          <div class="text-xs ink-mute mt-2">or schedule exam: <span class="gold">Find a clinic →</span></div>
+        </div>
+        <div class="card">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="text-sm">
+              <div class="font-semibold ink">I authorize Tassy to run a background check</div>
+              <div class="text-xs ink-mute mt-1">Checkr will review 7-year criminal history + driving record. Free for you. Results in 24-48 hours.</div>
+            </div>
+          </label>
+        </div>
+        <div class="card">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="text-sm">
+              <div class="font-semibold ink">I authorize annual drug screening</div>
+              <div class="text-xs ink-mute mt-1">Required by FMCSA. First test scheduled within 14 days of activation.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Vehicle -->
+    <div class="onboard-step hidden" data-step="5">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Your vehicle</h2>
+        <p class="ink-soft text-sm">Don't have one? Rent from Tassy — $0 down · $375/wk · maintenance included.</p>
+        <div class="grid grid-cols-2 gap-3 mt-2">
+          <div class="option-tile selected p-4 flex-col items-stretch text-center" style="background:rgba(229,169,59,0.08);border:2px solid var(--gold-warm);border-radius:14px;cursor:pointer;">
+            <div class="text-2xl">🚗</div>
+            <div class="font-semibold ink mt-1">I have a vehicle</div>
+            <div class="text-xs ink-mute">Enter details</div>
+          </div>
+          <div class="option-tile p-4 flex-col items-stretch text-center" style="border:2px solid var(--line);border-radius:14px;cursor:pointer;background:white;">
+            <div class="text-2xl">🔑</div>
+            <div class="font-semibold ink mt-1">Rent from Tassy</div>
+            <div class="text-xs ink-mute">Black SUV ready</div>
+          </div>
+        </div>
+        <div class="space-y-3 mt-4">
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Year</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="2022">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Make</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="Toyota">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Model</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="Highlander">
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Color</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="Black">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Plate</label>
+              <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="XYZ-1234">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Capacity</label>
+              <select class="input-field" style="font-size:.9rem;padding:.6rem .6rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;">
+                <option>4 pax</option><option>6 pax</option><option>7 pax</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button class="btn-ghost w-full text-sm">📷 Add 4 photos (front · back · interior · plate)</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Insurance -->
+    <div class="onboard-step hidden" data-step="6">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Insurance</h2>
+        <p class="ink-soft text-sm">Need commercial coverage? We partner with Geico Commercial — 15% Tassy discount.</p>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Insurance provider</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="Geico Commercial">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Policy number</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="GC-2025-887421">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase tracking-wider mb-1">Expiration</label>
+            <input type="text" class="input-field" style="font-size:.9rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;width:100%;background:white;" placeholder="09/2026">
+          </div>
+          <button class="btn-ghost w-full text-sm">📄 Upload insurance card (PDF or photo)</button>
+        </div>
+        <div class="card" style="background: rgba(59,110,170,0.06); border-color: rgba(59,110,170,0.25);">
+          <div class="font-semibold ink text-sm">Need coverage?</div>
+          <div class="text-xs ink-mute mt-1">Tassy drivers get 15% off Geico Commercial.</div>
+          <button class="text-xs font-semibold mt-2" style="color: var(--info);">Get a quote in 3 min →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7: Service eligibility -->
+    <div class="onboard-step hidden" data-step="7">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Which trips do you want?</h2>
+        <p class="ink-soft text-sm">Pick all you're interested in. We'll show training for any you qualify for.</p>
+        <div class="space-y-3 mt-2">
+          <label class="card cursor-pointer flex items-start gap-3" style="border:2px solid var(--gold-warm); background: rgba(229,169,59,0.05);">
+            <input type="checkbox" checked class="mt-1 w-5 h-5">
+            <div class="flex-1">
+              <div class="font-semibold ink">Standard NEMT</div>
+              <div class="text-xs ink-mute mt-1">Medicaid + broker rides. ADA training required.</div>
+              <div class="text-[10px] mt-1 gold">~$28-38 per trip · highest volume</div>
+            </div>
+          </label>
+          <label class="card cursor-pointer flex items-start gap-3">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="flex-1">
+              <div class="font-semibold ink">VIP Concierge</div>
+              <div class="text-xs ink-mute mt-1">Luxury black sedan/SUV. CNA cert required.</div>
+              <div class="text-[10px] mt-1 gold">~$120-200 per trip · premium tier</div>
+            </div>
+          </label>
+          <label class="card cursor-pointer flex items-start gap-3">
+            <input type="checkbox" checked class="mt-1 w-5 h-5">
+            <div class="flex-1">
+              <div class="font-semibold ink">Winnie Ride (pet transport)</div>
+              <div class="text-xs ink-mute mt-1">Pet handling certification. We provide training.</div>
+              <div class="text-[10px] mt-1 gold">~$40-75 per trip · growing fast</div>
+            </div>
+          </label>
+          <label class="card cursor-pointer flex items-start gap-3">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="flex-1">
+              <div class="font-semibold ink">Wheelchair (WAV)</div>
+              <div class="text-xs ink-mute mt-1">Wheelchair-accessible vehicle + special cert.</div>
+              <div class="text-[10px] mt-1 gold">~$45-85 per trip · waitlist</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8: Training -->
+    <div class="onboard-step hidden" data-step="8">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Training modules</h2>
+        <p class="ink-soft text-sm">All online · ~2 hours total · earn certificates.</p>
+        <div class="space-y-3 mt-2">
+          <div class="card flex items-center gap-3">
+            <span class="step-circle done">✓</span>
+            <div class="flex-1">
+              <div class="font-semibold ink text-sm">Defensive driving (25 min)</div>
+              <div class="text-[10px] ink-mute">Completed · cert earned</div>
+            </div>
+            <span style="color:var(--success);">✓</span>
+          </div>
+          <div class="card flex items-center gap-3">
+            <span class="step-circle done">✓</span>
+            <div class="flex-1">
+              <div class="font-semibold ink text-sm">HIPAA basics (15 min)</div>
+              <div class="text-[10px] ink-mute">Completed · cert earned</div>
+            </div>
+            <span style="color:var(--success);">✓</span>
+          </div>
+          <div class="card flex items-center gap-3" style="border-color: var(--gold-warm); background: rgba(229,169,59,0.05);">
+            <span class="step-circle active">3</span>
+            <div class="flex-1">
+              <div class="font-semibold ink text-sm">NEMT protocols (40 min)</div>
+              <div class="text-[10px] ink-mute">Wheelchair securement · ADA · broker handoffs</div>
+            </div>
+            <button class="text-xs btn-ghost py-1 px-3">Start →</button>
+          </div>
+          <div class="card flex items-center gap-3" style="opacity:0.7;">
+            <span class="step-circle">4</span>
+            <div class="flex-1">
+              <div class="font-semibold ink text-sm">Winnie pet handling (30 min)</div>
+              <div class="text-[10px] ink-mute">Animal safety · carrier protocols · emergencies</div>
+            </div>
+            <span class="ink-mute text-xs">Locked</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 9: Mentor ride-along -->
+    <div class="onboard-step hidden" data-step="9">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Mentor ride-along</h2>
+        <p class="ink-soft text-sm">Shadow an experienced Tassy driver on 2 real trips. Paid time ($50).</p>
+        <div class="card">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center serif font-bold text-lg" style="background:var(--gold-warm); color: var(--ink);">MT</div>
+            <div class="flex-1">
+              <div class="font-semibold ink">Marcus Taylor</div>
+              <div class="text-xs ink-mute">DRV-007 · 4.94★ · 312 trips</div>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="pill pill-vip">VIP-trained</span>
+                <span class="pill pill-active">Top 5%</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-xs ink-mute mt-3 italic">"I'll show you the ropes. Plan on 3-4 hours of real ride-alongs."</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Pick a time</div>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+              <div>
+                <div class="font-semibold ink text-sm">Saturday, Jun 14</div>
+                <div class="text-xs ink-mute">9:00 AM - 1:00 PM</div>
+              </div>
+              <input type="radio" name="ride-time" checked>
+            </label>
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+              <div>
+                <div class="font-semibold ink text-sm">Sunday, Jun 15</div>
+                <div class="text-xs ink-mute">11:00 AM - 3:00 PM</div>
+              </div>
+              <input type="radio" name="ride-time">
+            </label>
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+              <div>
+                <div class="font-semibold ink text-sm">Monday, Jun 16</div>
+                <div class="text-xs ink-mute">6:00 AM - 10:00 AM</div>
+              </div>
+              <input type="radio" name="ride-time">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 10: Welcome / Activation -->
+    <div class="onboard-step hidden" data-step="10">
+      <div class="p-5 space-y-4 text-center pt-8">
+        <div class="text-6xl mb-2">🎉</div>
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--success);">Welcome to the fleet</div>
+        <h2 class="serif text-3xl ink font-semibold">You're driver DRV-008.</h2>
+        <p class="ink-soft text-sm max-w-md mx-auto">
+          Background check pending · ride-along Saturday 9 AM with Marcus · first solo trip after that.
+        </p>
+        <div class="card text-left mt-6">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Sign-on bonus unlocked</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">Veteran bonus 🎖️</span><span class="serif font-bold gold">+$250</span></div>
+            <div class="flex justify-between"><span class="ink-soft">First 25 trips bonus</span><span class="serif font-bold gold">+$5 each (max $125)</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">First-month potential</span><span class="serif text-lg font-bold gold">$375+ extra</span></div>
+          </div>
+        </div>
+        <div class="space-y-2 mt-6">
+          <button onclick="goto('trips')" class="btn-gold w-full">Open driver dashboard →</button>
+          <button onclick="showToast('Direct deposit set up (mock)')" class="btn-ghost w-full">💳 Set up direct deposit</button>
+        </div>
+        <div class="text-xs ink-mute pt-3">You'll get a text when your ride-along is confirmed.</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="px-5 pb-6 flex gap-3" id="onboard-nav">
+      <button onclick="navOnboard(-1)" class="btn-ghost flex-1" id="onboard-back">← Back</button>
+      <button onclick="navOnboard(1)" class="btn-gold flex-1" id="onboard-next">Continue →</button>
+    </div>
+  </div>
+
   <!-- ================ TAB BAR ================ -->
   <div class="tab-bar">
     <button class="tab-item active" data-tab="trips" onclick="goto('trips')">
@@ -726,10 +1132,13 @@
 
 <script>
   let activeStep = 1;
+  let onboardStep = 1;
+  const onboardTotal = 10;
   let suppressHistory = false;
 
   function buildHash(tab, step) {
     if (tab === 'active' && step) return `#active-${step}`;
+    if (tab === 'onboard' && step) return `#onboard-${step}`;
     return `#${tab}`;
   }
 
@@ -747,10 +1156,62 @@
     if (h.startsWith('active-')) {
       return { tab: 'active', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), 4) };
     }
+    if (h.startsWith('onboard-')) {
+      return { tab: 'onboard', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), onboardTotal) };
+    }
+    if (h === 'onboard') return { tab: 'onboard', step: 1 };
     if (['trips','active','vehicle','earnings','profile'].includes(h)) {
       return { tab: h, step: h === 'active' ? 1 : undefined };
     }
     return { tab: 'trips' };
+  }
+
+  function renderOnboardProgress() {
+    const c = document.getElementById('onboard-progress');
+    const counter = document.getElementById('onboard-counter');
+    let html = '';
+    for (let i = 1; i <= onboardTotal; i++) {
+      const w = i === onboardStep ? '24px' : '8px';
+      const bg = i <= onboardStep ? 'var(--gold-warm)' : 'rgba(244,239,224,0.2)';
+      html += `<div style="height:6px;width:${w};border-radius:999px;background:${bg};transition:all .2s ease;"></div>`;
+    }
+    c.innerHTML = html;
+    if (counter) counter.textContent = `${onboardStep} / ${onboardTotal}`;
+  }
+
+  function renderOnboardStep() {
+    document.querySelectorAll('.onboard-step').forEach(el => {
+      el.classList.toggle('hidden', parseInt(el.dataset.step) !== onboardStep);
+    });
+    const backBtn = document.getElementById('onboard-back');
+    const nextBtn = document.getElementById('onboard-next');
+    if (backBtn) backBtn.style.visibility = onboardStep === 1 ? 'hidden' : 'visible';
+    if (nextBtn) {
+      if (onboardStep === onboardTotal) {
+        nextBtn.textContent = '🚛 Open dashboard';
+        nextBtn.onclick = () => goto('trips');
+      } else if (onboardStep === onboardTotal - 1) {
+        nextBtn.textContent = '✓ Submit application';
+        nextBtn.onclick = () => navOnboard(1);
+      } else if (onboardStep === 1) {
+        nextBtn.textContent = 'Apply now →';
+        nextBtn.onclick = () => navOnboard(1);
+      } else {
+        nextBtn.textContent = 'Continue →';
+        nextBtn.onclick = () => navOnboard(1);
+      }
+    }
+    renderOnboardProgress();
+  }
+
+  function navOnboard(dir) {
+    onboardStep = Math.min(Math.max(onboardStep + dir, 1), onboardTotal);
+    pushHistory('onboard', onboardStep);
+    renderOnboardStep();
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+    if (dir > 0 && onboardStep === onboardTotal) {
+      showToast('Application submitted · DRV-008 assigned');
+    }
   }
 
   function goto(tab, step) {
@@ -763,7 +1224,13 @@
         el.classList.toggle('hidden', parseInt(el.dataset.step) !== activeStep);
       });
     }
-    pushHistory(tab, tab === 'active' ? activeStep : undefined);
+    if (tab === 'onboard') {
+      onboardStep = step || 1;
+      renderOnboardStep();
+    }
+    // Hide tab bar during onboarding
+    document.querySelector('.tab-bar').style.display = tab === 'onboard' ? 'none' : '';
+    pushHistory(tab, tab === 'active' ? activeStep : tab === 'onboard' ? onboardStep : undefined);
     document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
   }
 
