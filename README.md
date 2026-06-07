@@ -89,3 +89,6 @@ Once this is live, the Code Mode prompt sequence to wire it up properly:
 - `index.html` — the landing page (single file, ~33KB)
 - `vercel.json` — deploy config (clean URLs + security headers)
 - `README.md` — this file
+
+
+_Last deploy trigger: PWA mockups (driver + sales)_
