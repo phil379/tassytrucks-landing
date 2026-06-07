@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tassy Messaging Portal — Mock</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --danger: #D4544A;
+      --info: #3B6EAA;
+      --driver: #3B6EAA;
+      --companion: #6B5B95;
+      --cna: #2E7D8F;
+      --facility: #5E8C4A;
+      --dispatch: #C8932E;
+      --bot: #444239;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #2A2722; margin: 0; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); } .ink-soft { color: var(--ink-soft); } .ink-mute { color: var(--ink-mute); } .gold { color: var(--gold); }
+    .device { max-width: 1280px; margin: 0 auto; min-height: 100vh; background: var(--bg); box-shadow: 0 0 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
+    @media (min-width: 1340px) { .device { margin: 20px auto; min-height: calc(100vh - 40px); border-radius: 24px; overflow: hidden; border: 8px solid #1B1A17; } }
+
+    .pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.18rem 0.55rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
+    .pill-active { background: rgba(46,168,104,0.14); color: var(--success); }
+    .pill-tier-recovery { background: rgba(107,91,149,0.14); color: var(--companion); }
+    .pill-tier-companion { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-tier-premium { background: linear-gradient(135deg,#E5A93B,#C8932E); color: white; }
+    .pill-tier-maximum { background: var(--ink); color: var(--gold-warm); }
+    .pill-tier-nemt { background: rgba(59,110,170,0.14); color: var(--driver); }
+    .pill-tier-winnie { background: rgba(94,140,74,0.14); color: var(--facility); }
+    .pill-sub-companion { background: rgba(107,91,149,0.08); color: var(--companion); border: 1px solid rgba(107,91,149,0.25); }
+    .pill-sub-concierge { background: rgba(229,169,59,0.10); color: var(--gold); border: 1px solid rgba(229,169,59,0.3); }
+    .pill-sub-recovery { background: rgba(27,26,23,0.08); color: var(--ink); border: 1px solid rgba(27,26,23,0.3); }
+    .pill-phi { background: rgba(212,84,74,0.10); color: var(--danger); }
+    .pill-bot { background: rgba(68,66,57,0.10); color: var(--ink-soft); }
+    .pill-sms { background: rgba(118,115,107,0.12); color: var(--ink-mute); }
+    .pill-add-on { background: rgba(229,169,59,0.06); color: var(--gold-warm); border: 1px dashed rgba(229,169,59,0.4); }
+
+    .role-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.12rem 0.5rem; border-radius: 5px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .role-driver { background: rgba(59,110,170,0.14); color: var(--driver); }
+    .role-companion { background: rgba(107,91,149,0.14); color: var(--companion); }
+    .role-cna { background: rgba(46,125,143,0.14); color: var(--cna); }
+    .role-facility { background: rgba(94,140,74,0.14); color: var(--facility); }
+    .role-dispatch { background: rgba(200,147,46,0.14); color: var(--dispatch); }
+    .role-bot { background: rgba(68,66,57,0.10); color: var(--ink-soft); }
+
+    .persona-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; border: 1.5px solid transparent; cursor: pointer; background: white; color: var(--ink-soft); transition: all .15s ease; }
+    .persona-btn:hover { border-color: var(--line); }
+    .persona-btn.active { color: white; border-color: transparent; box-shadow: 0 4px 12px -2px rgba(27,26,23,0.2); }
+    .persona-btn.active[data-role="driver"] { background: var(--driver); }
+    .persona-btn.active[data-role="companion"] { background: var(--companion); }
+    .persona-btn.active[data-role="cna"] { background: var(--cna); }
+    .persona-btn.active[data-role="facility"] { background: var(--facility); }
+    .persona-btn.active[data-role="dispatch"] { background: var(--dispatch); }
+    .persona-btn.active[data-role="admin"] { background: var(--ink); }
+
+    .thread-item { display: flex; gap: 10px; padding: 12px; border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: all .15s ease; }
+    .thread-item:hover { background: white; border-color: var(--line); }
+    .thread-item.active { background: white; border-color: var(--gold-warm); box-shadow: 0 4px 12px -4px rgba(229,169,59,0.25); }
+    .thread-avatar { width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: white; flex-shrink: 0; }
+    .unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-warm); display: inline-block; }
+
+    .msg { display: flex; gap: 10px; max-width: 75%; }
+    .msg.outgoing { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-avatar { width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.7rem; color: white; flex-shrink: 0; }
+    .msg-bubble { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; font-size: 0.88rem; color: var(--ink); }
+    .msg.outgoing .msg-bubble { background: var(--ink); color: #F4EFE0; border-color: var(--ink); }
+    .msg-meta { font-size: 0.65rem; color: var(--ink-mute); margin: 4px 0 0 0; display: flex; gap: 6px; align-items: center; }
+    .msg.outgoing .msg-meta { justify-content: flex-end; }
+    .msg.bot .msg-bubble { background: linear-gradient(180deg, #F8F5F0, #F2EFE8); border-color: rgba(68,66,57,0.15); }
+    .msg.system { align-self: center; max-width: 100%; text-align: center; }
+    .msg.system .msg-bubble { background: rgba(229,169,59,0.08); border-color: rgba(229,169,59,0.25); font-size: 0.75rem; color: var(--ink-soft); }
+    .msg-attachment { background: rgba(27,26,23,0.05); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin-top: 6px; font-size: 0.75rem; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+
+    .quick-action { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: white; font-size: 0.75rem; color: var(--ink-soft); cursor: pointer; white-space: nowrap; transition: all .15s ease; }
+    .quick-action:hover { border-color: var(--gold-warm); color: var(--ink); background: rgba(229,169,59,0.05); }
+    .quick-action.urgent { color: var(--danger); border-color: rgba(212,84,74,0.3); }
+    .quick-action.urgent:hover { background: rgba(212,84,74,0.06); }
+
+    .hidden { display: none !important; }
+    .pane { display: flex; flex-direction: column; min-height: 0; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .input-field { width: 100%; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 0.55rem 0.85rem; font-size: 0.85rem; }
+    .input-field:focus { outline: none; border-color: var(--gold-warm); box-shadow: 0 0 0 3px rgba(229,169,59,0.12); }
+
+    .amenity-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(232,225,209,0.5); font-size: 0.78rem; }
+    .amenity-row:last-child { border-bottom: none; }
+    .amenity-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--line); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .amenity-check.done { background: var(--success); border-color: var(--success); color: white; font-size: 0.6rem; }
+
+    .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100%); background: var(--ink); color: #F4EFE0; padding: 10px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 500; box-shadow: 0 12px 24px -8px rgba(0,0,0,0.3); transition: transform .3s ease; z-index: 100; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .role-only { display: none; }
+    .device[data-active-role="driver"] .role-driver-show { display: block; }
+    .device[data-active-role="companion"] .role-companion-show { display: block; }
+    .device[data-active-role="cna"] .role-cna-show { display: block; }
+    .device[data-active-role="facility"] .role-facility-show { display: block; }
+    .device[data-active-role="dispatch"] .role-dispatch-show { display: block; }
+    .device[data-active-role="admin"] .role-admin-show { display: block; }
+
+    .device[data-active-role="driver"] .phi-hide,
+    .device[data-active-role="companion"] .phi-hide,
+    .device[data-active-role="facility"] .phi-hide { display: none !important; }
+
+    .device:not([data-active-role="cna"]):not([data-active-role="dispatch"]):not([data-active-role="admin"]) .phi-only { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="device" id="device" data-active-role="dispatch">
+  <!-- Top bar -->
+  <div style="background: var(--ink); color: #F4EFE0; padding: 12px 20px;">
+    <div class="flex justify-between items-center flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <div style="width: 32px; height: 32px; background: var(--gold-warm); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: var(--ink);">T</div>
+        <div>
+          <div class="serif text-lg font-semibold leading-none">Tassy Messaging</div>
+          <div class="text-[10px] uppercase tracking-wider" style="color: rgba(244,239,224,0.55);">Per-engagement coordination · HIPAA audit-logged</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider mr-1" style="color: rgba(244,239,224,0.55);">View as</span>
+        <button class="persona-btn" data-role="driver" onclick="setPersona('driver')">🚐 Driver</button>
+        <button class="persona-btn" data-role="companion" onclick="setPersona('companion')">🤝 Companion</button>
+        <button class="persona-btn" data-role="cna" onclick="setPersona('cna')">🩺 CNA</button>
+        <button class="persona-btn" data-role="facility" onclick="setPersona('facility')">🏥 Facility</button>
+        <button class="persona-btn active" data-role="dispatch" onclick="setPersona('dispatch')">📊 Dispatch</button>
+        <button class="persona-btn" data-role="admin" onclick="setPersona('admin')">🛡 Admin</button>
+      </div>
+    </div>
+    <div class="text-[10px] mt-2" style="color: rgba(244,239,224,0.55);" id="persona-context">
+      Viewing as: <span id="persona-label" class="font-semibold">Tassy Dispatch (Phil)</span> · Sees all threads · Audit-log access
+    </div>
+  </div>
+
+  <!-- Main 3-pane layout -->
+  <div class="flex flex-1" style="min-height: 0;">
+    <!-- LEFT: thread list -->
+    <div style="width: 320px; border-right: 1px solid var(--line); background: rgba(232,225,209,0.2);" class="pane">
+      <div class="p-3 border-b border-line">
+        <input type="text" class="input-field" placeholder="🔍 Search threads...">
+      </div>
+      <div class="overflow-y-auto p-2 space-y-1" style="flex: 1;">
+        <div class="text-[10px] uppercase tracking-wider ink-mute px-2 pt-1 pb-1">Active · 4</div>
+
+        <!-- Thread 1: VIP Premium Recovery -->
+        <div class="thread-item active" onclick="loadThread('vip')">
+          <div class="thread-avatar" style="background: linear-gradient(135deg,#E5A93B,#C8932E);">B</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1 mb-0.5"><span class="font-semibold ink text-sm">B-52 · LB</span><span class="pill pill-tier-premium" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">Premium</span></div>
+            <div class="text-xs ink-mute truncate">🤖 ETA bot: Marcus is 11 min away · I-485…</div>
+            <div class="flex justify-between mt-1"><div class="text-[10px] ink-mute">2 min ago</div><span class="unread-dot"></span></div>
+          </div>
+        </div>
+
+        <!-- Thread 2: NEMT Dialysis -->
+        <div class="thread-item" onclick="loadThread('nemt')">
+          <div class="thread-avatar" style="background: var(--driver);">M</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1 mb-0.5"><span class="font-semibold ink text-sm">M. Holloway</span><span class="pill pill-tier-nemt" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">NEMT</span></div>
+            <div class="text-xs ink-mute truncate">🏥 Atrium nurse: Dialysis complete · ready</div>
+            <div class="flex justify-between mt-1"><div class="text-[10px] ink-mute">4 min ago</div><span class="unread-dot"></span></div>
+          </div>
+        </div>
+
+        <!-- Thread 3: Winnie -->
+        <div class="thread-item" onclick="loadThread('winnie')">
+          <div class="thread-avatar" style="background: var(--facility);">🐕</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1 mb-0.5"><span class="font-semibold ink text-sm">Biscuit · S. Mitchell</span><span class="pill pill-tier-winnie" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">Winnie</span></div>
+            <div class="text-xs ink-mute truncate">📸 Driver: photo from vet · happy + calm</div>
+            <div class="text-[10px] ink-mute mt-1">8 min ago</div>
+          </div>
+        </div>
+
+        <!-- Thread 4: Maximum Discretion -->
+        <div class="thread-item" onclick="loadThread('max')">
+          <div class="thread-avatar" style="background: var(--ink);">▲</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1 mb-0.5"><span class="font-semibold ink text-sm">D-04 · XX</span><span class="pill pill-tier-maximum" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">Maximum</span></div>
+            <div class="text-xs ink-mute truncate">🔒 [discretion locked · NDA signed]</div>
+            <div class="text-[10px] ink-mute mt-1">15 min ago</div>
+          </div>
+        </div>
+
+        <div class="text-[10px] uppercase tracking-wider ink-mute px-2 pt-4 pb-1">Recent · today</div>
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: var(--companion);">A</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold ink text-sm">A-78 · MR <span class="pill pill-tier-companion" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">Companion</span></div>
+            <div class="text-xs ink-mute truncate">✓ Engagement complete · 24hr follow-up scheduled</div>
+            <div class="text-[10px] ink-mute mt-1">2 hr ago</div>
+          </div>
+        </div>
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: var(--info);">C</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold ink text-sm">C-12 · JD <span class="pill pill-tier-recovery" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">Recovery</span></div>
+            <div class="text-xs ink-mute truncate">✓ Patient home safe · receipt sent</div>
+            <div class="text-[10px] ink-mute mt-1">3 hr ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: thread view -->
+    <div class="pane" style="flex: 1; min-width: 0;">
+      <!-- VIP THREAD (default) -->
+      <div id="thread-vip" class="thread-view pane" style="flex: 1; min-height: 0;">
+        <!-- Thread header -->
+        <div style="border-bottom: 1px solid var(--line); padding: 14px 18px; background: white;">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="serif text-lg font-semibold ink">B-52 · LB</span>
+                <span class="pill pill-tier-premium">Premium Recovery</span>
+                <span class="pill pill-sub-concierge">⭐ Concierge Pass</span>
+              </div>
+              <div class="text-xs ink-mute">Engagement #1 · Trip TT-2415 · Aesthetic Carolina</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] ink-mute uppercase">Departure</div>
+              <div class="serif text-base font-semibold ink">2:30 PM</div>
+            </div>
+          </div>
+          <div class="flex gap-1 flex-wrap">
+            <span class="pill pill-add-on">+ Female driver requested</span>
+            <span class="pill pill-add-on">+ Private entrance protocol</span>
+            <span class="pill pill-add-on">+ 24hr follow-up call</span>
+          </div>
+          <div class="flex items-center gap-1 mt-3 text-xs">
+            <span class="ink-mute">Participants:</span>
+            <span class="role-badge role-cna">🩺 Renée P.</span>
+            <span class="role-badge role-driver">🚐 Marcus T.</span>
+            <span class="role-badge role-companion">🤝 Diana M.</span>
+            <span class="role-badge role-facility">🏥 Aesthetic Carolina (3)</span>
+            <span class="role-badge role-dispatch">📊 Dispatch</span>
+            <span class="pill pill-sms ml-1">📱 2 via SMS</span>
+          </div>
+        </div>
+
+        <!-- ETA Bot widget -->
+        <div style="padding: 10px 18px; background: linear-gradient(180deg, rgba(229,169,59,0.06), white); border-bottom: 1px solid var(--line);">
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-base">🤖</span>
+            <div class="flex-1">
+              <div class="font-semibold ink">ETA bot · live</div>
+              <div class="ink-mute">Marcus is 11 min away · I-485 N at exit 33 · arriving 2:24 PM</div>
+            </div>
+            <button class="quick-action text-[10px]" onclick="showToast('Asked: What is ETA?')">Ask ETA</button>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="overflow-y-auto p-4 space-y-3" style="flex: 1; background: rgba(232,225,209,0.18);">
+          <div class="msg system"><div class="msg-bubble">Engagement created · participants auto-added · prep checklist sent</div></div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--facility);">A</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-facility">Aesthetic Carolina</span><span>Sarah W. · 1:42 PM</span></div>
+              <div class="msg-bubble">B-52 cleared anesthesia. Estimated discharge 2:25 PM. Side entrance protocol active.</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--cna);">R</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-cna">CNA</span><span>Renée P. · 1:55 PM</span></div>
+              <div class="msg-bubble">Arriving at Suite 305 now. <span class="phi-only">Patient stable per nurse handoff · BP 118/76 · pre-departure vitals pending at vehicle.</span><span class="phi-hide">[PHI · CNA + facility nurse only]</span></div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--companion);">D</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-companion">Companion</span><span>Diana M. · 2:08 PM</span></div>
+              <div class="msg-bubble">Discharge packet received. Walking client to vehicle now. Renée handling vitals at car.</div>
+            </div>
+          </div>
+
+          <div class="msg outgoing">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span>Marcus T. · 2:15 PM</span><span class="role-badge role-driver">Driver</span></div>
+              <div class="msg-bubble">⏳ Running 5 min late — traffic on Tryon. Updated ETA 2:24 PM.</div>
+            </div>
+          </div>
+
+          <div class="msg bot">
+            <div class="msg-avatar" style="background: var(--bot);">🤖</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-bot">Auto · ETA cascade</span><span>2:15 PM</span></div>
+              <div class="msg-bubble">Cascading "5 min late" to: Aesthetic Carolina front desk · Diana (companion) · Renée (CNA) · Patient SMS (B-52 · sent as: "Your transport will arrive at 2:24 PM").<br><br>Recovery Pass member · no impact on monthly ride balance.</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--facility);">A</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-facility">Aesthetic Carolina</span><span>2:16 PM</span></div>
+              <div class="msg-bubble">Acknowledged. We'll keep B-52 in private waiting area till 2:24.</div>
+            </div>
+          </div>
+
+          <div class="msg system"><div class="msg-bubble">🛍 Amenity kit prep · Premium Recovery (21 items) · Marcus checklist complete · cashmere blanket, ginger candies, recovery snack loaded</div></div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--cna);">R</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-cna">CNA</span><span>Renée P. · 2:22 PM</span></div>
+              <div class="msg-bubble phi-only">📊 Pre-transport vitals: BP 120/78 · HR 78 · SpO2 98% · pain 3/10. Within range · cleared for transport.</div>
+              <div class="msg-bubble phi-hide" style="opacity: 0.6;">🔒 [Vitals log · CNA + facility nurse only · audit #4892]</div>
+            </div>
+          </div>
+
+          <div class="msg outgoing">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span>Marcus T. · 2:24 PM</span><span class="role-badge role-driver">Driver</span></div>
+              <div class="msg-bubble">📍 Arrived at side entrance. Cashmere blanket out + ginger candies ready. Side entrance clear.</div>
+            </div>
+          </div>
+
+          <div class="msg" id="recent-msg">
+            <div class="msg-avatar" style="background: var(--facility);">A</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-facility">Aesthetic Carolina</span><span>2 min ago</span></div>
+              <div class="msg-bubble">Quick question — what's Marcus's ETA back at facility? B-52's family asking.</div>
+            </div>
+          </div>
+
+          <div class="msg bot">
+            <div class="msg-avatar" style="background: var(--bot);">🤖</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-bot">ETA bot · live</span><span>Just now</span></div>
+              <div class="msg-bubble">Marcus is 11 min away from dropoff (4425 Sharon Rd). Currently on I-485 N at exit 33. Speed: 62 mph. Should arrive 2:38 PM.<br><br>Then return ETA to Aesthetic Carolina: ~2:55 PM.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions + input -->
+        <div style="border-top: 1px solid var(--line); padding: 10px 14px; background: white;">
+          <div class="flex gap-2 mb-2 overflow-x-auto pb-1">
+            <button class="quick-action" onclick="showToast('Status sent: Running 5 min late')">⏳ Running 5 min late</button>
+            <button class="quick-action" onclick="showToast('Status sent: Arrived')">📍 Arrived</button>
+            <button class="quick-action" onclick="showToast('Patient secured · vitals logged')">✓ Patient stable</button>
+            <button class="quick-action urgent" onclick="showToast('Coordinator paged')">⚠️ Need to talk</button>
+            <button class="quick-action urgent" onclick="showToast('Escalated to facility nurse')">🆘 Medical concern</button>
+            <button class="quick-action role-cna-show role-only" onclick="showToast('Vitals form opened')">📊 Log vitals</button>
+            <button class="quick-action role-facility-show role-only" onclick="showToast('Reschedule wizard opened')">📅 Reschedule</button>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-ghost" style="padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: white; cursor: pointer;">📎</button>
+            <input type="text" class="input-field" placeholder="Type a message to all participants...">
+            <button onclick="showToast('Message sent')" style="background: var(--gold-warm); color: var(--ink); padding: 8px 18px; border-radius: 10px; font-weight: 600; border: none; cursor: pointer;">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEMT THREAD -->
+      <div id="thread-nemt" class="thread-view pane hidden" style="flex: 1;">
+        <div style="border-bottom: 1px solid var(--line); padding: 14px 18px; background: white;">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="serif text-lg font-semibold ink">Margaret Holloway</span>
+                <span class="pill pill-tier-nemt">NEMT · Dialysis recurring</span>
+              </div>
+              <div class="text-xs ink-mute">Trip TT-2417 · Atrium Pineville Dialysis · MTM auth verified ✓</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] ink-mute uppercase">Return pickup</div>
+              <div class="serif text-base font-semibold ink">~12:30 PM</div>
+            </div>
+          </div>
+          <div class="flex gap-1 flex-wrap">
+            <span class="pill pill-add-on">+ Walker · door-to-door</span>
+            <span class="pill pill-add-on">+ Recurring · Tue/Thu/Sat</span>
+          </div>
+          <div class="flex items-center gap-1 mt-3 text-xs">
+            <span class="ink-mute">Participants:</span>
+            <span class="role-badge role-driver">🚐 Marcus T.</span>
+            <span class="role-badge role-facility">🏥 Atrium Dialysis · Nurse Kim</span>
+            <span class="role-badge role-dispatch">📊 Dispatch</span>
+            <span class="pill pill-sms ml-1">📱 Family via SMS</span>
+          </div>
+        </div>
+
+        <div class="overflow-y-auto p-4 space-y-3" style="flex: 1; background: rgba(232,225,209,0.18);">
+          <div class="msg system"><div class="msg-bubble">Recurring trip · Tue/Thu/Sat · 90-day standing order with MTM auth</div></div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-driver">Driver</span><span>Marcus T. · 8:32 AM</span></div>
+              <div class="msg-bubble">📍 Margaret picked up · arriving Atrium Pineville Dialysis 8:48 AM.</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--facility);">K</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-facility">Atrium Dialysis</span><span>Nurse Kim · 8:50 AM</span></div>
+              <div class="msg-bubble">Patient received · treatment starting. Expected completion ~12:30 PM.</div>
+            </div>
+          </div>
+
+          <div class="msg system"><div class="msg-bubble">Marcus completed pickup · driver routed to next assignment (TT-2418) until return window</div></div>
+
+          <div class="msg" id="dialysis-complete-msg">
+            <div class="msg-avatar" style="background: var(--facility);">K</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-facility">Atrium Dialysis</span><span>Nurse Kim · 4 min ago</span></div>
+              <div class="msg-bubble"><strong>🏥 Dialysis complete</strong> · Margaret is treatment-finished, transferred to lobby. Ready for return pickup. Vitals stable.</div>
+            </div>
+          </div>
+
+          <div class="msg bot">
+            <div class="msg-avatar" style="background: var(--bot);">🤖</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-bot">Auto · Driver dispatch</span><span>3 min ago</span></div>
+              <div class="msg-bubble">Routing return pickup to Marcus T. · current location: I-485 (in-between trip) · arriving Atrium Dialysis at <strong>12:42 PM</strong> (12 min ETA).<br><br>Margaret's family SMS-notified · "Driver will arrive 12:42 PM."</div>
+            </div>
+          </div>
+
+          <div class="msg outgoing">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span>Marcus T. · 2 min ago</span><span class="role-badge role-driver">Driver</span></div>
+              <div class="msg-bubble">On my way · 12 min ETA confirmed.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--line); padding: 10px 14px; background: white;">
+          <div class="flex gap-2 mb-2 overflow-x-auto pb-1">
+            <button class="quick-action role-facility-show role-only" onclick="showToast('Sent: Treatment complete · ready for pickup')">🏥 Treatment complete</button>
+            <button class="quick-action role-facility-show role-only">📋 Update mobility notes</button>
+            <button class="quick-action">📅 Reschedule next visit</button>
+            <button class="quick-action role-driver-show role-only" onclick="showToast('Status: en route')">🚐 On my way</button>
+            <button class="quick-action urgent">🆘 Patient concern</button>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" class="input-field" placeholder="Type a message...">
+            <button style="background: var(--driver); color: white; padding: 8px 18px; border-radius: 10px; font-weight: 600; border: none; cursor: pointer;">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WINNIE THREAD -->
+      <div id="thread-winnie" class="thread-view pane hidden" style="flex: 1;">
+        <div style="border-bottom: 1px solid var(--line); padding: 14px 18px; background: white;">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="serif text-lg font-semibold ink">Biscuit · Golden Retriever</span>
+                <span class="pill pill-tier-winnie">Winnie Ride · Vet visit</span>
+                <span class="pill pill-sub-companion">🐾 Winnie Standard</span>
+              </div>
+              <div class="text-xs ink-mute">Trip WIN-1208 · Carolina Animal Hospital · Owner: Sarah Mitchell</div>
+            </div>
+          </div>
+          <div class="flex gap-1 flex-wrap">
+            <span class="pill pill-add-on">+ Own carrier · treats OK</span>
+            <span class="pill pill-add-on">+ Round trip · driver waits</span>
+          </div>
+          <div class="flex items-center gap-1 mt-3 text-xs">
+            <span class="ink-mute">Participants:</span>
+            <span class="role-badge role-driver">🚐 Marcus T.</span>
+            <span class="role-badge role-facility">🏥 Carolina Animal Hospital</span>
+            <span class="role-badge role-dispatch">📊 Dispatch</span>
+            <span class="pill pill-sms ml-1">📱 Owner via SMS + app</span>
+          </div>
+        </div>
+
+        <div class="overflow-y-auto p-4 space-y-3" style="flex: 1; background: rgba(232,225,209,0.18);">
+          <div class="msg system"><div class="msg-bubble">Pre-trip vaccination auto-check: ✓ Rabies (exp 11/2026) · ✓ Bordetella (exp 09/2026)</div></div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-driver">Driver</span><span>Marcus T. · 10:00 AM</span></div>
+              <div class="msg-bubble">📸 Picked up Biscuit · photo verification done. Heading to vet.<div class="msg-attachment">📷 biscuit_pickup_2026-06-12.jpg</div></div>
+            </div>
+          </div>
+
+          <div class="msg bot">
+            <div class="msg-avatar" style="background: var(--bot);">🤖</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-bot">Auto · Owner notification</span><span>10:00 AM</span></div>
+              <div class="msg-bubble">📱 Sarah Mitchell notified via SMS + app: "Biscuit picked up safely · here's a photo · ETA at vet 10:16 AM."</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--facility);">V</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-facility">Carolina Animal Hospital</span><span>10:18 AM</span></div>
+              <div class="msg-bubble">Biscuit checked in for Dr. Patel · estimated 1 hour for vaccinations + wellness.</div>
+            </div>
+          </div>
+
+          <div class="msg outgoing">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span>Marcus T. · 11:42 AM</span><span class="role-badge role-driver">Driver</span></div>
+              <div class="msg-bubble">📸 Picking up Biscuit · vet says all good · owner consented for photo.<div class="msg-attachment">📷 biscuit_post_vet_2026-06-12.jpg · happy + calm</div></div>
+            </div>
+          </div>
+
+          <div class="msg" id="winnie-recent">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-driver">Driver</span><span>8 min ago</span></div>
+              <div class="msg-bubble">✓ Dropped Biscuit home safely. Sarah was there to receive. Ride complete.</div>
+            </div>
+          </div>
+
+          <div class="msg bot">
+            <div class="msg-avatar" style="background: var(--bot);">🤖</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-bot">Auto · Engagement complete</span><span>7 min ago</span></div>
+              <div class="msg-bubble">Trip WIN-1208 marked complete · $72.40 charged to card on file · receipt emailed · Winnie Standard member ride 4 of 6 used this month.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--line); padding: 10px 14px; background: white;">
+          <div class="flex gap-2 mb-2 overflow-x-auto pb-1">
+            <button class="quick-action">📸 Send photo update</button>
+            <button class="quick-action">🦴 Pet calm note</button>
+            <button class="quick-action">📋 Vet handoff notes</button>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" class="input-field" placeholder="Type a message...">
+            <button style="background: var(--facility); color: white; padding: 8px 18px; border-radius: 10px; font-weight: 600; border: none; cursor: pointer;">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAX DISCRETION THREAD -->
+      <div id="thread-max" class="thread-view pane hidden" style="flex: 1;">
+        <div style="border-bottom: 1px solid var(--line); padding: 14px 18px; background: var(--ink); color: #F4EFE0;">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="serif text-lg font-semibold" style="color: #F4EFE0;">D-04 · XX</span>
+                <span class="pill pill-tier-maximum">Maximum Discretion</span>
+                <span class="pill pill-sub-recovery">🏆 Recovery Pass</span>
+              </div>
+              <div class="text-xs" style="color: rgba(244,239,224,0.65);">Trip TT-2419 · NDA signed (driver + companion + CNA) · audit ID #4895</div>
+            </div>
+          </div>
+          <div class="flex gap-1 flex-wrap">
+            <span class="pill pill-add-on">+ Private entrance protocol</span>
+            <span class="pill pill-add-on">+ Pre-staged vehicle</span>
+            <span class="pill pill-add-on">+ Tinted privacy glass</span>
+            <span class="pill pill-add-on">+ Driver continuity (RT)</span>
+          </div>
+          <div class="flex items-center gap-1 mt-3 text-xs">
+            <span style="color: rgba(244,239,224,0.65);">Participants:</span>
+            <span class="role-badge role-cna">🩺 Renée P.</span>
+            <span class="role-badge role-driver">🚐 Marcus T.</span>
+            <span class="role-badge role-companion">🤝 Diana M.</span>
+            <span class="role-badge role-dispatch">📊 Phil (sole)</span>
+            <span class="pill pill-phi ml-1">🔒 No facility front desk</span>
+          </div>
+        </div>
+
+        <div class="overflow-y-auto p-4 space-y-3" style="flex: 1; background: linear-gradient(180deg, #FAF7F0, white);">
+          <div class="msg system"><div class="msg-bubble">🔒 Maximum Discretion thread · code-name only · NDA + audit-logged for all participants · facility staff EXCLUDED from this thread per protocol</div></div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--ink);">P</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-dispatch">Phil (Dispatch)</span><span>1:45 PM</span></div>
+              <div class="msg-bubble">D-04 trip · client coming through private entrance · vehicle pre-staged in north lot · welcome card + flowers from coordinator loaded. No identification spoken in lot.</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--driver);">M</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-driver">Driver</span><span>1:48 PM</span></div>
+              <div class="msg-bubble">Pre-staged. Tinted privacy glass on. Press-avoidance route confirmed (no media corridors).</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--companion);">D</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-companion">Companion</span><span>1:52 PM</span></div>
+              <div class="msg-bubble">Inside facility · received discharge packet · NO name spoken at any time. Walking to vehicle now.</div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar" style="background: var(--cna);">R</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-cna">CNA</span><span>1:55 PM</span></div>
+              <div class="msg-bubble">[Vitals · pre-transport] BP 122/80 · HR 76 · SpO2 99% · stable. Cleared.</div>
+            </div>
+          </div>
+
+          <div class="msg system"><div class="msg-bubble">🚐 Vehicle departing · live tracking suspended · arrival ping only · per Maximum protocol</div></div>
+
+          <div class="msg" id="max-recent">
+            <div class="msg-avatar" style="background: var(--ink);">P</div>
+            <div>
+              <div class="msg-meta"><span class="role-badge role-dispatch">Phil (Dispatch)</span><span>15 min ago</span></div>
+              <div class="msg-bubble">All quiet · client en route home · candle lit at home dropoff per protocol. Will receive arrival ping only.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--line); padding: 10px 14px; background: white;">
+          <div class="text-[10px] ink-mute mb-2" style="text-align: center;">🔒 All messages encrypted · 90-day retention · audit-log only · facility front desk excluded</div>
+          <div class="flex gap-2">
+            <input type="text" class="input-field" placeholder="Type a message (NDA-signed)...">
+            <button style="background: var(--ink); color: var(--gold-warm); padding: 8px 18px; border-radius: 10px; font-weight: 600; border: none; cursor: pointer;">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: trip details + amenity prep + audit -->
+    <div style="width: 320px; border-left: 1px solid var(--line); background: rgba(232,225,209,0.15);" class="pane hidden lg:flex">
+      <div class="overflow-y-auto p-3 space-y-3" style="flex: 1;">
+
+        <!-- Trip summary -->
+        <div class="card">
+          <div class="text-[10px] uppercase tracking-wider ink-mute mb-2">Trip summary</div>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between"><span class="ink-mute">Service tier</span><span class="font-semibold ink">Premium Recovery</span></div>
+            <div class="flex justify-between"><span class="ink-mute">Subscription</span><span class="font-semibold gold">Concierge Pass</span></div>
+            <div class="flex justify-between"><span class="ink-mute">Discretion</span><span class="font-semibold ink">Heightened</span></div>
+            <div class="flex justify-between"><span class="ink-mute">Vehicle</span><span class="font-semibold ink">Black Cadillac Escalade</span></div>
+            <div class="flex justify-between"><span class="ink-mute">Price</span><span class="font-semibold ink">$445 (member rate)</span></div>
+          </div>
+        </div>
+
+        <!-- Subscription status -->
+        <div class="card" style="background: linear-gradient(180deg, #FFFCF5, white); border-color: var(--gold-warm);">
+          <div class="text-[10px] uppercase tracking-wider mb-2" style="color: var(--gold);">⭐ Subscription · Concierge Pass</div>
+          <div class="text-xs ink-soft mb-2">B-52 LB is a Concierge Pass member ($295/mo)</div>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between"><span class="ink-mute">Rides this year</span><span class="font-semibold ink">3 of 6 included</span></div>
+            <div class="flex justify-between"><span class="ink-mute">Overage discount</span><span class="font-semibold ink">20% off</span></div>
+            <div class="flex justify-between"><span class="ink-mute">Renews</span><span class="font-semibold ink">Sep 14, 2026</span></div>
+          </div>
+        </div>
+
+        <!-- Active add-ons -->
+        <div class="card">
+          <div class="text-[10px] uppercase tracking-wider ink-mute mb-2">Active add-ons</div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs"><span class="ink-soft">Female driver</span><span class="ink font-medium">Included (Pass)</span></div>
+            <div class="flex justify-between text-xs"><span class="ink-soft">Private entrance protocol</span><span class="ink font-medium">Included</span></div>
+            <div class="flex justify-between text-xs"><span class="ink-soft">24-hr follow-up call</span><span class="ink font-medium">Included</span></div>
+            <div class="flex justify-between text-xs"><span class="ink-soft">Companion vehicle</span><span class="ink-mute">Not requested</span></div>
+          </div>
+        </div>
+
+        <!-- Amenity prep -->
+        <div class="card">
+          <div class="text-[10px] uppercase tracking-wider ink-mute mb-2">🛍 Amenity kit · Premium Recovery</div>
+          <div class="text-[10px] ink-mute mb-2">21 items · ~$58 wholesale · ready in trunk</div>
+          <div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Bottled water (Tassy branded)</span><span class="text-[10px] ink-mute">×2</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Cashmere blanket</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Ginger candies</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Recovery snack + electrolyte</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Aromatherapy roller</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Heated gel pack</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Neck pillow + eye mask</span><span class="text-[10px] ink-mute">×1 set</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Hand cream + lip balm</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Tassy first-aid pouch</span><span class="text-[10px] ink-mute">×1</span></div>
+            <div class="amenity-row"><span><span class="amenity-check done">✓</span> Premium tissues + sanitizer</span><span class="text-[10px] ink-mute">set</span></div>
+            <div class="amenity-row text-[10px] ink-mute text-center"><span>+ 11 basics (USB cable, mint, mask, waste bag, etc.)</span><span></span></div>
+          </div>
+          <button class="quick-action w-full mt-2 text-[10px]" style="text-align: center; justify-content: center;">View full checklist →</button>
+        </div>
+
+        <!-- ETA bot -->
+        <div class="card" style="background: linear-gradient(180deg, rgba(232,225,209,0.4), white);">
+          <div class="text-[10px] uppercase tracking-wider mb-2" style="color: var(--ink-soft);">🤖 ETA bot · live</div>
+          <div class="text-xs ink-soft mb-2">Anyone can ask "ETA?" — answers from live GPS without disturbing driver.</div>
+          <div class="serif text-2xl font-bold ink">11 min</div>
+          <div class="text-[10px] ink-mute mt-1">Marcus on I-485 N · arriving 2:24 PM</div>
+        </div>
+
+        <!-- Audit log peek -->
+        <div class="card">
+          <div class="text-[10px] uppercase tracking-wider ink-mute mb-2">🔒 Audit log peek</div>
+          <div class="text-[10px] ink-soft space-y-1">
+            <div>· 2:22 PM · PHI access · Renée P. (CNA-005) · vitals view · audit #4892</div>
+            <div>· 2:15 PM · Status change · driver late-cascade · auto-distribution to 5 parties</div>
+            <div>· 1:42 PM · Engagement created · 5 participants · NDA waived (Heightened tier, not Maximum)</div>
+            <div>· 1:30 PM · Subscription verified · Concierge Pass active · ride 3 of 6 deducted</div>
+          </div>
+          <button class="quick-action w-full mt-2 text-[10px]" style="text-align: center; justify-content: center;">Export audit (HIPAA-grade) →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const personaLabels = {
+    driver: 'Marcus Taylor (DRV-007) · Sees logistics + amenity prep · NO PHI access',
+    companion: 'Diana Mathis (COMP-003) · Sees logistics + handoff protocols · NO PHI access',
+    cna: 'Renée Powell (CNA-005) · Sees ALL including vitals + PHI · HIPAA-logged',
+    facility: 'Aesthetic Carolina (Sarah W.) · Sees logistics + their patients only',
+    dispatch: 'Tassy Dispatch (Phil) · Sees all threads · Audit-log access',
+    admin: 'Tassy Admin · Full system view · Compliance export'
+  };
+
+  function setPersona(role) {
+    document.getElementById('device').dataset.activeRole = role;
+    document.querySelectorAll('.persona-btn').forEach(b => b.classList.toggle('active', b.dataset.role === role));
+    document.getElementById('persona-label').textContent = role.charAt(0).toUpperCase() + role.slice(1) + ' view';
+    document.getElementById('persona-context').innerHTML = 'Viewing as: <span id="persona-label" class="font-semibold">' + personaLabels[role] + '</span>';
+    showToast('View switched to ' + role);
+  }
+
+  function loadThread(id) {
+    document.querySelectorAll('.thread-view').forEach(t => t.classList.add('hidden'));
+    document.getElementById('thread-' + id).classList.remove('hidden');
+    document.querySelectorAll('.thread-item').forEach(t => t.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✓ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>
