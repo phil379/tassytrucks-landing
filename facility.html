@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tassy Facility Portals — Mock</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --danger: #D4544A;
+      --info: #3B6EAA;
+      --vip-bg: #FAF6E8;
+      --vip-accent: #C8932E;
+      --nemt-bg: #F1F5FB;
+      --nemt-accent: #3B6EAA;
+      --winnie-bg: #F2F6EE;
+      --winnie-accent: #5E8C4A;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #2A2722; margin: 0; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); }
+    .ink-soft { color: var(--ink-soft); }
+    .ink-mute { color: var(--ink-mute); }
+    .gold { color: var(--gold); }
+    .bg-cream { background: var(--bg); }
+    .border-line { border-color: var(--line); }
+    .device-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      box-shadow: 0 0 40px rgba(0,0,0,0.25);
+    }
+    @media (min-width: 1180px) {
+      .device-wrap {
+        margin-top: 24px; margin-bottom: 24px;
+        min-height: calc(100vh - 48px);
+        border-radius: 26px;
+        overflow: hidden;
+        border: 10px solid #1B1A17;
+      }
+    }
+    .status-bar {
+      background: var(--ink);
+      color: #F4EFE0;
+      padding: 6px 24px 4px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .content { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.25rem 0.65rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .pill-confirmed { background: rgba(46,168,104,0.14); color: var(--success); }
+    .pill-enroute { background: rgba(59,110,170,0.14); color: var(--info); }
+    .pill-pending { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-completed { background: rgba(118,115,107,0.14); color: var(--ink-mute); }
+    .pill-vip { background: rgba(200,147,46,0.12); color: var(--vip-accent); }
+    .pill-nemt { background: rgba(59,110,170,0.12); color: var(--nemt-accent); }
+    .pill-winnie { background: rgba(94,140,74,0.14); color: var(--winnie-accent); }
+    .btn-gold {
+      background: var(--gold-warm); color: var(--ink);
+      padding: 11px 18px; border-radius: 10px;
+      font-weight: 600; font-size: 0.92rem;
+      border: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-ink {
+      background: var(--ink); color: #F4EFE0;
+      padding: 11px 18px; border-radius: 10px;
+      font-weight: 600; font-size: 0.92rem;
+      border: none; cursor: pointer;
+    }
+    .btn-ghost {
+      background: white; color: var(--ink);
+      padding: 9px 14px; border-radius: 10px;
+      font-weight: 500; font-size: 0.85rem;
+      border: 1px solid var(--line); cursor: pointer;
+    }
+    .tab-bar {
+      background: white;
+      border-top: 1px solid var(--line);
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      padding-bottom: 6px;
+      position: sticky; bottom: 0;
+    }
+    .tab-item {
+      padding: 11px 4px 7px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 0.7rem; color: var(--ink-mute);
+      cursor: pointer; border: none; background: transparent;
+    }
+    .tab-item.active { color: var(--ink); font-weight: 600; }
+    .tab-item.active svg { stroke: var(--gold-warm); }
+    .tab-item svg { width: 20px; height: 20px; stroke: var(--ink-mute); }
+    .hidden { display: none !important; }
+    .service-card {
+      background: white;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex; flex-direction: column;
+    }
+    .service-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -12px rgba(27,26,23,0.2); }
+    .vip-tile { border-color: rgba(200,147,46,0.25); background: linear-gradient(180deg, #FFFCF5, white); }
+    .vip-tile:hover { border-color: var(--vip-accent); }
+    .nemt-tile { border-color: rgba(59,110,170,0.25); background: linear-gradient(180deg, #F4F8FD, white); }
+    .nemt-tile:hover { border-color: var(--nemt-accent); }
+    .winnie-tile { border-color: rgba(94,140,74,0.25); background: linear-gradient(180deg, #F5F9F0, white); }
+    .winnie-tile:hover { border-color: var(--winnie-accent); }
+    .toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100%);
+      background: var(--ink); color: #F4EFE0;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 12px 24px -8px rgba(0,0,0,0.3);
+      transition: transform .3s ease; z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .input-field {
+      width: 100%;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--gold-warm);
+      box-shadow: 0 0 0 3px rgba(229,169,59,0.15);
+    }
+    .pet-photo {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #E5A93B 0%, #C8932E 100%);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+    .room-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(59,110,170,0.1);
+      color: var(--nemt-accent);
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="device-wrap" id="device">
+
+  <div class="status-bar">
+    <span id="status-time">9:24</span>
+    <span class="flex items-center gap-1">
+      <span style="color: var(--gold-warm);">Facility Portal · Tassy Trucks</span>
+      📶
+      🔋 94%
+    </span>
+  </div>
+
+  <!-- ============================ HOME / PICK FACILITY ============================ -->
+  <div id="screen-home" class="screen content">
+    <div class="bg-ink" style="padding: 28px 32px 32px;">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.55);">Facility portal preview</div>
+      <h1 class="serif text-3xl md:text-4xl font-semibold mt-1" style="color: #F4EFE0;">How facilities use Tassy</h1>
+      <p class="text-sm mt-3 max-w-2xl" style="color: rgba(244,239,224,0.75);">
+        Three facility types. Three workflows. One platform. Pick which to walk through.
+      </p>
+    </div>
+
+    <div class="px-6 md:px-10 py-8">
+      <div class="grid md:grid-cols-3 gap-5 max-w-6xl mx-auto">
+        <!-- VIP -->
+        <div onclick="goto('vip-today')" class="service-card vip-tile">
+          <div class="text-xs uppercase tracking-wider" style="color: var(--vip-accent);">Cosmetic Surgery · VIP Concierge</div>
+          <h3 class="serif text-xl font-semibold ink mt-2">Aesthetic Carolina</h3>
+          <p class="text-sm ink-soft mt-3 flex-grow">
+            High-end cosmetic surgery practice. Books discrete post-procedure transport with client code references, NDAs, and tier-controlled discretion protocols.
+          </p>
+          <div class="grid grid-cols-3 gap-2 mt-5 text-center">
+            <div><div class="serif font-bold ink">~50</div><div class="text-[10px] ink-mute uppercase">Rides/mo</div></div>
+            <div><div class="serif font-bold ink">3</div><div class="text-[10px] ink-mute uppercase">Discretion tiers</div></div>
+            <div><div class="serif font-bold ink">$200</div><div class="text-[10px] ink-mute uppercase">Avg / ride</div></div>
+          </div>
+          <button class="btn-gold mt-5 text-sm">Enter portal →</button>
+        </div>
+
+        <!-- NEMT -->
+        <div onclick="goto('nemt-today')" class="service-card nemt-tile">
+          <div class="text-xs uppercase tracking-wider" style="color: var(--nemt-accent);">Hospital · NEMT discharge</div>
+          <h3 class="serif text-xl font-semibold ink mt-2">Atrium Health</h3>
+          <p class="text-sm ink-soft mt-3 flex-grow">
+            Major hospital system's discharge planning office. Schedules NEMT rides for Medicaid + broker patients with mobility tracking and insurance verification.
+          </p>
+          <div class="grid grid-cols-3 gap-2 mt-5 text-center">
+            <div><div class="serif font-bold ink">~400</div><div class="text-[10px] ink-mute uppercase">Rides/mo</div></div>
+            <div><div class="serif font-bold ink">5</div><div class="text-[10px] ink-mute uppercase">Brokers wired</div></div>
+            <div><div class="serif font-bold ink">98%</div><div class="text-[10px] ink-mute uppercase">On time</div></div>
+          </div>
+          <button class="btn-gold mt-5 text-sm" style="background: var(--nemt-accent); color: white;">Enter portal →</button>
+        </div>
+
+        <!-- WINNIE -->
+        <div onclick="goto('winnie-today')" class="service-card winnie-tile">
+          <div class="text-xs uppercase tracking-wider" style="color: var(--winnie-accent);">Pet Care · Winnie Ride</div>
+          <h3 class="serif text-xl font-semibold ink mt-2">Bataclan Pets</h3>
+          <p class="text-sm ink-soft mt-3 flex-grow">
+            Pet grooming + daycare. Coordinates Winnie Ride pickups and drop-offs with vaccination tracking, owner communication, and photo verification per pet.
+          </p>
+          <div class="grid grid-cols-3 gap-2 mt-5 text-center">
+            <div><div class="serif font-bold ink">~90</div><div class="text-[10px] ink-mute uppercase">Rides/mo</div></div>
+            <div><div class="serif font-bold ink">42</div><div class="text-[10px] ink-mute uppercase">Active pets</div></div>
+            <div><div class="serif font-bold ink">4.9★</div><div class="text-[10px] ink-mute uppercase">Owner rating</div></div>
+          </div>
+          <button class="btn-gold mt-5 text-sm" style="background: var(--winnie-accent); color: white;">Enter portal →</button>
+        </div>
+      </div>
+
+      <div class="max-w-4xl mx-auto mt-10 bg-surface border border-line rounded-2xl p-6">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">What each portal shows</div>
+        <div class="grid md:grid-cols-4 gap-5 text-sm">
+          <div>
+            <div class="font-semibold ink mb-1">Today</div>
+            <p class="ink-soft text-xs">Live trip board · upcoming + en-route + completed</p>
+          </div>
+          <div>
+            <div class="font-semibold ink mb-1">Schedule</div>
+            <p class="ink-soft text-xs">Quick book form tailored to the service</p>
+          </div>
+          <div>
+            <div class="font-semibold ink mb-1">Database</div>
+            <p class="ink-soft text-xs">Clients · patients · pets — searchable + sortable</p>
+          </div>
+          <div>
+            <div class="font-semibold ink mb-1">Reports</div>
+            <p class="ink-soft text-xs">Monthly statement · rates · billing summary</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ VIP FACILITY (Aesthetic Carolina) ============================ -->
+  <!-- VIP: TODAY -->
+  <div id="screen-vip-today" class="screen content hidden">
+    <div style="background: var(--ink); padding: 18px 24px 22px; color: #F4EFE0;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: var(--gold-warm);">VIP Concierge · Aesthetic Carolina</div>
+          <h1 class="serif text-2xl font-semibold mt-1">Today's departures</h1>
+          <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">Friday, June 12 · 4 scheduled · 1 en route · 2 completed</div>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="color: rgba(244,239,224,0.6);">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="grid md:grid-cols-4 gap-3">
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Active engagements</div><div class="serif text-2xl font-bold gold mt-1">1</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Upcoming today</div><div class="serif text-2xl font-bold ink mt-1">3</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Completed today</div><div class="serif text-2xl font-bold ink mt-1">2</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">MTD spend</div><div class="serif text-2xl font-bold ink mt-1">$8,420</div></div>
+      </div>
+
+      <div class="card" style="border-color: var(--gold-warm); background: linear-gradient(180deg, #FFFCF5, white);">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-enroute">● EN ROUTE</span>
+              <span class="pill pill-vip">VIP · Standard discretion</span>
+            </div>
+            <div class="serif text-lg font-semibold ink mt-1">B-52 · LB · Post-procedure</div>
+            <div class="text-xs ink-mute">Trip #46 · Engagement #1</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs ink-mute">Pickup in</div>
+            <div class="serif text-xl font-bold gold">22 min</div>
+          </div>
+        </div>
+        <div class="space-y-1 text-sm ink-soft mb-3">
+          <div>🚗 Driver: <span class="ink font-medium">Marcus T.</span> · Black Cadillac Escalade · XYZ-1234</div>
+          <div>📍 Pickup: Suite 305 · 2:30 PM</div>
+          <div>🏠 Drop-off: 4425 Sharon Rd, M805</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-ghost text-xs flex-1">📞 Driver</button>
+          <button class="btn-ghost text-xs flex-1">📱 Send room # SMS</button>
+          <button class="btn-ghost text-xs flex-1">🚨 Issue</button>
+        </div>
+      </div>
+
+      <div class="text-xs ink-mute uppercase tracking-wider mt-4">Upcoming</div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">3:45 PM</span>
+              <span class="pill pill-vip">Heightened discretion</span>
+            </div>
+            <div class="serif text-base font-semibold ink mt-1">A-78 · MR · Pre-procedure pickup</div>
+            <div class="text-xs ink-mute">Companion: spouse · No interim stops · Silent entry</div>
+          </div>
+          <button class="text-xs gold">Modify →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">5:15 PM</span>
+              <span class="pill pill-vip">Standard discretion</span>
+            </div>
+            <div class="serif text-base font-semibold ink mt-1">C-12 · JD · Post-procedure (round trip)</div>
+            <div class="text-xs ink-mute">Driver returns 9:30 AM tomorrow for follow-up</div>
+          </div>
+          <button class="text-xs gold">Modify →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">6:30 PM</span>
+              <span class="pill pill-vip">Maximum discretion</span>
+            </div>
+            <div class="serif text-base font-semibold ink mt-1">D-04 · XX · Post-procedure</div>
+            <div class="text-xs ink-mute">NDA on file · No name callouts · Private entrance only</div>
+          </div>
+          <button class="text-xs gold">Modify →</button>
+        </div>
+      </div>
+
+      <button onclick="goto('vip-schedule')" class="btn-gold w-full">+ Schedule another engagement</button>
+    </div>
+  </div>
+
+  <!-- VIP: SCHEDULE -->
+  <div id="screen-vip-schedule" class="screen content hidden">
+    <div style="background: var(--ink); padding: 18px 24px 22px; color: #F4EFE0;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: var(--gold-warm);">Schedule transport</div>
+          <h1 class="serif text-xl font-semibold mt-1">New engagement</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="color: rgba(244,239,224,0.6);">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Client</div>
+        <input type="text" class="input-field" placeholder="🔍 Search by client reference (B-52, A-78, etc.)" value="B-52 · LB">
+        <div class="mt-2 flex flex-wrap gap-2">
+          <span class="pill pill-vip">+ New client</span>
+          <span class="pill pill-completed">Recently: A-78</span>
+          <span class="pill pill-completed">C-12</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Engagement type</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="btn-ghost text-xs" style="border-color: var(--gold-warm); background: rgba(229,169,59,0.08);">Pre-procedure</button>
+          <button class="btn-ghost text-xs">Post-procedure</button>
+          <button class="btn-ghost text-xs">Round trip</button>
+          <button class="btn-ghost text-xs">Standing pickup</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Discretion level</div>
+        <div class="space-y-2">
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer" style="border-color: var(--gold-warm); background: rgba(229,169,59,0.05);">
+            <div><div class="font-semibold ink text-sm">⚪ Standard</div><div class="text-xs ink-mute">Professional discreet service</div></div>
+            <input type="radio" name="discretion" checked>
+          </label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+            <div><div class="font-semibold ink text-sm">🟡 Heightened</div><div class="text-xs ink-mute">No client identification · side entrance preferred</div></div>
+            <input type="radio" name="discretion">
+          </label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer">
+            <div><div class="font-semibold ink text-sm">🔴 Maximum</div><div class="text-xs ink-mute">NDA per engagement · photo-free · press-avoidance routing</div></div>
+            <input type="radio" name="discretion">
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Trip</div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Pickup</label>
+            <input type="text" class="input-field mt-1" value="Aesthetic Carolina · Suite 305">
+          </div>
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Destination</label>
+            <input type="text" class="input-field mt-1" value="4425 Sharon Rd, M805 · Charlotte">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Date</label>
+              <input type="text" class="input-field mt-1" value="Jun 12, 2026">
+            </div>
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Pickup time</label>
+              <input type="text" class="input-field mt-1" value="2:30 PM">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Vehicle</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 border-2 rounded-xl text-center" style="border-color: var(--gold-warm); background: rgba(229,169,59,0.06);">
+            <div class="text-3xl mb-1">🚙</div>
+            <div class="font-semibold ink text-sm">Luxury Sedan</div>
+            <div class="text-[10px] ink-mute">Up to 3 pax</div>
+          </div>
+          <div class="p-3 border-2 border-line rounded-xl text-center bg-white cursor-pointer">
+            <div class="text-3xl mb-1">🚐</div>
+            <div class="font-semibold ink text-sm">Luxury SUV</div>
+            <div class="text-[10px] ink-mute">Up to 6 pax</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: linear-gradient(180deg, #FFFCF5, white); border-color: var(--gold-warm);">
+        <div class="text-xs ink-mute uppercase tracking-wider">Estimated total</div>
+        <div class="serif text-3xl font-bold gold mt-1">$202.35</div>
+        <div class="text-xs ink-mute mt-1">Premium luxury rate · final at completion</div>
+        <button onclick="showToast('Engagement confirmed · Trip #48 created')" class="btn-gold w-full mt-4">✓ Confirm engagement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIP: CLIENTS -->
+  <div id="screen-vip-clients" class="screen content hidden">
+    <div style="background: var(--ink); padding: 18px 24px 22px; color: #F4EFE0;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: var(--gold-warm);">Client database</div>
+          <h1 class="serif text-2xl font-semibold mt-1">VIP clients · 24 active</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="color: rgba(244,239,224,0.6);">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-3">
+      <input type="text" class="input-field" placeholder="🔍 Search by code reference...">
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">B-52 · LB</div>
+            <div class="text-xs ink-mute">First engagement Mar 2026 · 4 rides · Standard discretion</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-vip">VIP</span>
+              <span class="pill pill-completed">Standard</span>
+              <span class="pill pill-completed">Practice Account billing</span>
+            </div>
+          </div>
+          <button onclick="goto('vip-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">A-78 · MR</div>
+            <div class="text-xs ink-mute">First engagement Jan 2026 · 11 rides · Heightened discretion · Companion: spouse</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-vip">VIP</span>
+              <span class="pill pill-pending">Heightened</span>
+              <span class="pill pill-completed">Private Card billing</span>
+            </div>
+          </div>
+          <button onclick="goto('vip-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">D-04 · XX</div>
+            <div class="text-xs ink-mute">First engagement Apr 2026 · 7 rides · Maximum discretion · NDA on file</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-vip">VIP</span>
+              <span class="pill" style="background: rgba(212,84,74,0.12); color: var(--danger);">Maximum</span>
+              <span class="pill pill-completed">Family Office billing</span>
+            </div>
+          </div>
+          <button onclick="goto('vip-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">C-12 · JD</div>
+            <div class="text-xs ink-mute">First engagement Feb 2026 · 8 rides · Standard discretion · Round trips preferred</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-vip">VIP</span>
+              <span class="pill pill-completed">Standard</span>
+              <span class="pill pill-completed">Practice Account</span>
+            </div>
+          </div>
+          <button onclick="goto('vip-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="text-center text-xs ink-mute pt-2">+ 20 more clients</div>
+    </div>
+  </div>
+
+  <!-- VIP: REPORTS -->
+  <div id="screen-vip-reports" class="screen content hidden">
+    <div style="background: var(--ink); padding: 18px 24px 22px; color: #F4EFE0;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: var(--gold-warm);">Monthly statement · June 2026</div>
+          <h1 class="serif text-2xl font-semibold mt-1">$8,420 invoiced</h1>
+          <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">42 engagements · NET 30 · due July 1</div>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="color: rgba(244,239,224,0.6);">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By engagement type</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Post-procedure (28)</span><span class="font-medium ink">$5,612</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Pre-procedure (11)</span><span class="font-medium ink">$2,178</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Round trip (3)</span><span class="font-medium ink">$630</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By discretion tier</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Standard (24)</span><span class="font-medium ink">$4,464</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Heightened (12)</span><span class="font-medium ink">$2,628</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Maximum (6)</span><span class="font-medium ink">$1,328</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Billing routing</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Practice Account</span><span class="font-medium ink">$5,820</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Private Card (per client)</span><span class="font-medium ink">$1,872</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Family Office</span><span class="font-medium ink">$728</span></div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-gold flex-1 text-sm">📄 Download statement (PDF)</button>
+        <button class="btn-ghost flex-1 text-sm">📧 Email</button>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Last 6 months</div>
+        <div class="space-y-1.5 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">May 2026</span><span class="font-medium ink">$7,890 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Apr 2026</span><span class="font-medium ink">$6,512 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Mar 2026</span><span class="font-medium ink">$5,084 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Feb 2026</span><span class="font-medium ink">$3,210 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Jan 2026</span><span class="font-medium ink">$2,108 ✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ NEMT FACILITY (Atrium Health) ============================ -->
+  <!-- NEMT: TODAY -->
+  <div id="screen-nemt-today" class="screen content hidden">
+    <div style="background: var(--nemt-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.75;">NEMT · Atrium Health Discharge Planning</div>
+          <h1 class="serif text-2xl font-semibold mt-1">Today's discharges</h1>
+          <div class="text-xs mt-2" style="opacity: 0.85;">Friday, June 12 · 18 scheduled · 5 en route · 3 completed</div>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="grid md:grid-cols-4 gap-3">
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Scheduled today</div><div class="serif text-2xl font-bold mt-1" style="color: var(--nemt-accent);">18</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">En route</div><div class="serif text-2xl font-bold ink mt-1">5</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Avg pickup wait</div><div class="serif text-2xl font-bold ink mt-1">14m</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">On-time MTD</div><div class="serif text-2xl font-bold mt-1" style="color: var(--success);">98%</div></div>
+      </div>
+
+      <div class="card" style="border-color: var(--nemt-accent);">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-enroute">● EN ROUTE</span>
+              <span class="pill pill-nemt">NEMT · MTM auth</span>
+              <span class="room-tag">RM 4-302</span>
+            </div>
+            <div class="serif font-semibold ink mt-1">Margaret Holloway · 78F</div>
+            <div class="text-xs ink-mute">Dialysis transport · round trip · walker, door-to-door</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs ink-mute">ETA</div>
+            <div class="serif text-lg font-bold ink">14 min</div>
+          </div>
+        </div>
+        <div class="space-y-1 text-sm ink-soft mb-3">
+          <div>🚗 Driver: <span class="ink font-medium">Marcus T.</span> · Toyota Sienna · NEMT certified</div>
+          <div>📍 Pickup: West Tower Lobby → Atrium Pineville Dialysis</div>
+        </div>
+      </div>
+
+      <div class="text-xs ink-mute uppercase tracking-wider mt-2">Next 4 hours</div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">10:00 AM</span>
+              <span class="pill pill-nemt">Medicaid</span>
+              <span class="room-tag">RM 3-141</span>
+            </div>
+            <div class="serif font-semibold ink mt-1">James Thornton · 64M</div>
+            <div class="text-xs ink-mute">Discharge home · wheelchair accessible · WAV vehicle assigned</div>
+            <div class="text-xs mt-1" style="color: var(--success);">✓ Driver assigned · DRV-014 · 12 min ETA</div>
+          </div>
+          <button class="text-xs" style="color: var(--nemt-accent);">Modify →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">11:30 AM</span>
+              <span class="pill pill-nemt">VA Community Care</span>
+              <span class="room-tag">RM 7-201</span>
+            </div>
+            <div class="serif font-semibold ink mt-1">Charles Webster · 71M · 🎖️</div>
+            <div class="text-xs ink-mute">Discharge to VA Hospice · stretcher · 2 attendants required</div>
+            <div class="text-xs mt-1" style="color: var(--gold);">⏳ Awaiting driver assignment</div>
+          </div>
+          <button class="text-xs" style="color: var(--nemt-accent);">Modify →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">1:00 PM</span>
+              <span class="pill pill-nemt">ModivCare</span>
+              <span class="room-tag">RM 5-118</span>
+            </div>
+            <div class="serif font-semibold ink mt-1">Linda Moss · 82F</div>
+            <div class="text-xs ink-mute">Recurring dialysis · Tue/Thu/Sat · 90-day standing order</div>
+            <div class="text-xs mt-1" style="color: var(--success);">✓ Auth #MC-2025-887 verified</div>
+          </div>
+          <button class="text-xs" style="color: var(--nemt-accent);">Modify →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-confirmed">2:15 PM</span>
+              <span class="pill pill-nemt">LogistiCare</span>
+              <span class="room-tag">RM 2-225</span>
+            </div>
+            <div class="serif font-semibold ink mt-1">Robert Davis · 56M · Bariatric</div>
+            <div class="text-xs ink-mute">Discharge home · wheelchair accessible · reinforced vehicle</div>
+            <div class="text-xs mt-1" style="color: var(--gold);">⏳ Bariatric vehicle ETA 25 min</div>
+          </div>
+          <button class="text-xs" style="color: var(--nemt-accent);">Modify →</button>
+        </div>
+      </div>
+
+      <button onclick="goto('nemt-schedule')" class="btn-gold w-full" style="background: var(--nemt-accent); color: white;">+ Schedule new ride</button>
+    </div>
+  </div>
+
+  <!-- NEMT: SCHEDULE -->
+  <div id="screen-nemt-schedule" class="screen content hidden">
+    <div style="background: var(--nemt-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.75;">Schedule discharge</div>
+          <h1 class="serif text-xl font-semibold mt-1">New NEMT ride</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Patient</div>
+        <input type="text" class="input-field" placeholder="🔍 Search by name or MRN..." value="Margaret Holloway · MRN 4892017">
+        <div class="mt-2 flex flex-wrap gap-2">
+          <span class="pill pill-nemt">+ New patient</span>
+          <span class="pill pill-completed">Recent: J. Thornton</span>
+          <span class="pill pill-completed">L. Moss</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Payer / authorization</div>
+        <select class="input-field">
+          <option>MTM (Medicaid broker)</option>
+          <option>ModivCare</option>
+          <option>LogistiCare</option>
+          <option>VA Community Care</option>
+          <option>Medicare Advantage</option>
+          <option>Self-pay / family</option>
+        </select>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Auth #</label>
+            <input type="text" class="input-field mt-1" value="MTM-789456-25">
+          </div>
+          <div class="flex items-end">
+            <button class="btn-ghost text-xs w-full" style="background: rgba(46,168,104,0.06);">✓ Verified · $0 copay</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Trip</div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Pickup from (room or location)</label>
+            <input type="text" class="input-field mt-1" value="West Tower · Lobby · Bed 4-302">
+          </div>
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Destination</label>
+            <input type="text" class="input-field mt-1" value="Atrium Pineville Dialysis Center">
+            <div class="flex flex-wrap gap-1 mt-1">
+              <span class="pill" style="background:#F1F5FB; color: var(--nemt-accent);">Atrium Pineville</span>
+              <span class="pill" style="background:#F1F5FB; color: var(--nemt-accent);">Novant Mercy</span>
+              <span class="pill" style="background:#F1F5FB; color: var(--nemt-accent);">CMC Main</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Date</label>
+              <input type="text" class="input-field mt-1" value="Jun 12">
+            </div>
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Pickup time</label>
+              <input type="text" class="input-field mt-1" value="8:30 AM">
+            </div>
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Return</label>
+              <input type="text" class="input-field mt-1" value="12:30 PM">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Mobility &amp; service level</div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <button class="btn-ghost text-xs" style="border-color: var(--nemt-accent); background: rgba(59,110,170,0.06);">🚶 Ambulatory</button>
+          <button class="btn-ghost text-xs">🦯 Walker / cane</button>
+          <button class="btn-ghost text-xs">♿ Wheelchair</button>
+          <button class="btn-ghost text-xs">🛏 Stretcher</button>
+        </div>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" checked><span class="ink-soft">Door-to-door (escort to vehicle)</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox"><span class="ink-soft">Door-through-door (driver enters lobby)</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked><span class="ink-soft">Recurring (Tue/Thu/Sat dialysis pattern · 90 days)</span></label>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: linear-gradient(180deg, #F4F8FD, white); border-color: var(--nemt-accent);">
+        <div class="text-xs ink-mute uppercase tracking-wider">Patient cost</div>
+        <div class="serif text-3xl font-bold mt-1" style="color: var(--nemt-accent);">$0.00</div>
+        <div class="text-xs ink-mute mt-1">Fully covered by MTM auth · $42.50 billed to broker</div>
+        <button onclick="showToast('Ride scheduled · TT-2418 · MTM notified')" class="btn-ink w-full mt-4">✓ Schedule ride</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEMT: PATIENTS -->
+  <div id="screen-nemt-patients" class="screen content hidden">
+    <div style="background: var(--nemt-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.75;">Patient database</div>
+          <h1 class="serif text-2xl font-semibold mt-1">Active patients · 312</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-3">
+      <input type="text" class="input-field" placeholder="🔍 Search by name or MRN...">
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">Margaret Holloway · MRN 4892017</div>
+            <div class="text-xs ink-mute">78F · Walker · Recurring dialysis Tue/Thu/Sat · 24 rides YTD</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-nemt">MTM Medicaid</span>
+              <span class="pill pill-completed">Door-to-door</span>
+              <span class="pill" style="background: rgba(46,168,104,0.12); color: var(--success);">Active standing order</span>
+            </div>
+          </div>
+          <button onclick="goto('nemt-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">James Thornton · MRN 5021884</div>
+            <div class="text-xs ink-mute">64M · Wheelchair (WAV) · 8 rides YTD</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-nemt">ModivCare</span>
+              <span class="pill pill-completed">Door-through-door</span>
+              <span class="pill" style="background: rgba(212,84,74,0.12); color: var(--danger);">Discharge pending today</span>
+            </div>
+          </div>
+          <button onclick="goto('nemt-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">Charles Webster · MRN 4783201 · 🎖️ Veteran</div>
+            <div class="text-xs ink-mute">71M · Stretcher · 2 attendant requirement</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill" style="background: rgba(229,169,59,0.14); color: var(--gold);">VA CCN</span>
+              <span class="pill pill-completed">Hospice-bound</span>
+              <span class="pill" style="background: rgba(212,84,74,0.12); color: var(--danger);">High touch</span>
+            </div>
+          </div>
+          <button onclick="goto('nemt-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="serif font-semibold ink">Linda Moss · MRN 5298477</div>
+            <div class="text-xs ink-mute">82F · Walker · Recurring dialysis Tue/Thu/Sat · 41 rides YTD</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill pill-nemt">ModivCare</span>
+              <span class="pill" style="background: rgba(46,168,104,0.12); color: var(--success);">Standing order · day 28 of 90</span>
+            </div>
+          </div>
+          <button onclick="goto('nemt-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+        </div>
+      </div>
+
+      <div class="text-center text-xs ink-mute pt-2">+ 308 more patients</div>
+    </div>
+  </div>
+
+  <!-- NEMT: REPORTS -->
+  <div id="screen-nemt-reports" class="screen content hidden">
+    <div style="background: var(--nemt-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.75;">Reports · June 2026</div>
+          <h1 class="serif text-2xl font-semibold mt-1">412 rides · 98% on time</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="grid md:grid-cols-3 gap-3">
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Patient cost</div><div class="serif text-2xl font-bold mt-1" style="color: var(--success);">$0</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Broker billed</div><div class="serif text-2xl font-bold ink mt-1">$17,510</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Avg ride cost</div><div class="serif text-2xl font-bold ink mt-1">$42.50</div></div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By broker / payer</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">MTM (Medicaid · 184 rides)</span><span class="font-medium ink">$7,820</span></div>
+          <div class="flex justify-between"><span class="ink-soft">ModivCare (132 rides)</span><span class="font-medium ink">$5,610</span></div>
+          <div class="flex justify-between"><span class="ink-soft">LogistiCare (48 rides)</span><span class="font-medium ink">$2,040</span></div>
+          <div class="flex justify-between"><span class="ink-soft">VA Community Care (38 rides)</span><span class="font-medium ink">$1,615</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Self-pay (10 rides)</span><span class="font-medium ink">$425</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Mobility breakdown</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Ambulatory + walker (267)</span><span class="font-medium ink">65%</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Wheelchair / WAV (98)</span><span class="font-medium ink">24%</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Stretcher (32)</span><span class="font-medium ink">8%</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Bariatric (15)</span><span class="font-medium ink">3%</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Quality metrics</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">On-time arrival</span><span class="font-bold" style="color: var(--success);">98%</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Avg pickup wait (vs SLA 30 min)</span><span class="font-medium ink">14 min</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Complaints (this month)</span><span class="font-medium ink">2 (resolved)</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Patient satisfaction</span><span class="font-bold" style="color: var(--success);">4.8 / 5</span></div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-gold flex-1 text-sm" style="background: var(--nemt-accent); color: white;">📄 Export to JCAHO format</button>
+        <button class="btn-ghost flex-1 text-sm">📧 Email to admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ WINNIE FACILITY (Bataclan Pets) ============================ -->
+  <!-- WINNIE: TODAY -->
+  <div id="screen-winnie-today" class="screen content hidden">
+    <div style="background: var(--winnie-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.8;">Winnie Ride · Bataclan Pets</div>
+          <h1 class="serif text-2xl font-semibold mt-1">Today's pickups</h1>
+          <div class="text-xs mt-2" style="opacity: 0.85;">Friday, June 12 · 9 scheduled · 2 en route · 5 completed</div>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="grid md:grid-cols-4 gap-3">
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Scheduled</div><div class="serif text-2xl font-bold mt-1" style="color: var(--winnie-accent);">9</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Active pickups</div><div class="serif text-2xl font-bold ink mt-1">2</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Active pets</div><div class="serif text-2xl font-bold ink mt-1">42</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase tracking-wider">Owner rating</div><div class="serif text-2xl font-bold mt-1" style="color: var(--success);">4.9★</div></div>
+      </div>
+
+      <div class="card" style="border-color: var(--winnie-accent);">
+        <div class="flex items-start gap-3">
+          <div class="pet-photo" style="background: linear-gradient(135deg, #C8A878 0%, #A0875A 100%);">🐕</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-enroute">● EN ROUTE</span>
+              <span class="pill pill-winnie">Winnie · Grooming</span>
+            </div>
+            <div class="serif font-semibold ink mt-1">Biscuit · Golden Retriever, 7yr, 65 lbs</div>
+            <div class="text-xs ink-mute">Owner: Sarah Mitchell · 📞 (704) 555-0188 · 💉 Rabies + Bordetella current</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs ink-mute">ETA</div>
+            <div class="serif text-lg font-bold ink">8 min</div>
+          </div>
+        </div>
+        <div class="mt-3 space-y-1 text-sm ink-soft">
+          <div>📍 1247 Magnolia Ave · → Bataclan Pets (grooming)</div>
+          <div>🚐 Marcus T. · Toyota Sienna · pet-trained driver</div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-3">
+          <button class="btn-ghost text-xs">📞 Owner</button>
+          <button class="btn-ghost text-xs">📸 Send photo</button>
+          <button class="btn-ghost text-xs">🚨 Issue</button>
+        </div>
+      </div>
+
+      <div class="text-xs ink-mute uppercase tracking-wider mt-2">Upcoming</div>
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo" style="background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%);">🐈</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-confirmed">11:30 AM</span>
+            <span class="pill pill-winnie">Vet visit</span>
+          </div>
+          <div class="serif font-semibold ink mt-1">Mochi · Calico, 4yr, 8 lbs</div>
+          <div class="text-xs ink-mute">Owner: Sarah Mitchell · Own carrier · Carolina Animal Hospital</div>
+        </div>
+        <button class="text-xs" style="color: var(--winnie-accent);">Modify →</button>
+      </div>
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo">🐕</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-confirmed">1:15 PM</span>
+            <span class="pill pill-winnie">Daycare drop-off</span>
+          </div>
+          <div class="serif font-semibold ink mt-1">Cooper &amp; Daisy · Labrador puppies, 9mo</div>
+          <div class="text-xs ink-mute">Owner: Marcus Brown · 2 pets · Camp Bow Wow Charlotte</div>
+        </div>
+        <button class="text-xs" style="color: var(--winnie-accent);">Modify →</button>
+      </div>
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo" style="background: linear-gradient(135deg, #8B6F47 0%, #6B4F30 100%);">🐕</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-confirmed">3:30 PM</span>
+            <span class="pill pill-winnie">Grooming pickup</span>
+            <span class="pill" style="background: rgba(229,169,59,0.14); color: var(--gold);">⚠ Sedation</span>
+          </div>
+          <div class="serif font-semibold ink mt-1">Bella · Doberman, 6yr, 75 lbs</div>
+          <div class="text-xs ink-mute">Owner: Jennifer Hayes · Vet: Dr. Patel · Trazodone 50mg @ 2pm</div>
+        </div>
+        <button class="text-xs" style="color: var(--winnie-accent);">Modify →</button>
+      </div>
+
+      <button onclick="goto('winnie-schedule')" class="btn-gold w-full" style="background: var(--winnie-accent); color: white;">+ Schedule new pickup</button>
+    </div>
+  </div>
+
+  <!-- WINNIE: SCHEDULE -->
+  <div id="screen-winnie-schedule" class="screen content hidden">
+    <div style="background: var(--winnie-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.8;">Schedule pickup</div>
+          <h1 class="serif text-xl font-semibold mt-1">New Winnie Ride</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Owner &amp; pet</div>
+        <input type="text" class="input-field" placeholder="🔍 Search owner or pet name..." value="Sarah Mitchell · Biscuit (Golden Retriever)">
+        <div class="mt-3 flex items-center gap-3 p-3 bg-cream rounded-lg" style="background: var(--bg);">
+          <div class="pet-photo" style="background: linear-gradient(135deg, #C8A878 0%, #A0875A 100%);">🐕</div>
+          <div class="text-xs">
+            <div class="font-semibold ink">Biscuit · 65 lbs · 7yr</div>
+            <div class="ink-mute">✓ Rabies 11/2026 · ✓ Bordetella 09/2026 · ⚠ DHPP not on file</div>
+            <div class="ink-mute">Special: nervous in unfamiliar vehicles · treats OK</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Trip type</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="btn-ghost text-xs" style="border-color: var(--winnie-accent); background: rgba(94,140,74,0.06);">🩺 Vet visit</button>
+          <button class="btn-ghost text-xs">✂️ Grooming</button>
+          <button class="btn-ghost text-xs">🐾 Daycare drop</button>
+          <button class="btn-ghost text-xs">🏠 Daycare pickup</button>
+          <button class="btn-ghost text-xs">🏨 Boarding drop</button>
+          <button class="btn-ghost text-xs">🚪 Boarding pickup</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Care needs</div>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" checked><span class="ink-soft">Own carrier provided</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox"><span class="ink-soft">Sedation required (vet name + meds)</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked><span class="ink-soft">Treats OK during trip</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox"><span class="ink-soft">Service animal (ADA · no fee)</span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Trip</div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Pickup (owner address)</label>
+            <input type="text" class="input-field mt-1" value="1247 Magnolia Ave, Charlotte">
+          </div>
+          <div>
+            <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Destination</label>
+            <input type="text" class="input-field mt-1" value="Carolina Animal Hospital · Pineville">
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Date</label>
+              <input type="text" class="input-field mt-1" value="Jun 12">
+            </div>
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Pickup</label>
+              <input type="text" class="input-field mt-1" value="10:00 AM">
+            </div>
+            <div>
+              <label class="text-[10px] font-semibold ink-soft uppercase tracking-wider">Return</label>
+              <input type="text" class="input-field mt-1" value="12:30 PM">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: linear-gradient(180deg, #F5F9F0, white); border-color: var(--winnie-accent);">
+        <div class="text-xs ink-mute uppercase tracking-wider">Estimated total</div>
+        <div class="serif text-3xl font-bold mt-1" style="color: var(--winnie-accent);">$72.40</div>
+        <div class="text-xs ink-mute mt-1">1 pet · round trip · charged to Sarah's card on file</div>
+        <button onclick="showToast('Pickup scheduled · WIN-1208 · owner notified')" class="btn-ink w-full mt-4">✓ Schedule pickup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINNIE: PETS -->
+  <div id="screen-winnie-pets" class="screen content hidden">
+    <div style="background: var(--winnie-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.8;">Pet database</div>
+          <h1 class="serif text-2xl font-semibold mt-1">42 active pets · 28 owners</h1>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-3">
+      <input type="text" class="input-field" placeholder="🔍 Search by pet or owner...">
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo" style="background: linear-gradient(135deg, #C8A878 0%, #A0875A 100%);">🐕</div>
+        <div class="flex-1">
+          <div class="serif font-semibold ink">Biscuit · Golden Retriever, 7yr · 65 lbs</div>
+          <div class="text-xs ink-mute">Owner: Sarah Mitchell · 12 rides YTD</div>
+          <div class="flex gap-2 mt-2">
+            <span class="pill pill-winnie">Vet visits</span>
+            <span class="pill pill-completed">Grooming monthly</span>
+            <span class="pill" style="background: rgba(46,168,104,0.12); color: var(--success);">All vax current</span>
+          </div>
+        </div>
+        <button onclick="goto('winnie-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+      </div>
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo" style="background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%);">🐈</div>
+        <div class="flex-1">
+          <div class="serif font-semibold ink">Mochi · Calico cat, 4yr · 8 lbs</div>
+          <div class="text-xs ink-mute">Owner: Sarah Mitchell · 6 rides YTD</div>
+          <div class="flex gap-2 mt-2">
+            <span class="pill pill-winnie">Vet visits</span>
+            <span class="pill pill-completed">Own carrier</span>
+            <span class="pill" style="background: rgba(46,168,104,0.12); color: var(--success);">All vax current</span>
+          </div>
+        </div>
+        <button onclick="goto('winnie-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+      </div>
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo">🐕</div>
+        <div class="flex-1">
+          <div class="serif font-semibold ink">Cooper · Labrador puppy, 9mo · 42 lbs</div>
+          <div class="text-xs ink-mute">Owner: Marcus Brown · 18 rides YTD (daycare M/W/F)</div>
+          <div class="flex gap-2 mt-2">
+            <span class="pill pill-winnie">Daycare</span>
+            <span class="pill pill-completed">Standing schedule</span>
+            <span class="pill" style="background: rgba(229,169,59,0.12); color: var(--gold);">⚠ Bordetella exp 7/15</span>
+          </div>
+        </div>
+        <button onclick="goto('winnie-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+      </div>
+
+      <div class="card flex items-start gap-3">
+        <div class="pet-photo" style="background: linear-gradient(135deg, #8B6F47 0%, #6B4F30 100%);">🐕</div>
+        <div class="flex-1">
+          <div class="serif font-semibold ink">Bella · Doberman, 6yr · 75 lbs</div>
+          <div class="text-xs ink-mute">Owner: Jennifer Hayes · 4 rides YTD</div>
+          <div class="flex gap-2 mt-2">
+            <span class="pill pill-winnie">Grooming</span>
+            <span class="pill" style="background: rgba(212,84,74,0.12); color: var(--danger);">Sedation needed</span>
+            <span class="pill pill-completed">Carrier-trained</span>
+          </div>
+        </div>
+        <button onclick="goto('winnie-schedule')" class="btn-ghost text-xs">+ Schedule</button>
+      </div>
+
+      <div class="text-center text-xs ink-mute pt-2">+ 38 more pets</div>
+    </div>
+  </div>
+
+  <!-- WINNIE: REPORTS -->
+  <div id="screen-winnie-reports" class="screen content hidden">
+    <div style="background: var(--winnie-accent); padding: 18px 24px 22px; color: white;">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="opacity: 0.8;">Monthly statement · June 2026</div>
+          <h1 class="serif text-2xl font-semibold mt-1">$5,720 collected</h1>
+          <div class="text-xs mt-2" style="opacity: 0.85;">93 pickups · 4.9★ avg owner rating · 2 incidents (resolved)</div>
+        </div>
+        <button onclick="goto('home')" class="text-xs" style="opacity: 0.75;">✕ Exit</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By trip type</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Vet visits (28)</span><span class="font-medium ink">$2,156</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Grooming round trips (24)</span><span class="font-medium ink">$1,608</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Daycare drop-off (21)</span><span class="font-medium ink">$945</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Daycare pickup (15)</span><span class="font-medium ink">$675</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Boarding (5)</span><span class="font-medium ink">$336</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Owner satisfaction signals</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Avg owner rating</span><span class="font-bold" style="color: var(--success);">4.9 / 5</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Photo updates sent (per trip)</span><span class="font-medium ink">3.2 avg</span></div>
+          <div class="flex justify-between"><span class="ink-soft">"Loved Marcus" mentions</span><span class="font-medium ink">18 times</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Incidents (no injury, resolved)</span><span class="font-medium ink">2</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Top owners (MTD)</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Marcus Brown (Cooper · daycare M/W/F)</span><span class="font-medium ink">$540</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Sarah Mitchell (Biscuit + Mochi)</span><span class="font-medium ink">$385</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Tina Chen (3 cats · vet quarterly)</span><span class="font-medium ink">$240</span></div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-gold flex-1 text-sm" style="background: var(--winnie-accent); color: white;">📄 Owner-facing recap (PDF)</button>
+        <button class="btn-ghost flex-1 text-sm">📧 Bulk email owners</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ TAB BAR (dynamic per facility) ================ -->
+  <div class="tab-bar" id="tabbar-vip" style="display:none;">
+    <button class="tab-item" data-tab="vip-today" onclick="goto('vip-today')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="tab-item" data-tab="vip-schedule" onclick="goto('vip-schedule')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="tab-item" data-tab="vip-clients" onclick="goto('vip-clients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Clients</span>
+    </button>
+    <button class="tab-item" data-tab="vip-reports" onclick="goto('vip-reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+      <span>Reports</span>
+    </button>
+    <button class="tab-item" onclick="goto('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      <span>Switch</span>
+    </button>
+  </div>
+
+  <div class="tab-bar" id="tabbar-nemt" style="display:none;">
+    <button class="tab-item" data-tab="nemt-today" onclick="goto('nemt-today')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Discharges</span>
+    </button>
+    <button class="tab-item" data-tab="nemt-schedule" onclick="goto('nemt-schedule')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="tab-item" data-tab="nemt-patients" onclick="goto('nemt-patients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Patients</span>
+    </button>
+    <button class="tab-item" data-tab="nemt-reports" onclick="goto('nemt-reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+      <span>Reports</span>
+    </button>
+    <button class="tab-item" onclick="goto('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      <span>Switch</span>
+    </button>
+  </div>
+
+  <div class="tab-bar" id="tabbar-winnie" style="display:none;">
+    <button class="tab-item" data-tab="winnie-today" onclick="goto('winnie-today')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="tab-item" data-tab="winnie-schedule" onclick="goto('winnie-schedule')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="tab-item" data-tab="winnie-pets" onclick="goto('winnie-pets')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="9" r="2"/><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="19" cy="9" r="2"/><path d="M8 14c0-2 1.5-4 4-4s4 2 4 4-1.5 6-4 6-4-4-4-6z"/></svg>
+      <span>Pets</span>
+    </button>
+    <button class="tab-item" data-tab="winnie-reports" onclick="goto('winnie-reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+      <span>Reports</span>
+    </button>
+    <button class="tab-item" onclick="goto('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      <span>Switch</span>
+    </button>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let suppressHistory = false;
+
+  const facilityPrefix = (screen) => screen.split('-')[0]; // vip | nemt | winnie | home
+
+  function pushHistory(screen) {
+    if (suppressHistory) return;
+    const hash = `#${screen}`;
+    if (location.hash !== hash) history.pushState({ screen }, '', hash);
+  }
+
+  function parseHash() {
+    const h = location.hash.replace('#', '');
+    const valid = ['home',
+      'vip-today','vip-schedule','vip-clients','vip-reports',
+      'nemt-today','nemt-schedule','nemt-patients','nemt-reports',
+      'winnie-today','winnie-schedule','winnie-pets','winnie-reports'];
+    return valid.includes(h) ? h : 'home';
+  }
+
+  function goto(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-' + screen)?.classList.remove('hidden');
+
+    // Manage tab bars per facility
+    document.querySelectorAll('.tab-bar').forEach(t => t.style.display = 'none');
+    const prefix = facilityPrefix(screen);
+    if (prefix !== 'home') {
+      const bar = document.getElementById('tabbar-' + prefix);
+      if (bar) {
+        bar.style.display = 'grid';
+        bar.querySelectorAll('.tab-item').forEach(t => {
+          t.classList.toggle('active', t.dataset.tab === screen);
+        });
+      }
+    }
+
+    pushHistory(screen);
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✓ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function syncFromHash() {
+    const screen = parseHash();
+    suppressHistory = true;
+    try { goto(screen); } finally { suppressHistory = false; }
+  }
+
+  window.addEventListener('popstate', syncFromHash);
+  window.addEventListener('DOMContentLoaded', () => {
+    if (location.hash) syncFromHash();
+    else history.replaceState({ screen: 'home' }, '', '#home');
+  });
+
+  function updateTime() {
+    const d = new Date();
+    document.getElementById('status-time').textContent =
+      d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+  }
+  updateTime();
+  setInterval(updateTime, 30000);
+</script>
+
+</body>
+</html>
