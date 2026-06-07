@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Tassy CNA — Mock PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --danger: #D4544A;
+      --info: #3B6EAA;
+      --cna: #2E7D8F;
+      --cna-dark: #1E5460;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #2A2722; margin: 0; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); } .ink-soft { color: var(--ink-soft); } .ink-mute { color: var(--ink-mute); } .gold { color: var(--gold); }
+    .device-wrap { max-width: 420px; margin: 0 auto; min-height: 100vh; background: var(--bg); box-shadow: 0 0 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
+    @media (min-width: 480px) { .device-wrap { margin: 20px auto; min-height: calc(100vh - 40px); border-radius: 36px; overflow: hidden; border: 8px solid #1B1A17; } }
+    .status-bar { background: var(--ink); color: #F4EFE0; padding: 6px 18px 4px; display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 600; }
+    .app-header { background: linear-gradient(135deg, var(--ink) 0%, var(--cna-dark) 140%); color: #F4EFE0; padding: 14px 18px 18px; }
+    .tab-bar { background: white; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: 8px; position: sticky; bottom: 0; }
+    .tab-item { padding: 10px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--ink-mute); cursor: pointer; border: none; background: transparent; }
+    .tab-item.active { color: var(--ink); font-weight: 600; }
+    .tab-item.active svg { stroke: var(--cna); }
+    .tab-item svg { width: 22px; height: 22px; stroke: var(--ink-mute); }
+    .content { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+    .pill-active { background: rgba(46,168,104,0.14); color: var(--success); }
+    .pill-pending { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-cna { background: rgba(46,125,143,0.14); color: var(--cna); }
+    .pill-phi { background: rgba(212,84,74,0.10); color: var(--danger); font-size: 0.6rem; }
+    .btn-primary { background: var(--cna); color: white; padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; width: 100%; }
+    .btn-success { background: var(--success); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; width: 100%; }
+    .btn-ghost { background: white; color: var(--ink); padding: 12px 16px; border-radius: 10px; font-weight: 500; font-size: 0.9rem; border: 1px solid var(--line); cursor: pointer; }
+    .hidden { display: none !important; }
+    .step-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; background: var(--line); color: var(--ink-soft); flex-shrink: 0; }
+    .step-circle.done { background: var(--success); color: white; }
+    .step-circle.active { background: var(--cna); color: white; }
+    .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100%); background: var(--ink); color: #F4EFE0; padding: 12px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 12px 24px -8px rgba(0,0,0,0.3); transition: transform .3s ease; z-index: 100; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .input-field { width: 100%; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 0.65rem 0.85rem; font-size: 0.9rem; }
+    .input-field:focus { outline: none; border-color: var(--cna); box-shadow: 0 0 0 3px rgba(46,125,143,0.15); }
+    .vitals-input { display: flex; align-items: center; gap: 8px; padding: 14px; background: white; border: 1px solid var(--line); border-radius: 12px; }
+    .vitals-input .label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--ink-mute); flex: 1; }
+    .vitals-input .value { font-family: 'Newsreader', serif; font-size: 1.4rem; font-weight: 700; color: var(--ink); }
+    .vitals-input .unit { font-size: 0.7rem; color: var(--ink-mute); }
+    .vitals-input.flag { background: rgba(212,84,74,0.05); border-color: rgba(212,84,74,0.25); }
+    .vitals-input.flag .value { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<div class="device-wrap" id="device">
+  <div class="status-bar">
+    <span id="status-time">9:24</span>
+    <span>🔐 HIPAA · 📶 5G · 🔋 92%</span>
+  </div>
+
+  <!-- =========== TODAY =========== -->
+  <div id="screen-today" class="screen content">
+    <div class="app-header">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">🩺 CNA · On duty</div>
+          <h1 class="serif text-xl font-semibold mt-1" style="color: #F4EFE0;">Good morning, Renée</h1>
+          <div class="text-xs mt-2" style="color: rgba(244,239,224,0.75);">2 care assignments today · $445 expected · 5.0★</div>
+        </div>
+        <span class="text-2xl">🩺</span>
+      </div>
+    </div>
+
+    <!-- Onboarding banner -->
+    <div class="px-4 pt-4">
+      <div onclick="goto('onboard', 1)" class="card" style="background: linear-gradient(135deg, var(--cna-dark) 0%, var(--cna) 100%); color: white; cursor: pointer; border-color: var(--gold-warm);">
+        <div class="flex items-start gap-3">
+          <div class="text-3xl">🎓</div>
+          <div class="flex-1">
+            <div class="text-[10px] uppercase tracking-wider" style="color: var(--gold-warm);">Preview · CNA onboarding</div>
+            <div class="font-semibold mt-1">See how a new CNA gets credentialed + activated</div>
+            <div class="text-xs mt-1" style="opacity: 0.75;">10 steps · cert verify → first care visit</div>
+          </div>
+          <div class="text-xl" style="color: var(--gold-warm);">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 space-y-3">
+      <!-- ACTIVE -->
+      <div class="card" onclick="goto('active', 1)" style="border-color: var(--cna); background: linear-gradient(180deg, #F0F8FA, white); cursor: pointer;">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-active">● NEXT UP</span>
+              <span class="pill pill-cna">Premium Recovery</span>
+            </div>
+            <div class="serif text-lg font-semibold ink">B-52 · LB <span class="pill pill-phi ml-1">PHI</span></div>
+            <div class="text-xs ink-mute">Care visit #1 · Tier: Premium</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs ink-mute">Care visit</div>
+            <div class="serif text-lg font-bold" style="color: var(--cna);">2:30 PM</div>
+          </div>
+        </div>
+        <div class="space-y-1 text-sm ink-soft mb-3">
+          <div>🏥 Aesthetic Carolina · Suite 305</div>
+          <div>🏠 Drop-off: 4425 Sharon Rd, M805</div>
+          <div>⚕️ Procedure: <span class="ink">Mastopexy (breast lift)</span></div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-xs text-center">
+          <div class="bg-cream rounded-lg p-2"><div class="ink-mute">Pay</div><div class="font-bold ink">$185</div></div>
+          <div class="bg-cream rounded-lg p-2"><div class="ink-mute">Duration</div><div class="font-bold ink">~3h</div></div>
+          <div class="bg-cream rounded-lg p-2"><div class="ink-mute">+24hr call</div><div class="font-bold ink">✓</div></div>
+        </div>
+      </div>
+
+      <div class="text-xs uppercase tracking-wider ink-mute mt-4">Care visit later</div>
+
+      <div class="card" onclick="showToast('Care brief (mock)')">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-pending">6:00 PM</span>
+              <span class="pill pill-cna">Maximum Discretion</span>
+              <span class="pill pill-phi">PHI</span>
+            </div>
+            <div class="serif text-base font-semibold ink">D-04 · XX</div>
+            <div class="text-xs ink-mute">Care visit · NDA signed · Rhytidectomy (facelift)</div>
+          </div>
+          <div class="text-right text-xs">
+            <div class="ink-mute">Pay</div>
+            <div class="font-bold gold">$260</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow-up calls due -->
+      <div class="text-xs uppercase tracking-wider ink-mute mt-4">📞 24-hour follow-up calls due</div>
+
+      <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.25);">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="font-semibold ink text-sm">A-78 · MR · Post-rhinoplasty</div>
+            <div class="text-xs ink-soft mt-1">Yesterday's care visit · call before 4:30 PM today</div>
+          </div>
+          <button onclick="showToast('Follow-up logged')" class="btn-ghost text-xs">📞 Call now</button>
+        </div>
+      </div>
+      <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.25);">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="font-semibold ink text-sm">C-12 · JD · Post-blepharoplasty</div>
+            <div class="text-xs ink-soft mt-1">Yesterday's care visit · call before 5:15 PM today</div>
+          </div>
+          <button onclick="showToast('Follow-up logged')" class="btn-ghost text-xs">📞 Call now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== ACTIVE CARE VISIT (7 STEPS) =========== -->
+  <div id="screen-active" class="screen content hidden">
+    <div class="app-header">
+      <div class="flex items-center justify-between">
+        <button onclick="goto('today')" class="text-sm" style="color: rgba(244,239,224,0.7);">← Today</button>
+        <div class="text-center">
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Care visit · B-52</div>
+          <div class="font-semibold" style="color: #F4EFE0;">Mastopexy follow-care</div>
+        </div>
+        <button class="text-xs" style="color: rgba(244,239,224,0.5);">⋯</button>
+      </div>
+      <div class="flex gap-1 mt-4" id="active-progress"></div>
+    </div>
+
+    <!-- Step 1: Pre-visit medical brief -->
+    <div class="active-step" data-step="1">
+      <div class="p-4 space-y-4">
+        <div class="card" style="border-color: var(--danger); background: rgba(212,84,74,0.04);">
+          <div class="flex justify-between items-start mb-2">
+            <div class="text-xs font-bold uppercase tracking-wider" style="color: var(--danger);">🔒 PHI access logged</div>
+            <span class="text-[10px] ink-mute">Audit: HIPAA event #4892</span>
+          </div>
+          <div class="text-xs ink-soft">You're accessing protected health information for assigned care. Every view is logged.</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Medical brief</div>
+          <div class="space-y-2 text-sm">
+            <div><span class="ink-mute">Patient:</span> <span class="ink font-medium">B-52 · LB</span></div>
+            <div><span class="ink-mute">Procedure:</span> <span class="ink font-medium">Bilateral mastopexy</span></div>
+            <div><span class="ink-mute">Anesthesia:</span> <span class="ink font-medium">General (2.5 hr)</span></div>
+            <div><span class="ink-mute">Allergies:</span> <span class="ink font-medium">Latex · sulfa</span></div>
+            <div><span class="ink-mute">Pre-op vitals:</span> <span class="ink font-medium">BP 118/76 · HR 72 · SpO2 99%</span></div>
+            <div><span class="ink-mute">Rx given:</span> <span class="ink font-medium">Oxycodone 5mg q6h · Cefadroxil 500mg BID</span></div>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.25);">
+          <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--gold);">⚠️ Watch for</div>
+          <ul class="text-xs ink-soft space-y-1">
+            <li>· Hematoma at surgical site (asymmetric swelling)</li>
+            <li>· SpO2 drop below 94% (anesthesia residual)</li>
+            <li>· Pain rating &gt; 7/10 (rx escalation needed)</li>
+            <li>· Nausea/vomiting (anesthesia common)</li>
+          </ul>
+        </div>
+        <button class="btn-success" onclick="advance(2)">✓ Briefed · arriving at facility</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Discharge attend -->
+    <div class="active-step hidden" data-step="2">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.06);">
+          <div class="text-3xl mb-2">📋</div>
+          <div class="font-semibold ink">Attending discharge at Suite 305</div>
+          <div class="text-sm ink-mute mt-1">Wait for anesthesia clearance · receive discharge packet</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Discharge attendance</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Identified self to nursing as Tassy CNA</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Received discharge packet + Rx</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Reviewed pain mgmt schedule with nurse</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Confirmed practice 24-hour callback</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Patient stable for transport (nurse cleared)</span></label>
+          </div>
+        </div>
+        <button class="btn-success" onclick="advance(3)">Patient ready for vitals at vehicle</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Pre-transport vitals -->
+    <div class="active-step hidden" data-step="3">
+      <div class="p-4 space-y-4">
+        <div class="card" style="border-color: var(--cna);">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">📊 Vitals at vehicle (pre-transport)</div>
+          <div class="space-y-3">
+            <div class="vitals-input">
+              <span class="label">Blood Pressure</span>
+              <span class="value">120 / 78</span>
+              <span class="unit">mmHg</span>
+            </div>
+            <div class="vitals-input">
+              <span class="label">Heart Rate</span>
+              <span class="value">78</span>
+              <span class="unit">bpm</span>
+            </div>
+            <div class="vitals-input">
+              <span class="label">SpO2</span>
+              <span class="value">98</span>
+              <span class="unit">%</span>
+            </div>
+            <div class="vitals-input">
+              <span class="label">Pain rating</span>
+              <span class="value">3 / 10</span>
+              <span class="unit">scale</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(46,168,104,0.06); border-color: rgba(46,168,104,0.25);">
+          <div class="flex items-start gap-2 text-sm">
+            <span style="color: var(--success);">✓</span>
+            <div>
+              <div class="font-semibold ink">All vitals within range</div>
+              <div class="text-xs ink-mute">Cleared for transport · auto-logged to care record</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-success" onclick="advance(4)">In vehicle · monitoring transit</button>
+      </div>
+    </div>
+
+    <!-- Step 4: In-transit monitoring -->
+    <div class="active-step hidden" data-step="4">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,125,143,0.06); border-color: rgba(46,125,143,0.25);">
+          <div class="text-3xl mb-2">🚐</div>
+          <div class="font-semibold ink">In-transit monitoring</div>
+          <div class="text-sm ink-mute mt-1">Black Cadillac · 22 min to dropoff</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">In-transit observations</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>Patient comfortable (head support, pillow)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>No nausea/vomiting</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>Pain stable (no escalation needed)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Patient sleeping (anesthesia residual)</span></label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Notes</div>
+          <textarea class="input-field" rows="2" placeholder="Anything to log..."></textarea>
+        </div>
+        <button class="btn-success" onclick="advance(5)">Arrived at home</button>
+      </div>
+    </div>
+
+    <!-- Step 5: At-home handoff + vitals -->
+    <div class="active-step hidden" data-step="5">
+      <div class="p-4 space-y-4">
+        <div class="card" style="border-color: var(--cna);">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">📊 Vitals at home (post-transport)</div>
+          <div class="space-y-3">
+            <div class="vitals-input">
+              <span class="label">Blood Pressure</span>
+              <span class="value">125 / 82</span>
+              <span class="unit">mmHg</span>
+            </div>
+            <div class="vitals-input">
+              <span class="label">Heart Rate</span>
+              <span class="value">82</span>
+              <span class="unit">bpm</span>
+            </div>
+            <div class="vitals-input">
+              <span class="label">SpO2</span>
+              <span class="value">97</span>
+              <span class="unit">%</span>
+            </div>
+            <div class="vitals-input">
+              <span class="label">Pain rating</span>
+              <span class="value">4 / 10</span>
+              <span class="unit">scale</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">At-home handoff</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>Identified support person (sister: Maya, 4:00 PM)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>Reviewed Rx schedule with support person</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>Set up ice + elevation per discharge plan</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked><span>Tassy 24-hr callback explained</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Emergency contact card left on counter</span></label>
+          </div>
+        </div>
+        <button class="btn-success" onclick="advance(6)">Care visit complete</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Care notes + share -->
+    <div class="active-step hidden" data-step="6">
+      <div class="p-4 space-y-4">
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Care notes for practice</div>
+          <textarea class="input-field" rows="4">Patient discharged stable. Vitals trend slight elevation (BP +5, HR +4) consistent with light pain. Pain 3→4 over 90 min — within expected post-op range. No bleeding observed. Support person briefed and on site. Next Rx dose: 8:30 PM.</textarea>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Share with</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center justify-between"><span class="ink-soft">Aesthetic Carolina (practice on file)</span><input type="checkbox" checked></label>
+            <label class="flex items-center justify-between"><span class="ink-soft">Patient personal email (consented)</span><input type="checkbox"></label>
+            <label class="flex items-center justify-between"><span class="ink-soft">Tassy recovery coordinator (Phil)</span><input type="checkbox" checked></label>
+          </div>
+        </div>
+        <button class="btn-success" onclick="advance(7)">Submit + schedule 24hr follow-up</button>
+      </div>
+    </div>
+
+    <!-- Step 7: Complete + 24hr call scheduled -->
+    <div class="active-step hidden" data-step="7">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.08);">
+          <div class="text-5xl mb-2">✓</div>
+          <div class="serif text-2xl ink font-semibold">Care visit complete</div>
+          <div class="text-sm ink-mute mt-1">B-52 · LB · transferred safely · 24-hr follow-up scheduled</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Earnings</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">Care visit base (Premium)</span><span class="font-medium ink">$150</span></div>
+            <div class="flex justify-between"><span class="ink-soft">CNA tier bonus</span><span class="font-medium ink">$25</span></div>
+            <div class="flex justify-between"><span class="ink-soft">24-hr follow-up commitment</span><span class="font-medium ink">$10</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">Total pay</span><span class="serif text-lg font-bold" style="color: var(--cna);">$185</span></div>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.25);">
+          <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--gold);">📞 Follow-up scheduled</div>
+          <div class="text-xs ink-soft">Tomorrow 2:30 PM (24 hours from completion). You'll get a reminder push notification.</div>
+        </div>
+        <button onclick="goto('today')" class="btn-primary">Next care visit →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== CARE NOTES =========== -->
+  <div id="screen-care" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Care notes · 30 days</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">42 visits · 0 escalations</h1>
+      <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">100% on-time · 100% 24-hr follow-up · 5.0★</div>
+    </div>
+
+    <div class="p-4 space-y-3">
+      <input type="text" class="input-field" placeholder="🔍 Search by code, date, or procedure...">
+
+      <div class="card">
+        <div class="flex justify-between mb-1"><span class="font-semibold ink text-sm">A-78 · MR <span class="pill pill-phi">PHI</span></span><span class="text-xs ink-mute">Yesterday</span></div>
+        <div class="text-xs ink-soft">Rhinoplasty · vitals stable · 24hr follow-up done · No concerns</div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between mb-1"><span class="font-semibold ink text-sm">C-12 · JD <span class="pill pill-phi">PHI</span></span><span class="text-xs ink-mute">Wed</span></div>
+        <div class="text-xs ink-soft">Blepharoplasty · BP slightly elevated post-op · noted to practice · cleared at 24hr</div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between mb-1"><span class="font-semibold ink text-sm">B-52 · LB <span class="pill pill-phi">PHI</span></span><span class="text-xs ink-mute">Mon</span></div>
+        <div class="text-xs ink-soft">Mastopexy · vitals stable · pain managed · 24hr follow-up pending tomorrow</div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between mb-1"><span class="font-semibold ink text-sm">D-04 · XX <span class="pill pill-phi">PHI</span></span><span class="text-xs ink-mute">Last week</span></div>
+        <div class="text-xs ink-soft">Facelift · Maximum tier · NDA signed · vitals stable · all follow-ups complete</div>
+      </div>
+      <div class="text-center text-xs ink-mute pt-2">+ 38 more visits</div>
+    </div>
+  </div>
+
+  <!-- =========== EARNINGS =========== -->
+  <div id="screen-earnings" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Earnings · This week</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">Jun 9 — Jun 15</h1>
+      <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">Payout Friday · CNA premium rate</div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="card text-center" style="background: linear-gradient(180deg, #F0F8FA, white); border-color: var(--cna);">
+        <div class="text-xs ink-mute uppercase tracking-wider">Week total</div>
+        <div class="serif text-5xl font-bold mt-1" style="color: var(--cna);">$1,605</div>
+        <div class="text-xs ink-mute mt-2">9 care visits · 21 hrs · $76/hr avg</div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card text-center"><div class="text-xs ink-mute uppercase">Bonuses</div><div class="serif text-lg font-bold ink mt-1">$95</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase">Tips</div><div class="serif text-lg font-bold ink mt-1">$210</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase">Avg/visit</div><div class="serif text-lg font-bold ink mt-1">$178</div></div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By tier this week</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Maximum Discretion (2)</span><span class="font-medium ink">$520</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Premium Recovery (7)</span><span class="font-medium ink">$1,085</span></div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: rgba(46,168,104,0.06);">
+        <div class="text-sm ink-soft">YTD earnings</div>
+        <div class="serif text-2xl font-bold ink mt-1">$38,420</div>
+        <button class="text-xs gold mt-2">Download 1099 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== PROFILE =========== -->
+  <div id="screen-profile" class="screen content hidden">
+    <div class="app-header">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center serif font-bold text-xl" style="background: var(--gold-warm); color: var(--ink);">RP</div>
+        <div>
+          <h1 class="serif text-xl font-semibold" style="color: #F4EFE0;">Renée Powell, CNA</h1>
+          <div class="text-xs" style="color: rgba(244,239,224,0.6);">CNA-005 · Since Jul 2024</div>
+          <div class="flex items-center gap-1 text-sm mt-1" style="color: var(--gold-warm);">★★★★★ <span class="text-xs" style="color: rgba(244,239,224,0.8);">5.0 · 142 care visits</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Tier eligibility</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between items-center"><span class="ink-soft">Premium Recovery ($445)</span><span class="pill pill-active">✓ Active</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">Maximum Discretion ($695) · NDA-signed</span><span class="pill pill-active">✓ Active</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">High-risk procedure care</span><span class="pill pill-active">✓ Cert'd</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Credentials</div>
+          <span class="pill pill-active">All current</span>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">NC CNA license</span><span class="ink font-medium">#NC-CNA-887421 · Exp 04/2028</span></div>
+          <div class="flex justify-between"><span class="ink-soft">HIPAA training</span><span class="ink font-medium">Annual · current</span></div>
+          <div class="flex justify-between"><span class="ink-soft">CPR + AED + First Aid</span><span class="ink font-medium">Exp 11/2026</span></div>
+          <div class="flex justify-between"><span class="ink-soft">BLS for Healthcare</span><span class="ink font-medium">Exp 11/2026</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Tassy NDA (Maximum tier)</span><span class="ink font-medium">Signed 2024</span></div>
+          <div class="flex justify-between"><span class="ink-soft">OIG / SAM exclusion check</span><span class="ink font-medium">Clear · checked monthly</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">This month</div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div><div class="serif text-xl font-bold ink">42</div><div class="text-[10px] ink-mute uppercase">Care visits</div></div>
+          <div><div class="serif text-xl font-bold ink">5.0</div><div class="text-[10px] ink-mute uppercase">Rating</div></div>
+          <div><div class="serif text-xl font-bold ink">100%</div><div class="text-[10px] ink-mute uppercase">24hr f/u</div></div>
+        </div>
+      </div>
+
+      <div class="card text-center text-xs ink-mute">Tassy Trucks · v3.2.4 · USDOT #3104152</div>
+    </div>
+  </div>
+
+  <!-- =========== ONBOARDING (10 STEPS) =========== -->
+  <div id="screen-onboard" class="screen content hidden">
+    <div class="app-header">
+      <div class="flex justify-between items-center">
+        <button onclick="goto('today')" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+        <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">CNA onboarding</div>
+        <span class="text-xs" style="color: rgba(244,239,224,0.5);" id="ob-counter">1 / 10</span>
+      </div>
+      <div class="flex gap-1 mt-4" id="ob-progress"></div>
+    </div>
+
+    <div class="ob-step" data-step="1">
+      <div class="p-5 text-center space-y-4">
+        <div class="text-5xl mb-2">🩺</div>
+        <h2 class="serif text-3xl ink font-semibold">CNA with Tassy.</h2>
+        <p class="ink-soft text-sm">Bring your healthcare training to premium recovery care. Highest pay tier in the company.</p>
+        <div class="grid grid-cols-3 gap-2 mt-4">
+          <div class="card text-center"><div class="text-2xl">💰</div><div class="serif text-base font-bold mt-1" style="color: var(--cna);">$150-260</div><div class="text-[10px] ink-mute uppercase">Per care visit</div></div>
+          <div class="card text-center"><div class="text-2xl">⏰</div><div class="serif text-base font-bold mt-1" style="color: var(--cna);">~3 hrs</div><div class="text-[10px] ink-mute uppercase">Per visit</div></div>
+          <div class="card text-center"><div class="text-2xl">🏥</div><div class="serif text-base font-bold mt-1" style="color: var(--cna);">PHI</div><div class="text-[10px] ink-mute uppercase">HIPAA-trained</div></div>
+        </div>
+        <div class="card text-left">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">What you need</div>
+          <div class="space-y-1.5 text-sm ink-soft">
+            <div>✓ Active CNA license (NC or SC)</div>
+            <div>✓ CPR + First Aid current</div>
+            <div>✓ Clean background + drug screen</div>
+            <div>✓ Patient-care experience (1+ yr)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="2">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">About you</h2>
+        <div class="space-y-3">
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">First name</label><input type="text" class="input-field" placeholder="Renée"></div>
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Last name</label><input type="text" class="input-field" placeholder="Powell"></div>
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Phone</label><input type="text" class="input-field" placeholder="(704) 555-0188"></div>
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Email</label><input type="text" class="input-field" placeholder="renee@example.com"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="3">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">CNA license</h2>
+        <p class="ink-soft text-sm">We verify with NC/SC Board of Nursing directly.</p>
+        <div class="space-y-3">
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">License number</label><input type="text" class="input-field" placeholder="NC-CNA-887421"></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">State</label><select class="input-field"><option>NC</option><option>SC</option></select></div>
+            <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Exp</label><input type="text" class="input-field" placeholder="04/2028"></div>
+          </div>
+          <button class="btn-ghost w-full text-sm">📷 Upload CNA license card</button>
+        </div>
+        <div class="card" style="background: rgba(46,168,104,0.06);">
+          <div class="text-xs" style="color: var(--success);">✓ NC Board of Nursing verification typically ~4 hours</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="4">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Other credentials</h2>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase mb-1">CPR / AED / First Aid</label>
+            <div class="grid grid-cols-2 gap-3">
+              <input type="text" class="input-field" placeholder="Cert provider">
+              <input type="text" class="input-field" placeholder="Exp date">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold ink-soft uppercase mb-1">BLS for Healthcare Providers (optional)</label>
+            <input type="text" class="input-field" placeholder="If applicable">
+          </div>
+          <button class="btn-ghost w-full text-sm">📷 Upload cert cards</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="5">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Background check</h2>
+        <p class="ink-soft text-sm">Healthcare-grade. We use Checkr Healthcare tier · checks OIG/SAM exclusion lists monthly.</p>
+        <div class="card">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="text-sm"><div class="font-semibold ink">Authorize background check + OIG/SAM</div><div class="text-xs ink-mute mt-1">7-year criminal · sex offender · healthcare exclusion lists. Free for you. 24-48 hrs.</div></div>
+          </label>
+        </div>
+        <div class="card">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="text-sm"><div class="font-semibold ink">Authorize drug screening</div><div class="text-xs ink-mute mt-1">10-panel · scheduled within 7 days · annual re-screen</div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="6">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">HIPAA training</h2>
+        <p class="ink-soft text-sm">Required before first care visit. ~3 hours total.</p>
+        <div class="space-y-3">
+          <div class="card flex items-center gap-3"><span class="step-circle done">✓</span><div class="flex-1"><div class="font-semibold ink text-sm">HIPAA in healthcare transport (40 min)</div><div class="text-[10px] ink-mute">Completed</div></div><span style="color:var(--success);">✓</span></div>
+          <div class="card flex items-center gap-3" style="border-color: var(--cna); background: rgba(46,125,143,0.06);"><span class="step-circle active">2</span><div class="flex-1"><div class="font-semibold ink text-sm">Tassy care protocols (60 min)</div><div class="text-[10px] ink-mute">Discretion tiers · NDA · audit logs</div></div><button class="text-xs btn-ghost py-1 px-3">Start →</button></div>
+          <div class="card flex items-center gap-3" style="opacity:0.6;"><span class="step-circle">3</span><div class="flex-1"><div class="font-semibold ink text-sm">Post-procedure red flags (45 min)</div><div class="text-[10px] ink-mute">When to escalate</div></div><span class="text-xs ink-mute">Locked</span></div>
+          <div class="card flex items-center gap-3" style="opacity:0.6;"><span class="step-circle">4</span><div class="flex-1"><div class="font-semibold ink text-sm">Vitals + documentation (35 min)</div><div class="text-[10px] ink-mute">Audit-grade care notes</div></div><span class="text-xs ink-mute">Locked</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="7">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Tier eligibility</h2>
+        <p class="ink-soft text-sm">Pick which engagement tiers you want care visits for.</p>
+        <div class="space-y-3">
+          <label class="card cursor-pointer flex items-start gap-3" style="border:2px solid var(--cna); background: rgba(46,125,143,0.05);">
+            <input type="checkbox" checked class="mt-1 w-5 h-5">
+            <div class="flex-1"><div class="font-semibold ink">Premium Recovery ($445)</div><div class="text-xs ink-mute mt-1">CNA-grade care · post-op observation · 24hr follow-up</div><div class="text-[10px] mt-1" style="color: var(--cna);">$150-185 per care visit</div></div>
+          </label>
+          <label class="card cursor-pointer flex items-start gap-3">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="flex-1"><div class="font-semibold ink">Maximum Discretion ($695) <span class="text-xs ink-mute">+ NDA</span></div><div class="text-xs ink-mute mt-1">High-profile clients · NDA per engagement</div><div class="text-[10px] mt-1" style="color: var(--cna);">$230-260 per care visit</div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="8">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Availability</h2>
+        <p class="ink-soft text-sm">Care visits tend to be midday + early evening (post-procedure timing).</p>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Weekday mornings (7am-12pm)</span><input type="checkbox" checked></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Weekday afternoons (12pm-6pm)</span><input type="checkbox" checked></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Weekday evenings (6pm-10pm)</span><input type="checkbox"></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Saturday (premium 1.2x)</span><input type="checkbox" checked></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">24-hour follow-up call window</span><input type="checkbox" checked></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="9">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Mentor shadow</h2>
+        <p class="ink-soft text-sm">Shadow Renée (lead CNA) on 2 real care visits. Paid time ($120).</p>
+        <div class="card">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center serif font-bold text-lg" style="background: var(--gold-warm); color: var(--ink);">RP</div>
+            <div class="flex-1"><div class="font-semibold ink">Renée Powell, CNA</div><div class="text-xs ink-mute">CNA-005 · 5.0★ · 142 visits</div></div>
+          </div>
+          <div class="text-xs ink-mute mt-3 italic">"I'll walk you through real procedures + how Tassy's care notes go to the practice. Plan on 6 hours."</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Pick a time</div>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><div><div class="font-semibold ink text-sm">Saturday, Jun 14</div><div class="text-xs ink-mute">2 care visits · 6 hours</div></div><input type="radio" name="mentor" checked></label>
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><div><div class="font-semibold ink text-sm">Monday, Jun 16</div><div class="text-xs ink-mute">2 care visits · 6 hours</div></div><input type="radio" name="mentor"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="10">
+      <div class="p-5 text-center space-y-4 pt-8">
+        <div class="text-6xl mb-2">🎉</div>
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--success);">Welcome to the care team</div>
+        <h2 class="serif text-3xl ink font-semibold">You're CNA-009.</h2>
+        <p class="ink-soft text-sm max-w-md mx-auto">Background + license verification pending · mentor shadow Saturday with Renée · first solo care visit after that.</p>
+        <div class="card text-left mt-6">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">First-month potential</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">CNA sign-on bonus</span><span class="serif font-bold" style="color: var(--cna);">+$350</span></div>
+            <div class="flex justify-between"><span class="ink-soft">~10 care visits at $175 avg</span><span class="serif font-bold ink">~$1,750</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">First-month potential</span><span class="serif text-lg font-bold" style="color: var(--cna);">~$2,100</span></div>
+          </div>
+        </div>
+        <button onclick="goto('today')" class="btn-primary">Open CNA dashboard →</button>
+      </div>
+    </div>
+
+    <div class="px-5 pb-6 flex gap-3" id="ob-nav">
+      <button onclick="navOb(-1)" class="btn-ghost flex-1" id="ob-back">← Back</button>
+      <button onclick="navOb(1)" class="btn-primary flex-1" id="ob-next">Continue →</button>
+    </div>
+  </div>
+
+  <!-- =========== TAB BAR =========== -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="today" onclick="goto('today')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="tab-item" data-tab="active" onclick="goto('active', 1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Care</span>
+    </button>
+    <button class="tab-item" data-tab="care" onclick="goto('care')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+      <span>Notes</span>
+    </button>
+    <button class="tab-item" data-tab="earnings" onclick="goto('earnings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Earnings</span>
+    </button>
+    <button class="tab-item" data-tab="profile" onclick="goto('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+      <span>Profile</span>
+    </button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let activeStep = 1, obStep = 1;
+  const activeTotal = 7, obTotal = 10;
+  let suppressHistory = false;
+
+  function buildHash(tab, step) {
+    if (tab === 'active' && step) return `#active-${step}`;
+    if (tab === 'onboard' && step) return `#onboard-${step}`;
+    return `#${tab}`;
+  }
+  function pushHistory(tab, step) {
+    if (suppressHistory) return;
+    const hash = buildHash(tab, step);
+    if (location.hash !== hash) history.pushState({ tab, step }, '', hash);
+  }
+  function parseHash() {
+    const h = location.hash.replace('#', '');
+    if (!h) return { tab: 'today' };
+    if (h.startsWith('active-')) return { tab: 'active', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), activeTotal) };
+    if (h.startsWith('onboard-')) return { tab: 'onboard', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), obTotal) };
+    if (h === 'onboard') return { tab: 'onboard', step: 1 };
+    if (['today','active','care','earnings','profile'].includes(h)) return { tab: h, step: h === 'active' ? 1 : undefined };
+    return { tab: 'today' };
+  }
+
+  function goto(tab, step) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-' + tab)?.classList.remove('hidden');
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    if (tab === 'active') { activeStep = step || 1; renderActiveStep(); }
+    if (tab === 'onboard') { obStep = step || 1; renderObStep(); }
+    document.querySelector('.tab-bar').style.display = tab === 'onboard' ? 'none' : '';
+    pushHistory(tab, tab === 'active' ? activeStep : tab === 'onboard' ? obStep : undefined);
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function renderActiveStep() {
+    document.querySelectorAll('.active-step').forEach(el => el.classList.toggle('hidden', parseInt(el.dataset.step) !== activeStep));
+    renderActiveProgress();
+  }
+  function renderActiveProgress() {
+    const c = document.getElementById('active-progress'); if (!c) return;
+    let html = '';
+    for (let i = 1; i <= activeTotal; i++) {
+      const w = i === activeStep ? '24px' : '8px';
+      const bg = i <= activeStep ? 'var(--gold-warm)' : 'rgba(244,239,224,0.2)';
+      html += `<div style="height:6px;width:${w};border-radius:999px;background:${bg};transition:all .2s ease;"></div>`;
+    }
+    c.innerHTML = html;
+  }
+
+  function advance(step) { activeStep = step; renderActiveStep(); pushHistory('active', step); document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' }); }
+
+  function renderObProgress() {
+    const c = document.getElementById('ob-progress'); const counter = document.getElementById('ob-counter');
+    if (!c) return;
+    let html = '';
+    for (let i = 1; i <= obTotal; i++) {
+      const w = i === obStep ? '24px' : '8px';
+      const bg = i <= obStep ? 'var(--gold-warm)' : 'rgba(244,239,224,0.2)';
+      html += `<div style="height:6px;width:${w};border-radius:999px;background:${bg};transition:all .2s ease;"></div>`;
+    }
+    c.innerHTML = html;
+    if (counter) counter.textContent = `${obStep} / ${obTotal}`;
+  }
+  function renderObStep() {
+    document.querySelectorAll('.ob-step').forEach(el => el.classList.toggle('hidden', parseInt(el.dataset.step) !== obStep));
+    const backBtn = document.getElementById('ob-back'); const nextBtn = document.getElementById('ob-next');
+    if (backBtn) backBtn.style.visibility = obStep === 1 ? 'hidden' : 'visible';
+    if (nextBtn) {
+      if (obStep === obTotal) { nextBtn.textContent = '🩺 Open dashboard'; nextBtn.onclick = () => goto('today'); }
+      else if (obStep === obTotal - 1) { nextBtn.textContent = '✓ Submit application'; nextBtn.onclick = () => navOb(1); }
+      else if (obStep === 1) { nextBtn.textContent = 'Apply now →'; nextBtn.onclick = () => navOb(1); }
+      else { nextBtn.textContent = 'Continue →'; nextBtn.onclick = () => navOb(1); }
+    }
+    renderObProgress();
+  }
+  function navOb(dir) { obStep = Math.min(Math.max(obStep + dir, 1), obTotal); pushHistory('onboard', obStep); renderObStep(); document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' }); if (dir > 0 && obStep === obTotal) showToast('Application submitted · CNA-009 assigned'); }
+
+  function showToast(msg) { const t = document.getElementById('toast'); t.textContent = '✓ ' + msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+
+  function syncFromHash() { const { tab, step } = parseHash(); suppressHistory = true; try { goto(tab, step); } finally { suppressHistory = false; } }
+  window.addEventListener('popstate', syncFromHash);
+  window.addEventListener('DOMContentLoaded', () => { if (location.hash) syncFromHash(); else history.replaceState({ tab: 'today' }, '', '#today'); });
+
+  function updateTime() { const d = new Date(); document.getElementById('status-time').textContent = d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  updateTime(); setInterval(updateTime, 30000);
+</script>
+</body>
+</html>

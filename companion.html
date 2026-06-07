@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Tassy Companion — Mock PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --danger: #D4544A;
+      --info: #3B6EAA;
+      --companion: #6B5B95;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #2A2722; margin: 0; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); }
+    .ink-soft { color: var(--ink-soft); }
+    .ink-mute { color: var(--ink-mute); }
+    .gold { color: var(--gold); }
+    .device-wrap {
+      max-width: 420px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg);
+      box-shadow: 0 0 40px rgba(0,0,0,0.25);
+      display: flex; flex-direction: column;
+    }
+    @media (min-width: 480px) {
+      .device-wrap {
+        margin: 20px auto;
+        min-height: calc(100vh - 40px);
+        border-radius: 36px; overflow: hidden;
+        border: 8px solid #1B1A17;
+      }
+    }
+    .status-bar { background: var(--ink); color: #F4EFE0; padding: 6px 18px 4px; display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 600; }
+    .app-header { background: var(--ink); color: #F4EFE0; padding: 14px 18px 18px; }
+    .tab-bar { background: white; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: 8px; position: sticky; bottom: 0; }
+    .tab-item { padding: 10px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--ink-mute); cursor: pointer; border: none; background: transparent; }
+    .tab-item.active { color: var(--ink); font-weight: 600; }
+    .tab-item.active svg { stroke: var(--companion); }
+    .tab-item svg { width: 22px; height: 22px; stroke: var(--ink-mute); }
+    .content { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+    .pill-active { background: rgba(46,168,104,0.14); color: var(--success); }
+    .pill-pending { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-vip { background: rgba(107,91,149,0.14); color: var(--companion); }
+    .pill-discretion-h { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-discretion-m { background: rgba(212,84,74,0.14); color: var(--danger); }
+    .btn-primary { background: var(--companion); color: white; padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; width: 100%; }
+    .btn-success { background: var(--success); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; width: 100%; }
+    .btn-ghost { background: white; color: var(--ink); padding: 12px 16px; border-radius: 10px; font-weight: 500; font-size: 0.9rem; border: 1px solid var(--line); cursor: pointer; }
+    .hidden { display: none !important; }
+    .step-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; background: var(--line); color: var(--ink-soft); flex-shrink: 0; }
+    .step-circle.done { background: var(--success); color: white; }
+    .step-circle.active { background: var(--companion); color: white; }
+    .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100%); background: var(--ink); color: #F4EFE0; padding: 12px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 12px 24px -8px rgba(0,0,0,0.3); transition: transform .3s ease; z-index: 100; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .input-field { width: 100%; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 0.65rem 0.85rem; font-size: 0.9rem; }
+    .input-field:focus { outline: none; border-color: var(--companion); box-shadow: 0 0 0 3px rgba(107,91,149,0.15); }
+  </style>
+</head>
+<body>
+
+<div class="device-wrap" id="device">
+  <div class="status-bar">
+    <span id="status-time">9:24</span>
+    <span>📶 5G · 🔋 87%</span>
+  </div>
+
+  <!-- =========== TODAY =========== -->
+  <div id="screen-today" class="screen content">
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, var(--companion) 140%);">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Companion · Active</div>
+          <h1 class="serif text-xl font-semibold mt-1" style="color: #F4EFE0;">Good morning, Diana</h1>
+          <div class="text-xs mt-2" style="color: rgba(244,239,224,0.75);">3 assignments today · $390 expected · 4.97★</div>
+        </div>
+        <span class="text-2xl">👋</span>
+      </div>
+    </div>
+
+    <!-- Onboarding banner -->
+    <div class="px-4 pt-4">
+      <div onclick="goto('onboard', 1)" class="card" style="background: linear-gradient(135deg, var(--companion) 0%, #4A3F70 100%); color: white; cursor: pointer; border-color: var(--gold-warm);">
+        <div class="flex items-start gap-3">
+          <div class="text-3xl">🎓</div>
+          <div class="flex-1">
+            <div class="text-[10px] uppercase tracking-wider" style="color: var(--gold-warm);">Preview · Companion onboarding</div>
+            <div class="font-semibold mt-1">See how a new companion gets activated</div>
+            <div class="text-xs mt-1" style="opacity: 0.75;">8 steps · application → first engagement</div>
+          </div>
+          <div class="text-xl" style="color: var(--gold-warm);">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 space-y-3">
+      <!-- ACTIVE -->
+      <div class="card" onclick="goto('active', 1)" style="border-color: var(--companion); background: linear-gradient(180deg, #F8F5FD, white); cursor: pointer;">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-active">● NEXT UP</span>
+              <span class="pill pill-discretion-h">Heightened</span>
+            </div>
+            <div class="serif text-lg font-semibold ink">B-52 · LB</div>
+            <div class="text-xs ink-mute">Engagement #1 · Premium Recovery tier</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs ink-mute">Arrive by</div>
+            <div class="serif text-lg font-bold" style="color: var(--companion);">2:15 PM</div>
+          </div>
+        </div>
+        <div class="space-y-1 text-sm ink-soft mb-3">
+          <div>🏥 Aesthetic Carolina · Suite 305</div>
+          <div>🏠 Drop-off: 4425 Sharon Rd, M805</div>
+          <div>🚐 Driver: Marcus T. · Black Cadillac · waiting at facility</div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-xs text-center">
+          <div class="bg-cream rounded-lg p-2"><div class="ink-mute">Pay</div><div class="font-bold ink">$120</div></div>
+          <div class="bg-cream rounded-lg p-2"><div class="ink-mute">Duration</div><div class="font-bold ink">~1.5h</div></div>
+          <div class="bg-cream rounded-lg p-2"><div class="ink-mute">Tier</div><div class="font-bold ink">Premium</div></div>
+        </div>
+      </div>
+
+      <div class="text-xs uppercase tracking-wider ink-mute mt-4">Also today</div>
+
+      <div class="card" onclick="showToast('Engagement detail (mock)')">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-pending">4:30 PM</span>
+              <span class="pill pill-vip">Standard tier</span>
+            </div>
+            <div class="serif text-base font-semibold ink">C-12 · JD</div>
+            <div class="text-xs ink-mute">Companion Recovery · post-procedure escort + drive home</div>
+          </div>
+          <div class="text-right text-xs">
+            <div class="ink-mute">Pay</div>
+            <div class="font-bold ink">$95</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" onclick="showToast('Engagement detail (mock)')">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-pending">7:00 PM</span>
+              <span class="pill pill-discretion-m">Maximum</span>
+            </div>
+            <div class="serif text-base font-semibold ink">D-04 · XX</div>
+            <div class="text-xs ink-mute">Maximum Discretion · NDA pending sign · private entrance</div>
+          </div>
+          <div class="text-right text-xs">
+            <div class="ink-mute">Pay</div>
+            <div class="font-bold gold">$175</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.25);">
+        <div class="flex items-start gap-2 text-sm">
+          <span class="text-base">📋</span>
+          <div>
+            <div class="font-semibold ink">NDA pending for D-04</div>
+            <div class="text-xs ink-soft mt-1">Maximum tier requires NDA before engagement. Tap to review + sign.</div>
+            <button onclick="showToast('NDA signed (mock)')" class="text-xs font-semibold mt-2" style="color: var(--gold);">Sign NDA →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== ACTIVE ENGAGEMENT (5-STEP HANDOFF) =========== -->
+  <div id="screen-active" class="screen content hidden">
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, var(--companion) 140%);">
+      <div class="flex items-center justify-between">
+        <button onclick="goto('today')" class="text-sm" style="color: rgba(244,239,224,0.7);">← Today</button>
+        <div class="text-center">
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Active engagement</div>
+          <div class="font-semibold" style="color: #F4EFE0;">B-52 · LB</div>
+        </div>
+        <button class="text-xs" style="color: rgba(244,239,224,0.5);">⋯</button>
+      </div>
+      <div class="flex gap-1 mt-4" id="active-progress"></div>
+    </div>
+
+    <!-- Step 1: Pre-arrival -->
+    <div class="active-step" data-step="1">
+      <div class="p-4 space-y-4">
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Pre-arrival brief</div>
+          <div class="space-y-2 text-sm">
+            <div><span class="ink-mute">Client:</span> <span class="ink font-medium">B-52 · LB</span></div>
+            <div><span class="ink-mute">Tier:</span> <span class="ink font-medium">Premium Recovery</span></div>
+            <div><span class="ink-mute">Discretion:</span> <span class="font-medium" style="color:var(--gold);">Heightened</span></div>
+            <div><span class="ink-mute">Procedure:</span> <span class="ink font-medium">Post-procedure recovery</span></div>
+            <div><span class="ink-mute">Pickup:</span> <span class="ink font-medium">Aesthetic Carolina · Suite 305</span></div>
+            <div><span class="ink-mute">Drop-off:</span> <span class="ink font-medium">4425 Sharon Rd, M805</span></div>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.25);">
+          <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--gold);">⚠️ Heightened discretion protocol</div>
+          <ul class="text-xs ink-soft space-y-1">
+            <li>· No client identification by name in public</li>
+            <li>· Side entrance preferred for vehicle handoff</li>
+            <li>· Vehicle make enforced per saved preference (Cadillac Escalade)</li>
+            <li>· NDA acknowledged at booking · no per-engagement sign needed</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Special notes</div>
+          <div class="text-sm ink-soft">Client may be wobbly post-procedure. Anesthesia clearance expected ~2:00 PM. Driver waiting in side parking lot.</div>
+        </div>
+        <button class="btn-success" onclick="advance(2)">✓ I'm at the facility</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Entered facility -->
+    <div class="active-step hidden" data-step="2">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.06); border-color: rgba(46,168,104,0.25);">
+          <div class="text-3xl mb-2">📍</div>
+          <div class="font-semibold ink">You're at Aesthetic Carolina</div>
+          <div class="text-sm ink-mute mt-1">Check in with front desk · ask for B-52 client</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Front-desk check-in</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Identified self to front desk (Tassy Companion)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Confirmed code reference B-52 (NO name)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Asked for ETA from anesthesia</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Located private waiting area</span></label>
+          </div>
+        </div>
+        <button class="btn-success" onclick="advance(3)">Client released to my care</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Discharge -->
+    <div class="active-step hidden" data-step="3">
+      <div class="p-4 space-y-4">
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Discharge tasks</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Received post-op instructions packet</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Confirmed prescription handoff (or pharmacy plan)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Verified next-day follow-up date with practice</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Discharge form signed (witness me)</span></label>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(107,91,149,0.06); border-color: rgba(107,91,149,0.25);">
+          <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--companion);">Post-op packet noted</div>
+          <ul class="text-xs ink-soft space-y-1">
+            <li>· Ice + elevation for 48 hours</li>
+            <li>· No bending below waist for 72 hours</li>
+            <li>· Pain medication: every 6 hours, dose at home</li>
+            <li>· Practice follow-up: 9:30 AM tomorrow</li>
+          </ul>
+        </div>
+        <button class="btn-success" onclick="advance(4)">Walking to vehicle now</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Vehicle handoff -->
+    <div class="active-step hidden" data-step="4">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.06); border-color: rgba(46,168,104,0.25);">
+          <div class="text-3xl mb-2">🚐</div>
+          <div class="font-semibold ink">Driver Marcus is at the side entrance</div>
+          <div class="text-sm ink-mute mt-1">Black Cadillac Escalade · XYZ-1234</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">At vehicle</div>
+          <div class="space-y-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Briefed driver on heightened protocol (no name callouts)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Helped client into vehicle (right rear seat)</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Secured seatbelt + pillow support</span></label>
+            <label class="flex items-center gap-2"><input type="checkbox"><span>Briefed client on next steps</span></label>
+          </div>
+        </div>
+        <button class="btn-success" onclick="advance(5)">Riding along to home</button>
+        <button onclick="showToast('Companion-only engagement complete')" class="btn-ghost w-full">Companion-only · driver takes from here</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Dropoff confirm -->
+    <div class="active-step hidden" data-step="5">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.08); border-color: rgba(46,168,104,0.25);">
+          <div class="text-5xl mb-2">✓</div>
+          <div class="serif text-2xl ink font-semibold">Engagement complete</div>
+          <div class="text-sm ink-mute mt-1">Client home safely · post-op handoff complete</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Earnings</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">Base companion fee (Premium)</span><span class="font-medium ink">$95.00</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Discretion tier bonus (Heightened)</span><span class="font-medium ink">$15.00</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Time bonus (90 min)</span><span class="font-medium ink">$10.00</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">Total pay</span><span class="serif text-lg font-bold" style="color: var(--companion);">$120.00</span></div>
+          </div>
+          <div class="text-xs ink-mute mt-2">Friday payout · weekly direct deposit</div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Observations (optional)</div>
+          <textarea class="input-field" rows="3" placeholder="Note anything practice should know — recovery comfort, concerns, special handling..."></textarea>
+        </div>
+        <button onclick="goto('today')" class="btn-primary">Next engagement →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== ENGAGEMENTS (HISTORY) =========== -->
+  <div id="screen-engagements" class="screen content hidden">
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, var(--companion) 140%);">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">My engagements</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">This month</h1>
+      <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">28 completed · $2,840 earned · 4.97★ avg</div>
+    </div>
+
+    <div class="p-4 space-y-3">
+      <input type="text" class="input-field" placeholder="🔍 Search by code or date...">
+
+      <div class="card">
+        <div class="flex justify-between"><span class="font-semibold ink text-sm">A-78 · MR</span><span class="font-bold" style="color: var(--companion);">$120</span></div>
+        <div class="text-xs ink-mute mt-1">Yesterday 3:15 PM · Premium · Heightened · 5★</div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between"><span class="font-semibold ink text-sm">B-52 · LB</span><span class="font-bold" style="color: var(--companion);">$120</span></div>
+        <div class="text-xs ink-mute mt-1">Yesterday 11:30 AM · Premium · Standard · 5★</div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between"><span class="font-semibold ink text-sm">C-12 · JD</span><span class="font-bold" style="color: var(--companion);">$95</span></div>
+        <div class="text-xs ink-mute mt-1">Wed 5:00 PM · Companion Recovery · Standard · 5★</div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between"><span class="font-semibold ink text-sm">D-04 · XX</span><span class="font-bold gold">$175</span></div>
+        <div class="text-xs ink-mute mt-1">Wed 7:00 PM · Maximum Discretion · NDA · 5★</div>
+      </div>
+      <div class="text-center text-xs ink-mute pt-2">+ 24 more engagements</div>
+    </div>
+  </div>
+
+  <!-- =========== EARNINGS =========== -->
+  <div id="screen-earnings" class="screen content hidden">
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, var(--companion) 140%);">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Earnings · This week</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">Jun 9 — Jun 15</h1>
+      <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">Payout Friday · direct deposit</div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="card text-center" style="background: linear-gradient(180deg, #F8F5FD, white); border-color: var(--companion);">
+        <div class="text-xs ink-mute uppercase tracking-wider">Week total</div>
+        <div class="serif text-5xl font-bold mt-1" style="color: var(--companion);">$1,047</div>
+        <div class="text-xs ink-mute mt-2">9 engagements · 14.5 hrs · $72/hr avg</div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card text-center"><div class="text-xs ink-mute uppercase">Bonuses</div><div class="serif text-lg font-bold ink mt-1">$58</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase">Tips</div><div class="serif text-lg font-bold ink mt-1">$140</div></div>
+        <div class="card text-center"><div class="text-xs ink-mute uppercase">Avg/eng</div><div class="serif text-lg font-bold ink mt-1">$116</div></div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By tier this week</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Maximum Discretion (1)</span><span class="font-medium ink">$175</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Premium Recovery (5)</span><span class="font-medium ink">$600</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Companion Recovery (3)</span><span class="font-medium ink">$272</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Last 4 weeks</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Jun 2 - Jun 8</span><span class="font-medium ink">$987</span></div>
+          <div class="flex justify-between"><span class="ink-soft">May 26 - Jun 1</span><span class="font-medium ink">$1,210</span></div>
+          <div class="flex justify-between"><span class="ink-soft">May 19 - May 25</span><span class="font-medium ink">$895</span></div>
+          <div class="flex justify-between"><span class="ink-soft">May 12 - May 18</span><span class="font-medium ink">$1,125</span></div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: rgba(46,168,104,0.06);">
+        <div class="text-sm ink-soft">YTD earnings</div>
+        <div class="serif text-2xl font-bold ink mt-1">$22,184</div>
+        <button class="text-xs gold mt-2">Download 1099 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== PROFILE =========== -->
+  <div id="screen-profile" class="screen content hidden">
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, var(--companion) 140%);">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center serif font-bold text-xl" style="background: var(--gold-warm); color: var(--ink);">DM</div>
+        <div>
+          <h1 class="serif text-xl font-semibold" style="color: #F4EFE0;">Diana Mathis</h1>
+          <div class="text-xs" style="color: rgba(244,239,224,0.6);">COMP-003 · Since Mar 2024</div>
+          <div class="flex items-center gap-1 text-sm mt-1" style="color: var(--gold-warm);">★★★★★ <span class="text-xs" style="color: rgba(244,239,224,0.8);">4.97 · 184 engagements</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Tier eligibility</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between items-center"><span class="ink-soft">Companion Recovery</span><span class="pill pill-active">✓ Active</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">Premium Recovery (CNA-trained)</span><span class="pill pill-active">✓ Active</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">Maximum Discretion (NDA-signed)</span><span class="pill pill-active">✓ Active</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Credentials</div>
+          <span class="pill pill-active">All current</span>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">CNA cert (NC)</span><span class="ink font-medium">Exp 11/2027</span></div>
+          <div class="flex justify-between"><span class="ink-soft">HIPAA training</span><span class="ink font-medium">Annual · current</span></div>
+          <div class="flex justify-between"><span class="ink-soft">CPR + First Aid</span><span class="ink font-medium">Exp 02/2027</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Tassy NDA (Maximum tier)</span><span class="ink font-medium">Signed 2024</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">This month</div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div><div class="serif text-xl font-bold ink">28</div><div class="text-[10px] ink-mute uppercase">Engagements</div></div>
+          <div><div class="serif text-xl font-bold ink">4.97</div><div class="text-[10px] ink-mute uppercase">Rating</div></div>
+          <div><div class="serif text-xl font-bold ink">100%</div><div class="text-[10px] ink-mute uppercase">On time</div></div>
+        </div>
+      </div>
+
+      <div class="card text-center text-xs ink-mute">Tassy Trucks · v3.2.4 · USDOT #3104152</div>
+    </div>
+  </div>
+
+  <!-- =========== ONBOARDING (8 STEPS) =========== -->
+  <div id="screen-onboard" class="screen content hidden">
+    <div class="app-header" style="background: linear-gradient(135deg, var(--ink) 0%, var(--companion) 140%);">
+      <div class="flex justify-between items-center">
+        <button onclick="goto('today')" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+        <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Companion onboarding</div>
+        <span class="text-xs" style="color: rgba(244,239,224,0.5);" id="ob-counter">1 / 8</span>
+      </div>
+      <div class="flex gap-1 mt-4" id="ob-progress"></div>
+    </div>
+
+    <div class="ob-step" data-step="1">
+      <div class="p-5 text-center space-y-4">
+        <div class="text-5xl mb-2">🤝</div>
+        <h2 class="serif text-3xl ink font-semibold">Companion with Tassy.</h2>
+        <p class="ink-soft text-sm">Be the calm presence patients need after procedures. Premium pay. Predictable shifts.</p>
+        <div class="grid grid-cols-3 gap-2 mt-4">
+          <div class="card text-center"><div class="text-2xl">💰</div><div class="serif text-base font-bold mt-1" style="color: var(--companion);">$95-175</div><div class="text-[10px] ink-mute uppercase">Per engagement</div></div>
+          <div class="card text-center"><div class="text-2xl">⏰</div><div class="serif text-base font-bold mt-1" style="color: var(--companion);">~90 min</div><div class="text-[10px] ink-mute uppercase">Per engagement</div></div>
+          <div class="card text-center"><div class="text-2xl">📅</div><div class="serif text-base font-bold mt-1" style="color: var(--companion);">Weekly</div><div class="text-[10px] ink-mute uppercase">Direct deposit</div></div>
+        </div>
+        <div class="card text-left">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">What you need</div>
+          <div class="space-y-1.5 text-sm ink-soft">
+            <div>✓ 18+, reliable, professional</div>
+            <div>✓ Clean background check</div>
+            <div>✓ Calm demeanor with anxious clients</div>
+            <div>✓ Available 8 hours/week minimum</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="2">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">About you</h2>
+        <div class="space-y-3">
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">First name</label><input type="text" class="input-field" placeholder="Diana"></div>
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Last name</label><input type="text" class="input-field" placeholder="Mathis"></div>
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Phone</label><input type="text" class="input-field" placeholder="(704) 555-0188"></div>
+          <div><label class="block text-[10px] font-semibold ink-soft uppercase mb-1">Email</label><input type="text" class="input-field" placeholder="diana@example.com"></div>
+          <label class="flex items-start gap-2 p-3 rounded-lg cursor-pointer" style="background: rgba(229,169,59,0.08);">
+            <input type="checkbox" class="mt-1">
+            <div class="text-sm"><div class="font-semibold ink">I have CNA / medical background 🩺</div><div class="text-xs ink-mute">Unlocks Premium + Maximum tiers · $25-80 more per engagement</div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="3">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Background check</h2>
+        <p class="ink-soft text-sm">Healthcare-grade screening. We use Checkr Healthcare tier.</p>
+        <div class="card">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="text-sm"><div class="font-semibold ink">Authorize background check</div><div class="text-xs ink-mute mt-1">7-year criminal · sex offender registry · OIG exclusion list (healthcare). Free for you. Results 24-48 hrs.</div></div>
+          </label>
+        </div>
+        <div class="card">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="text-sm"><div class="font-semibold ink">Authorize drug screen</div><div class="text-xs ink-mute mt-1">Required for healthcare-adjacent role · scheduled within 14 days</div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="4">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">HIPAA training</h2>
+        <p class="ink-soft text-sm">2-hour online module. Required before first engagement.</p>
+        <div class="space-y-3">
+          <div class="card flex items-center gap-3"><span class="step-circle done">✓</span><div class="flex-1"><div class="font-semibold ink text-sm">What is HIPAA (25 min)</div><div class="text-[10px] ink-mute">Required basics</div></div><span style="color:var(--success);">✓</span></div>
+          <div class="card flex items-center gap-3"><span class="step-circle active">2</span><div class="flex-1"><div class="font-semibold ink text-sm">PHI in transport (30 min)</div><div class="text-[10px] ink-mute">What you see, don't share</div></div><button class="text-xs btn-ghost py-1 px-3">Start →</button></div>
+          <div class="card flex items-center gap-3" style="opacity:0.6;"><span class="step-circle">3</span><div class="flex-1"><div class="font-semibold ink text-sm">Discretion protocols (45 min)</div><div class="text-[10px] ink-mute">Standard · Heightened · Maximum</div></div><span class="text-xs ink-mute">Locked</span></div>
+          <div class="card flex items-center gap-3" style="opacity:0.6;"><span class="step-circle">4</span><div class="flex-1"><div class="font-semibold ink text-sm">Tassy ethics + brand voice (20 min)</div><div class="text-[10px] ink-mute">How we represent the brand</div></div><span class="text-xs ink-mute">Locked</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="5">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Tier eligibility</h2>
+        <p class="ink-soft text-sm">Pick which engagement tiers you want assignments for.</p>
+        <div class="space-y-3">
+          <label class="card cursor-pointer flex items-start gap-3" style="border:2px solid var(--companion); background: rgba(107,91,149,0.05);">
+            <input type="checkbox" checked class="mt-1 w-5 h-5">
+            <div class="flex-1"><div class="font-semibold ink">Companion Recovery ($285)</div><div class="text-xs ink-mute mt-1">Standard escort + handoff. No medical role.</div><div class="text-[10px] mt-1" style="color: var(--companion);">$85-95 per engagement</div></div>
+          </label>
+          <label class="card cursor-pointer flex items-start gap-3">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="flex-1"><div class="font-semibold ink">Premium Recovery ($445) <span class="text-xs ink-mute">requires CNA</span></div><div class="text-xs ink-mute mt-1">Plus 30-min response SLA + 24-hr follow-up call.</div><div class="text-[10px] mt-1" style="color: var(--companion);">$110-130 per engagement</div></div>
+          </label>
+          <label class="card cursor-pointer flex items-start gap-3">
+            <input type="checkbox" class="mt-1 w-5 h-5">
+            <div class="flex-1"><div class="font-semibold ink">Maximum Discretion ($695) <span class="text-xs ink-mute">requires NDA + advanced training</span></div><div class="text-xs ink-mute mt-1">High-profile clients. Press-avoidance routing. NDA per engagement.</div><div class="text-[10px] mt-1" style="color: var(--companion);">$165-200 per engagement</div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="6">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Availability</h2>
+        <p class="ink-soft text-sm">When are you typically available? You can flex per week.</p>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Weekday mornings (7am-12pm)</span><input type="checkbox" checked></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Weekday afternoons (12pm-6pm)</span><input type="checkbox" checked></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Weekday evenings (6pm-10pm)</span><input type="checkbox"></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Saturday all day</span><input type="checkbox" checked></label>
+          <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><span class="ink-soft">Sunday all day (premium pay)</span><input type="checkbox"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="7">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold">Mentor shadow</h2>
+        <p class="ink-soft text-sm">Shadow Diana (top companion) on 2 engagements before your first solo. Paid time ($60).</p>
+        <div class="card">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center serif font-bold text-lg" style="background: var(--gold-warm); color: var(--ink);">DM</div>
+            <div class="flex-1"><div class="font-semibold ink">Diana Mathis</div><div class="text-xs ink-mute">COMP-003 · 4.97★ · 184 engagements</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Pick a time</div>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><div><div class="font-semibold ink text-sm">Saturday, Jun 14</div><div class="text-xs ink-mute">2 engagements · 3 hours</div></div><input type="radio" name="mentor" checked></label>
+            <label class="flex items-center justify-between p-3 border border-line rounded-lg cursor-pointer"><div><div class="font-semibold ink text-sm">Sunday, Jun 15</div><div class="text-xs ink-mute">2 engagements · 3 hours</div></div><input type="radio" name="mentor"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-step hidden" data-step="8">
+      <div class="p-5 text-center space-y-4 pt-8">
+        <div class="text-6xl mb-2">🎉</div>
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--success);">Welcome to the team</div>
+        <h2 class="serif text-3xl ink font-semibold">You're companion COMP-009.</h2>
+        <p class="ink-soft text-sm max-w-md mx-auto">Background check pending · mentor shadow Saturday 9 AM with Diana · first solo after that.</p>
+        <div class="card text-left mt-6">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">First-month potential</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">Sign-on bonus</span><span class="serif font-bold" style="color: var(--companion);">+$150</span></div>
+            <div class="flex justify-between"><span class="ink-soft">~12 engagements at $115 avg</span><span class="serif font-bold ink">~$1,380</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">First-month total</span><span class="serif text-lg font-bold" style="color: var(--companion);">~$1,530</span></div>
+          </div>
+        </div>
+        <button onclick="goto('today')" class="btn-primary">Open companion dashboard →</button>
+      </div>
+    </div>
+
+    <div class="px-5 pb-6 flex gap-3" id="ob-nav">
+      <button onclick="navOb(-1)" class="btn-ghost flex-1" id="ob-back">← Back</button>
+      <button onclick="navOb(1)" class="btn-primary flex-1" id="ob-next">Continue →</button>
+    </div>
+  </div>
+
+  <!-- =========== TAB BAR =========== -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="today" onclick="goto('today')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="tab-item" data-tab="active" onclick="goto('active', 1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Active</span>
+    </button>
+    <button class="tab-item" data-tab="engagements" onclick="goto('engagements')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span>History</span>
+    </button>
+    <button class="tab-item" data-tab="earnings" onclick="goto('earnings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Earnings</span>
+    </button>
+    <button class="tab-item" data-tab="profile" onclick="goto('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+      <span>Profile</span>
+    </button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let activeStep = 1, obStep = 1;
+  const activeTotal = 5, obTotal = 8;
+  let suppressHistory = false;
+
+  function buildHash(tab, step) {
+    if (tab === 'active' && step) return `#active-${step}`;
+    if (tab === 'onboard' && step) return `#onboard-${step}`;
+    return `#${tab}`;
+  }
+
+  function pushHistory(tab, step) {
+    if (suppressHistory) return;
+    const hash = buildHash(tab, step);
+    if (location.hash !== hash) history.pushState({ tab, step }, '', hash);
+  }
+
+  function parseHash() {
+    const h = location.hash.replace('#', '');
+    if (!h) return { tab: 'today' };
+    if (h.startsWith('active-')) return { tab: 'active', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), activeTotal) };
+    if (h.startsWith('onboard-')) return { tab: 'onboard', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), obTotal) };
+    if (h === 'onboard') return { tab: 'onboard', step: 1 };
+    if (['today','active','engagements','earnings','profile'].includes(h)) return { tab: h, step: h === 'active' ? 1 : undefined };
+    return { tab: 'today' };
+  }
+
+  function goto(tab, step) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-' + tab)?.classList.remove('hidden');
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    if (tab === 'active') { activeStep = step || 1; renderActiveStep(); }
+    if (tab === 'onboard') { obStep = step || 1; renderObStep(); }
+    document.querySelector('.tab-bar').style.display = tab === 'onboard' ? 'none' : '';
+    pushHistory(tab, tab === 'active' ? activeStep : tab === 'onboard' ? obStep : undefined);
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function renderActiveStep() {
+    document.querySelectorAll('.active-step').forEach(el => el.classList.toggle('hidden', parseInt(el.dataset.step) !== activeStep));
+    renderActiveProgress();
+  }
+  function renderActiveProgress() {
+    const c = document.getElementById('active-progress'); if (!c) return;
+    let html = '';
+    for (let i = 1; i <= activeTotal; i++) {
+      const w = i === activeStep ? '24px' : '8px';
+      const bg = i <= activeStep ? 'var(--gold-warm)' : 'rgba(244,239,224,0.2)';
+      html += `<div style="height:6px;width:${w};border-radius:999px;background:${bg};transition:all .2s ease;"></div>`;
+    }
+    c.innerHTML = html;
+  }
+
+  function advance(step) { activeStep = step; renderActiveStep(); pushHistory('active', step); document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' }); }
+
+  function renderObProgress() {
+    const c = document.getElementById('ob-progress'); const counter = document.getElementById('ob-counter');
+    if (!c) return;
+    let html = '';
+    for (let i = 1; i <= obTotal; i++) {
+      const w = i === obStep ? '24px' : '8px';
+      const bg = i <= obStep ? 'var(--gold-warm)' : 'rgba(244,239,224,0.2)';
+      html += `<div style="height:6px;width:${w};border-radius:999px;background:${bg};transition:all .2s ease;"></div>`;
+    }
+    c.innerHTML = html;
+    if (counter) counter.textContent = `${obStep} / ${obTotal}`;
+  }
+
+  function renderObStep() {
+    document.querySelectorAll('.ob-step').forEach(el => el.classList.toggle('hidden', parseInt(el.dataset.step) !== obStep));
+    const backBtn = document.getElementById('ob-back'); const nextBtn = document.getElementById('ob-next');
+    if (backBtn) backBtn.style.visibility = obStep === 1 ? 'hidden' : 'visible';
+    if (nextBtn) {
+      if (obStep === obTotal) { nextBtn.textContent = '🚀 Open dashboard'; nextBtn.onclick = () => goto('today'); }
+      else if (obStep === obTotal - 1) { nextBtn.textContent = '✓ Submit application'; nextBtn.onclick = () => navOb(1); }
+      else if (obStep === 1) { nextBtn.textContent = 'Apply now →'; nextBtn.onclick = () => navOb(1); }
+      else { nextBtn.textContent = 'Continue →'; nextBtn.onclick = () => navOb(1); }
+    }
+    renderObProgress();
+  }
+
+  function navOb(dir) { obStep = Math.min(Math.max(obStep + dir, 1), obTotal); pushHistory('onboard', obStep); renderObStep(); document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' }); if (dir > 0 && obStep === obTotal) showToast('Application submitted · COMP-009 assigned'); }
+
+  function showToast(msg) { const t = document.getElementById('toast'); t.textContent = '✓ ' + msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+
+  function syncFromHash() { const { tab, step } = parseHash(); suppressHistory = true; try { goto(tab, step); } finally { suppressHistory = false; } }
+  window.addEventListener('popstate', syncFromHash);
+  window.addEventListener('DOMContentLoaded', () => { if (location.hash) syncFromHash(); else history.replaceState({ tab: 'today' }, '', '#today'); });
+
+  function updateTime() { const d = new Date(); document.getElementById('status-time').textContent = d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  updateTime(); setInterval(updateTime, 30000);
+</script>
+</body>
+</html>
