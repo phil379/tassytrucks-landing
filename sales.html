@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Tassy Sales — Mock PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --info: #3B6EAA;
+      --danger: #D4544A;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #2A2722; margin: 0; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); }
+    .ink-soft { color: var(--ink-soft); }
+    .ink-mute { color: var(--ink-mute); }
+    .gold { color: var(--gold); }
+    .bg-cream { background: var(--bg); }
+    .border-line { border-color: var(--line); }
+
+    /* iPad-style frame on desktop, fullscreen on mobile */
+    .device-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      box-shadow: 0 0 40px rgba(0,0,0,0.25);
+    }
+    @media (min-width: 1024px) {
+      .device-wrap {
+        margin-top: 24px;
+        margin-bottom: 24px;
+        min-height: calc(100vh - 48px);
+        border-radius: 28px;
+        overflow: hidden;
+        border: 10px solid #1B1A17;
+      }
+    }
+
+    .status-bar {
+      background: var(--ink);
+      color: #F4EFE0;
+      padding: 6px 24px 4px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.7rem; font-weight: 600;
+    }
+
+    .app-header {
+      background: var(--ink);
+      color: #F4EFE0;
+      padding: 18px 24px 22px;
+    }
+
+    .tab-bar {
+      background: white;
+      border-top: 1px solid var(--line);
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      padding-bottom: 8px;
+      position: sticky; bottom: 0;
+    }
+    .tab-item {
+      padding: 12px 4px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 0.7rem; color: var(--ink-mute);
+      cursor: pointer; border: none; background: transparent;
+      transition: color .15s ease;
+    }
+    .tab-item.active { color: var(--ink); }
+    .tab-item.active svg { stroke: var(--gold-warm); }
+    .tab-item svg { width: 22px; height: 22px; stroke: var(--ink-mute); transition: stroke .15s ease; }
+
+    .content { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.25rem 0.6rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .pill-prospect { background: rgba(118,115,107,0.14); color: var(--ink-mute); }
+    .pill-demo { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-pilot { background: rgba(59,110,170,0.14); color: var(--info); }
+    .pill-active { background: rgba(46,168,104,0.14); color: var(--success); }
+    .pill-stalled { background: rgba(212,84,74,0.12); color: var(--danger); }
+
+    .btn-gold {
+      background: var(--gold-warm); color: var(--ink);
+      padding: 12px 20px; border-radius: 10px;
+      font-weight: 600; font-size: 0.95rem;
+      border: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-ink {
+      background: var(--ink); color: #F4EFE0;
+      padding: 12px 20px; border-radius: 10px;
+      font-weight: 600; font-size: 0.95rem;
+      border: none; cursor: pointer;
+    }
+    .btn-ghost {
+      background: white; color: var(--ink);
+      padding: 10px 16px; border-radius: 10px;
+      font-weight: 500; font-size: 0.85rem;
+      border: 1px solid var(--line); cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+
+    .toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100%);
+      background: var(--ink); color: #F4EFE0;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 12px 24px -8px rgba(0,0,0,0.3);
+      transition: transform .3s ease; z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .stage-col {
+      flex: 1; min-width: 220px;
+      display: flex; flex-direction: column;
+    }
+    .stage-header {
+      background: var(--ink); color: #F4EFE0;
+      padding: 8px 12px; border-radius: 8px 8px 0 0;
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .stage-body {
+      background: rgba(232,225,209,0.4);
+      padding: 8px; border-radius: 0 0 8px 8px;
+      flex: 1; display: flex; flex-direction: column; gap: 8px;
+    }
+    .prospect-card {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      border-left: 3px solid var(--gold-warm);
+      cursor: pointer;
+      transition: transform .15s ease;
+    }
+    .prospect-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px -4px rgba(27,26,23,0.15); }
+    .prospect-card.nemt { border-left-color: var(--info); }
+    .prospect-card.vip { border-left-color: var(--ink); }
+    .prospect-card.winnie { border-left-color: #5E8C4A; }
+
+    .demo-screen {
+      background: linear-gradient(135deg, #1B1A17 0%, #2D2A23 100%);
+      color: #F4EFE0;
+      padding: 32px;
+      border-radius: 14px;
+      position: relative;
+    }
+    .demo-stat {
+      background: rgba(244,239,224,0.06);
+      border: 1px solid rgba(229,169,59,0.2);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      color: var(--ink);
+      transition: border-color .15s ease;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--gold-warm);
+      box-shadow: 0 0 0 3px rgba(229,169,59,0.15);
+    }
+  </style>
+</head>
+<body>
+
+<div class="device-wrap" id="device">
+
+  <!-- ================ STATUS BAR ================ -->
+  <div class="status-bar">
+    <span id="status-time">9:24</span>
+    <span class="flex items-center gap-1">
+      <span style="color: var(--gold-warm);">Tassy Sales</span>
+      📶 5G
+      🔋 92%
+    </span>
+  </div>
+
+  <!-- ============================ DASHBOARD ============================ -->
+  <div id="screen-dashboard" class="screen content">
+    <div class="app-header">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">June 2026 · Q2</div>
+          <h1 class="serif text-2xl font-semibold mt-1" style="color: #F4EFE0;">Good morning, Tiana</h1>
+          <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">You're 28% ahead of your monthly quota · 12 days left</div>
+        </div>
+        <button class="btn-gold text-sm" onclick="goto('new-facility', 1)">+ New facility</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-5">
+      <!-- KPIs -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="card text-center" style="background: linear-gradient(180deg, #FFFCF5, white); border-color: var(--gold-warm);">
+          <div class="text-xs ink-mute uppercase tracking-wider">MTD commissions</div>
+          <div class="serif text-2xl font-bold gold mt-1">$4,840</div>
+          <div class="text-[10px]" style="color: var(--success);">↑ $1,420 vs May</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Accounts signed</div>
+          <div class="serif text-2xl font-bold ink mt-1">7</div>
+          <div class="text-[10px] ink-mute">3 this month</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">First rides</div>
+          <div class="serif text-2xl font-bold ink mt-1">23</div>
+          <div class="text-[10px]" style="color: var(--success);">$575 unlocked</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Pipeline value</div>
+          <div class="serif text-2xl font-bold ink mt-1">$8,200</div>
+          <div class="text-[10px] ink-mute">9 in play</div>
+        </div>
+      </div>
+
+      <!-- Today's plan -->
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Today's plan</div>
+          <span class="pill pill-active">3 visits booked</span>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-start gap-3">
+            <div class="flex gap-3 flex-1">
+              <div class="serif text-xs font-bold ink-mute" style="min-width:40px;">9:30</div>
+              <div>
+                <div class="font-medium ink">Atrium Health · Discharge Planning</div>
+                <div class="text-xs ink-mute">Dr. Kim, RN · Demo + close</div>
+                <span class="pill pill-pilot mt-1">Pilot ready</span>
+              </div>
+            </div>
+            <button class="text-xs gold">Prep →</button>
+          </div>
+          <div class="flex justify-between items-start gap-3">
+            <div class="flex gap-3 flex-1">
+              <div class="serif text-xs font-bold ink-mute" style="min-width:40px;">11:30</div>
+              <div>
+                <div class="font-medium ink">Bataclan Pets · Anniversary check-in</div>
+                <div class="text-xs ink-mute">Stable · referral ask</div>
+                <span class="pill pill-active mt-1">Active partner</span>
+              </div>
+            </div>
+            <button class="text-xs gold">Prep →</button>
+          </div>
+          <div class="flex justify-between items-start gap-3">
+            <div class="flex gap-3 flex-1">
+              <div class="serif text-xs font-bold ink-mute" style="min-width:40px;">2:00</div>
+              <div>
+                <div class="font-medium ink">Charlotte Plastic Surgery Center</div>
+                <div class="text-xs ink-mute">First demo · VIP fit</div>
+                <span class="pill pill-prospect mt-1">Prospect</span>
+              </div>
+            </div>
+            <button class="text-xs gold">Prep →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button onclick="goto('pipeline')" class="card text-center hover:bg-cream">
+          <div class="text-2xl mb-1">🪜</div>
+          <div class="text-xs font-medium ink">Pipeline</div>
+        </button>
+        <button onclick="goto('facilities')" class="card text-center hover:bg-cream">
+          <div class="text-2xl mb-1">🏥</div>
+          <div class="text-xs font-medium ink">My facilities</div>
+        </button>
+        <button onclick="goto('new-facility', 1)" class="card text-center hover:bg-cream">
+          <div class="text-2xl mb-1">📋</div>
+          <div class="text-xs font-medium ink">Demo & onboard</div>
+        </button>
+        <button onclick="goto('commissions')" class="card text-center hover:bg-cream">
+          <div class="text-2xl mb-1">💰</div>
+          <div class="text-xs font-medium ink">Commissions</div>
+        </button>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Recent activity</div>
+        <div class="space-y-3 text-sm">
+          <div class="flex gap-3">
+            <span class="text-base">✓</span>
+            <div class="flex-1">
+              <div class="font-medium ink">Aesthetic Carolina signed master agreement</div>
+              <div class="text-xs ink-mute">Yesterday · +$350 commission unlocked at first ride</div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-base">📞</span>
+            <div class="flex-1">
+              <div class="font-medium ink">Follow-up call with Charlotte Plastic Surgery</div>
+              <div class="text-xs ink-mute">2 days ago · Demo scheduled today</div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-base">💳</span>
+            <div class="flex-1">
+              <div class="font-medium ink">Payout received — $3,420</div>
+              <div class="text-xs ink-mute">May commissions · direct deposit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ PIPELINE ============================ -->
+  <div id="screen-pipeline" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Onboarding pipeline</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">9 prospects · $8,200 value</h1>
+    </div>
+
+    <div class="p-5">
+      <div class="flex gap-3 overflow-x-auto pb-4" style="scroll-snap-type: x mandatory;">
+        <!-- Prospect column -->
+        <div class="stage-col scroll-snap-card">
+          <div class="stage-header"><span>Prospect</span><span>3</span></div>
+          <div class="stage-body">
+            <div class="prospect-card" onclick="showToast('Open prospect detail (mock)')">
+              <div class="text-xs font-bold ink mb-1">Charlotte Plastic Surgery</div>
+              <div class="text-xs ink-mute">VIP fit · ~50 rides/mo</div>
+              <div class="text-[10px] ink-mute mt-1">Demo today 2pm</div>
+            </div>
+            <div class="prospect-card nemt" onclick="showToast('Open prospect detail (mock)')">
+              <div class="text-xs font-bold ink mb-1">Mercy Mission Healthcare</div>
+              <div class="text-xs ink-mute">NEMT · Medicaid-heavy</div>
+              <div class="text-[10px] ink-mute mt-1">Cold outreach</div>
+            </div>
+            <div class="prospect-card winnie" onclick="showToast('Open prospect detail (mock)')">
+              <div class="text-xs font-bold ink mb-1">PetSuites Lake Norman</div>
+              <div class="text-xs ink-mute">Daycare runs · ~20/wk</div>
+              <div class="text-[10px] ink-mute mt-1">Owner contacted</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-col scroll-snap-card">
+          <div class="stage-header"><span>Demoing</span><span>2</span></div>
+          <div class="stage-body">
+            <div class="prospect-card" onclick="goto('new-facility', 1)">
+              <div class="text-xs font-bold ink mb-1">Carolina Dermatology Group</div>
+              <div class="text-xs ink-mute">VIP fit · 3 locations</div>
+              <div class="text-[10px] mt-1" style="color: var(--gold);">Demo scheduled Jun 14</div>
+            </div>
+            <div class="prospect-card nemt" onclick="showToast('Open prospect detail (mock)')">
+              <div class="text-xs font-bold ink mb-1">Atrium Discharge Planning</div>
+              <div class="text-xs ink-mute">NEMT · $$$ enterprise</div>
+              <div class="text-[10px] mt-1" style="color: var(--gold);">2nd demo today 9:30</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-col scroll-snap-card">
+          <div class="stage-header"><span>Pilot</span><span>2</span></div>
+          <div class="stage-body">
+            <div class="prospect-card" onclick="showToast('Open prospect detail (mock)')">
+              <div class="text-xs font-bold ink mb-1">Aesthetic Carolina</div>
+              <div class="text-xs ink-mute">VIP · 30-day pilot</div>
+              <div class="text-[10px] mt-1" style="color: var(--info);">Day 8 of 30 · 6 rides</div>
+            </div>
+            <div class="prospect-card winnie" onclick="showToast('Open prospect detail (mock)')">
+              <div class="text-xs font-bold ink mb-1">Camp Bow Wow Charlotte</div>
+              <div class="text-xs ink-mute">Daycare pickups</div>
+              <div class="text-[10px] mt-1" style="color: var(--info);">Day 14 · 11 rides</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-col scroll-snap-card">
+          <div class="stage-header"><span>Active</span><span>7</span></div>
+          <div class="stage-body">
+            <div class="prospect-card winnie" onclick="goto('facilities')">
+              <div class="text-xs font-bold ink mb-1">Bataclan Pets</div>
+              <div class="text-xs ink-mute">23 rides this month</div>
+              <div class="text-[10px] mt-1" style="color: var(--success);">$320 commission</div>
+            </div>
+            <div class="prospect-card nemt" onclick="goto('facilities')">
+              <div class="text-xs font-bold ink mb-1">Liberty Hospice</div>
+              <div class="text-xs ink-mute">18 rides this month</div>
+              <div class="text-[10px] mt-1" style="color: var(--success);">$210 commission</div>
+            </div>
+            <div class="prospect-card" onclick="showToast('5 more facilities (mock)')">
+              <div class="text-xs ink-mute text-center py-1">+5 more</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-col scroll-snap-card">
+          <div class="stage-header"><span>Stalled</span><span>1</span></div>
+          <div class="stage-body">
+            <div class="prospect-card" onclick="showToast('Stalled prospect detail (mock)')" style="border-left-color: var(--danger);">
+              <div class="text-xs font-bold ink mb-1">Bright Smiles Pediatric Dental</div>
+              <div class="text-xs ink-mute">No reply in 21 days</div>
+              <div class="text-[10px] mt-1" style="color: var(--danger);">Reactivation campaign?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ MY FACILITIES ============================ -->
+  <div id="screen-facilities" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">My facilities</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">7 active accounts</h1>
+      <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">Generating $4,840 MTD commissions · 23 first rides triggered</div>
+    </div>
+
+    <div class="p-5 space-y-3">
+      <input type="text" class="input-field" placeholder="🔍 Search facilities..." />
+
+      <div class="card">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold ink">Bataclan Pets</span>
+              <span class="pill pill-active">Winnie · Active</span>
+            </div>
+            <div class="text-xs ink-mute">Contract since Feb 2026 · Winnie service · 2 locations</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] ink-mute uppercase tracking-wider">MTD</div>
+            <div class="serif text-lg font-bold gold">$320</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div><div class="font-semibold ink">23</div><div class="ink-mute">Rides MTD</div></div>
+          <div><div class="font-semibold ink">$985</div><div class="ink-mute">Revenue</div></div>
+          <div><div class="font-semibold ink">4.9★</div><div class="ink-mute">Rating</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold ink">Aesthetic Carolina</span>
+              <span class="pill pill-pilot">VIP · Pilot day 8</span>
+            </div>
+            <div class="text-xs ink-mute">Pilot started May 30 · Master agreement signed</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] ink-mute uppercase tracking-wider">MTD</div>
+            <div class="serif text-lg font-bold gold">$680</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div><div class="font-semibold ink">6</div><div class="ink-mute">Rides MTD</div></div>
+          <div><div class="font-semibold ink">$1,214</div><div class="ink-mute">Revenue</div></div>
+          <div><div class="font-semibold ink">5.0★</div><div class="ink-mute">Rating</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold ink">Liberty Hospice</span>
+              <span class="pill pill-active">NEMT · Active</span>
+            </div>
+            <div class="text-xs ink-mute">Contract since Apr 2025 · NEMT + family transport</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] ink-mute uppercase tracking-wider">MTD</div>
+            <div class="serif text-lg font-bold gold">$210</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div><div class="font-semibold ink">18</div><div class="ink-mute">Rides MTD</div></div>
+          <div><div class="font-semibold ink">$734</div><div class="ink-mute">Revenue</div></div>
+          <div><div class="font-semibold ink">4.8★</div><div class="ink-mute">Rating</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold ink">Carolina Animal Hospital</span>
+              <span class="pill pill-active">Winnie · Active</span>
+            </div>
+            <div class="text-xs ink-mute">Contract since Mar 2026 · Vet visit transport</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] ink-mute uppercase tracking-wider">MTD</div>
+            <div class="serif text-lg font-bold gold">$185</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div><div class="font-semibold ink">12</div><div class="ink-mute">Rides MTD</div></div>
+          <div><div class="font-semibold ink">$642</div><div class="ink-mute">Revenue</div></div>
+          <div><div class="font-semibold ink">4.9★</div><div class="ink-mute">Rating</div></div>
+        </div>
+      </div>
+
+      <div class="card opacity-75">
+        <div class="text-xs ink-mute text-center">+ 3 more active accounts</div>
+      </div>
+
+      <button class="btn-gold w-full" onclick="goto('new-facility', 1)">+ Add new facility</button>
+    </div>
+  </div>
+
+  <!-- ============================ NEW FACILITY (DEMO WIZARD) ============================ -->
+  <div id="screen-new-facility" class="screen content hidden">
+    <div class="app-header">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Demo · Onboarding</div>
+          <h1 class="serif text-2xl font-semibold mt-1" style="color: #F4EFE0;">Charlotte Plastic Surgery Center</h1>
+        </div>
+        <button onclick="goto('pipeline')" class="text-sm" style="color: rgba(244,239,224,0.7);">✕ Exit</button>
+      </div>
+      <div class="flex gap-1 mt-4" id="nf-progress"></div>
+    </div>
+
+    <!-- Step 1: Demo intro -->
+    <div class="nf-step" data-step="1">
+      <div class="p-5 space-y-4">
+        <div class="demo-screen">
+          <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--gold-warm);">For Charlotte Plastic Surgery</div>
+          <h2 class="serif text-3xl font-semibold mt-3" style="color: #F4EFE0;">Discharge transport,<br>handled.</h2>
+          <p class="text-sm mt-4" style="color: rgba(244,239,224,0.75); max-width: 480px;">
+            Stop calling 3 brokers, missing windows, and chasing receipts. Tassy moves your post-procedure patients with discretion, dignity, and a single point of accountability.
+          </p>
+          <div class="grid grid-cols-3 gap-3 mt-6">
+            <div class="demo-stat">
+              <div class="text-[10px] uppercase tracking-wider" style="color: rgba(244,239,224,0.5);">Avg pickup</div>
+              <div class="serif text-xl font-bold mt-1" style="color: var(--gold-warm);">2 min early</div>
+            </div>
+            <div class="demo-stat">
+              <div class="text-[10px] uppercase tracking-wider" style="color: rgba(244,239,224,0.5);">Discretion</div>
+              <div class="serif text-xl font-bold mt-1" style="color: var(--gold-warm);">3 tiers</div>
+            </div>
+            <div class="demo-stat">
+              <div class="text-[10px] uppercase tracking-wider" style="color: rgba(244,239,224,0.5);">Avg trip cost</div>
+              <div class="serif text-xl font-bold mt-1" style="color: var(--gold-warm);">$185-220</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Why us -->
+    <div class="nf-step hidden" data-step="2">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold mb-1">Why Tassy beats brokers</h2>
+        <p class="ink-soft text-sm mb-4">Three things you can't get from LogistiCare, MTM, or Lyft.</p>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="card">
+            <div class="text-3xl mb-2">🎖️</div>
+            <div class="font-semibold ink mb-1">Veteran-owned, Army logistics</div>
+            <p class="text-xs ink-soft">SDVOSB-certified. Our founder ran logistics in the U.S. Army. We treat every patient like a mission.</p>
+          </div>
+          <div class="card">
+            <div class="text-3xl mb-2">🤐</div>
+            <div class="font-semibold ink mb-1">Real discretion, not theater</div>
+            <p class="text-xs ink-soft">3-tier protocol. Heightened means no name callouts. Maximum means NDA + side entrance. Real, not optional.</p>
+          </div>
+          <div class="card">
+            <div class="text-3xl mb-2">📊</div>
+            <div class="font-semibold ink mb-1">One portal, one bill, one team</div>
+            <p class="text-xs ink-soft">Your front desk sees every trip, every status. Monthly statement on the 1st. No more chasing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: How it works -->
+    <div class="nf-step hidden" data-step="3">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold mb-1">How your front desk uses it</h2>
+        <p class="ink-soft text-sm mb-4">90 seconds per patient, start to finish.</p>
+        <div class="space-y-3">
+          <div class="card flex gap-4">
+            <div class="serif text-3xl font-bold gold">1</div>
+            <div>
+              <div class="font-semibold ink">Add the patient as a VIP client</div>
+              <p class="text-xs ink-soft mt-1">Name reference (B-52 · LB), discretion tier, billing source. One-time setup.</p>
+            </div>
+          </div>
+          <div class="card flex gap-4">
+            <div class="serif text-3xl font-bold gold">2</div>
+            <div>
+              <div class="font-semibold ink">Schedule the engagement</div>
+              <p class="text-xs ink-soft mt-1">Pickup time, vehicle preference, special requests. Estimated rate shown live.</p>
+            </div>
+          </div>
+          <div class="card flex gap-4">
+            <div class="serif text-3xl font-bold gold">3</div>
+            <div>
+              <div class="font-semibold ink">Confirm and download receipt</div>
+              <p class="text-xs ink-soft mt-1">Branded PDF generates instantly. Audit log tracks every change.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: ROI / Pricing -->
+    <div class="nf-step hidden" data-step="4">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold mb-1">Your numbers</h2>
+        <p class="ink-soft text-sm mb-4">Based on what you mentioned: ~50 post-op rides/month.</p>
+        <div class="card" style="background: linear-gradient(180deg, #FFFCF5, white); border-color: var(--gold-warm);">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-xs ink-mute uppercase tracking-wider">Today</div>
+              <div class="text-sm ink-soft mt-1">3 vendors, manual booking</div>
+              <div class="serif text-2xl font-bold ink mt-2">~$11,000/mo</div>
+              <div class="text-xs ink-mute">+ 8 hrs/wk admin time</div>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wider" style="color: var(--success);">With Tassy</div>
+              <div class="text-sm ink-soft mt-1">1 portal, single team</div>
+              <div class="serif text-2xl font-bold gold mt-2">~$9,500/mo</div>
+              <div class="text-xs" style="color: var(--success);">+ 7 hrs/wk back to your team</div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-line text-center">
+            <div class="text-xs ink-mute uppercase tracking-wider">Annual savings</div>
+            <div class="serif text-3xl font-bold gold mt-1">$18,000 + ~365 hours</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Pricing</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">VIP Sedan base</span><span class="font-medium ink">$160 / trip</span></div>
+            <div class="flex justify-between"><span class="ink-soft">VIP SUV base</span><span class="font-medium ink">$210 / trip</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Mileage (over 5 mi)</span><span class="font-medium ink">$4.50 / mi</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Wait time (over 15 min)</span><span class="font-medium ink">$1.20 / min</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">Avg billed total</span><span class="serif font-bold gold">$185-220 / trip</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Sign up -->
+    <div class="nf-step hidden" data-step="5">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold mb-1">Let's get you set up</h2>
+        <p class="ink-soft text-sm mb-4">30-day pilot. Zero commitment. Cancel anytime in the first 30.</p>
+        <div class="card">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Facility name</label>
+              <input type="text" class="input-field" value="Charlotte Plastic Surgery Center">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Primary contact</label>
+                <input type="text" class="input-field" value="Dr. Sarah Whitfield">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Role</label>
+                <input type="text" class="input-field" value="Practice Manager">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Email</label>
+                <input type="text" class="input-field" value="s.whitfield@cpsc.com">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Phone</label>
+                <input type="text" class="input-field" value="(704) 555-0166">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Service line</label>
+              <div class="grid grid-cols-3 gap-2 mt-1">
+                <button class="btn-ghost text-xs" style="background: rgba(229,169,59,0.1); border-color: var(--gold-warm);">VIP Concierge</button>
+                <button class="btn-ghost text-xs">NEMT</button>
+                <button class="btn-ghost text-xs">Winnie Ride</button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold ink-soft uppercase tracking-wider mb-1.5">Estimated volume</label>
+              <input type="text" class="input-field" value="40-60 rides/month">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: Sign -->
+    <div class="nf-step hidden" data-step="6">
+      <div class="p-5 space-y-4">
+        <h2 class="serif text-2xl ink font-semibold mb-1">Master agreement</h2>
+        <p class="ink-soft text-sm mb-4">Tap to sign · DocuSign envelope sent to s.whitfield@cpsc.com after submit.</p>
+        <div class="card">
+          <div class="bg-cream rounded-lg p-4 text-xs ink-soft space-y-2 mb-4" style="max-height: 280px; overflow-y: auto;">
+            <p class="font-semibold ink">MASTER SERVICES AGREEMENT</p>
+            <p>This Agreement is between Tassy Transportation LLC ("Tassy") and <strong>Charlotte Plastic Surgery Center</strong> ("Facility"), effective on the date of last signature.</p>
+            <p><strong>1. Services.</strong> Tassy will provide VIP Concierge transport services as scheduled by Facility through the Tassy operations portal.</p>
+            <p><strong>2. Pilot Period.</strong> The first 30 days constitute a no-commitment pilot. Either party may terminate during this period without penalty.</p>
+            <p><strong>3. Pricing.</strong> Per published rates · invoiced monthly · NET 30.</p>
+            <p><strong>4. Discretion.</strong> All engagements protected by Tier-specific protocols. NDAs available per engagement.</p>
+            <p><strong>5. Liability.</strong> Tassy maintains $1M auto liability + $2M umbrella per published Certificate of Insurance.</p>
+            <p><strong>6. Term.</strong> 12 months, auto-renewing in 12-month increments unless either party gives 30 days notice.</p>
+            <p class="text-[10px] ink-mute mt-3">USDOT #3104152 · MC #79222 · SDVOSB · Veteran-Owned</p>
+          </div>
+          <label class="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" class="mt-1">
+            <span class="text-sm ink">I'm authorized to sign on behalf of Charlotte Plastic Surgery Center</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7: Done -->
+    <div class="nf-step hidden" data-step="7">
+      <div class="p-5 space-y-4 text-center pt-12">
+        <div class="text-6xl mb-2">🎉</div>
+        <div class="text-xs uppercase tracking-[0.2em]" style="color: var(--success);">Facility onboarded</div>
+        <h2 class="serif text-3xl ink font-semibold">Welcome aboard, CPSC.</h2>
+        <p class="ink-soft text-sm max-w-md mx-auto">
+          Agreement signed. Facility portal access provisioned. Pilot day 1 starts tomorrow.
+        </p>
+        <div class="card text-left max-w-md mx-auto mt-6">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Your unlock</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">Signing bonus</span><span class="serif font-bold gold">+$350</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Per first-ride bonus (10x)</span><span class="serif font-bold gold">+$25 each</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">Potential first-month commission</span><span class="serif text-lg font-bold gold">~$600</span></div>
+          </div>
+        </div>
+        <div class="space-y-2 max-w-md mx-auto pt-4">
+          <button onclick="goto('facilities')" class="btn-gold w-full">View in My Facilities →</button>
+          <button onclick="goto('dashboard')" class="btn-ghost w-full">Back to dashboard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="px-5 pb-5 flex justify-between" id="nf-nav">
+      <button onclick="navStep(-1)" class="btn-ghost" id="nf-back">← Back</button>
+      <button onclick="navStep(1)" class="btn-gold" id="nf-next">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ============================ COMMISSIONS ============================ -->
+  <div id="screen-commissions" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">June 2026</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">$4,840 earned MTD</h1>
+      <div class="text-xs mt-2" style="color: rgba(244,239,224,0.7);">Payout on the 1st · ACH direct deposit</div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <div class="card text-center" style="background: linear-gradient(180deg, #FFFCF5, white); border-color: var(--gold-warm);">
+        <div class="text-xs ink-mute uppercase tracking-wider">This month</div>
+        <div class="serif text-5xl font-bold gold mt-1">$4,840</div>
+        <div class="text-xs ink-mute mt-2">7 active accounts · 23 first rides · 28% over quota</div>
+        <div class="mt-3 flex justify-center gap-2">
+          <div class="pill pill-active">↑ 41% vs May</div>
+          <div class="pill pill-demo">$10,000 quota</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">By facility</div>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between"><span class="ink">Aesthetic Carolina (VIP pilot)</span><span class="font-bold gold">$680</span></div>
+          <div class="flex justify-between"><span class="ink">Signing bonus + first rides</span><span class="font-bold gold">$525</span></div>
+          <div class="flex justify-between"><span class="ink">Bataclan Pets</span><span class="font-bold ink">$320</span></div>
+          <div class="flex justify-between"><span class="ink">Liberty Hospice</span><span class="font-bold ink">$210</span></div>
+          <div class="flex justify-between"><span class="ink">Carolina Animal Hospital</span><span class="font-bold ink">$185</span></div>
+          <div class="flex justify-between"><span class="ink">5 other active accounts</span><span class="font-bold ink">$2,920</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Commission structure</div>
+          <button class="text-xs gold">Details →</button>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Signing bonus per facility</span><span class="font-medium ink">$350</span></div>
+          <div class="flex justify-between"><span class="ink-soft">First ride bonus</span><span class="font-medium ink">$25 × first 10 rides</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Recurring revenue share</span><span class="font-medium ink">12% of revenue, mo 1-12</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Year 2+ residual</span><span class="font-medium ink">5% lifetime</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Payout history</div>
+        <div class="space-y-2.5 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">May 2026</span><span class="font-medium ink">$3,420.00 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Apr 2026</span><span class="font-medium ink">$2,985.00 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Mar 2026</span><span class="font-medium ink">$1,842.50 ✓</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Feb 2026</span><span class="font-medium ink">$1,205.00 ✓</span></div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: rgba(46,168,104,0.06);">
+        <div class="text-sm ink-soft">YTD earnings</div>
+        <div class="serif text-2xl font-bold ink mt-1">$14,292.50</div>
+        <button class="text-xs gold mt-2">Download 1099 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ TAB BAR ================ -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="dashboard" onclick="goto('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="tab-item" data-tab="pipeline" onclick="goto('pipeline')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      <span>Pipeline</span>
+    </button>
+    <button class="tab-item" data-tab="facilities" onclick="goto('facilities')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 9h6M9 13h6M9 17h6"/></svg>
+      <span>Facilities</span>
+    </button>
+    <button class="tab-item" data-tab="new-facility" onclick="goto('new-facility', 1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>New</span>
+    </button>
+    <button class="tab-item" data-tab="commissions" onclick="goto('commissions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Commissions</span>
+    </button>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let nfStep = 1;
+  const nfTotal = 7;
+  let suppressHistory = false;
+
+  function buildHash(tab, step) {
+    if (tab === 'new-facility' && step) return `#new-facility-${step}`;
+    return `#${tab}`;
+  }
+
+  function pushHistory(tab, step) {
+    if (suppressHistory) return;
+    const hash = buildHash(tab, step);
+    if (location.hash !== hash) history.pushState({ tab, step }, '', hash);
+  }
+
+  function parseHash() {
+    const h = location.hash.replace('#', '');
+    if (!h) return { tab: 'dashboard' };
+    if (h.startsWith('new-facility-')) {
+      const s = parseInt(h.split('-')[2]) || 1;
+      return { tab: 'new-facility', step: Math.min(Math.max(s, 1), nfTotal) };
+    }
+    if (['dashboard','pipeline','facilities','new-facility','commissions'].includes(h)) {
+      return { tab: h, step: h === 'new-facility' ? 1 : undefined };
+    }
+    return { tab: 'dashboard' };
+  }
+
+  function renderNfProgress() {
+    const c = document.getElementById('nf-progress');
+    let html = '';
+    for (let i = 1; i <= nfTotal; i++) {
+      const w = i === nfStep ? '24px' : '8px';
+      const bg = i <= nfStep ? 'var(--gold-warm)' : 'rgba(244,239,224,0.2)';
+      html += `<div style="height:6px;width:${w};border-radius:999px;background:${bg};transition:all .2s ease;"></div>`;
+    }
+    c.innerHTML = html;
+  }
+
+  function renderNfStep() {
+    document.querySelectorAll('.nf-step').forEach(el => {
+      el.classList.toggle('hidden', parseInt(el.dataset.step) !== nfStep);
+    });
+    const nextBtn = document.getElementById('nf-next');
+    const backBtn = document.getElementById('nf-back');
+    if (nfStep === nfTotal) {
+      document.getElementById('nf-nav').classList.add('hidden');
+    } else {
+      document.getElementById('nf-nav').classList.remove('hidden');
+      backBtn.style.visibility = nfStep === 1 ? 'hidden' : 'visible';
+      if (nfStep === nfTotal - 1) {
+        nextBtn.textContent = '✓ Sign agreement';
+      } else if (nfStep === 5) {
+        nextBtn.textContent = 'Continue to agreement →';
+      } else {
+        nextBtn.textContent = 'Continue →';
+      }
+    }
+    renderNfProgress();
+  }
+
+  function navStep(dir) {
+    nfStep = Math.min(Math.max(nfStep + dir, 1), nfTotal);
+    pushHistory('new-facility', nfStep);
+    renderNfStep();
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+    if (dir > 0 && nfStep === nfTotal) {
+      showToast('Master agreement signed · CPSC onboarded');
+    }
+  }
+
+  function goto(tab, step) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    if (tab === 'new-facility') {
+      nfStep = step || 1;
+      renderNfStep();
+    }
+    pushHistory(tab, tab === 'new-facility' ? nfStep : undefined);
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function syncFromHash() {
+    const { tab, step } = parseHash();
+    suppressHistory = true;
+    try { goto(tab, step); } finally { suppressHistory = false; }
+  }
+
+  window.addEventListener('popstate', syncFromHash);
+  window.addEventListener('DOMContentLoaded', () => {
+    if (location.hash) syncFromHash();
+    else history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
+  });
+
+  function updateTime() {
+    const d = new Date();
+    document.getElementById('status-time').textContent =
+      d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+  }
+  updateTime();
+  setInterval(updateTime, 30000);
+</script>
+
+</body>
+</html>

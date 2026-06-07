@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Tassy Driver — Mock PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --ink: #1B1A17;
+      --ink-soft: #444239;
+      --ink-mute: #76736B;
+      --gold: #C8932E;
+      --gold-warm: #E5A93B;
+      --line: #E8E1D1;
+      --surface: #FFFFFF;
+      --success: #2EA868;
+      --danger: #D4544A;
+      --info: #3B6EAA;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #2A2722; margin: 0; -webkit-font-smoothing: antialiased; }
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .ink { color: var(--ink); }
+    .ink-soft { color: var(--ink-soft); }
+    .ink-mute { color: var(--ink-mute); }
+    .gold { color: var(--gold); }
+    .border-line { border-color: var(--line); }
+    /* Phone frame */
+    .device-wrap {
+      max-width: 420px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg);
+      box-shadow: 0 0 40px rgba(0,0,0,0.25);
+      position: relative;
+      display: flex; flex-direction: column;
+    }
+    @media (min-width: 480px) {
+      .device-wrap {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        min-height: calc(100vh - 40px);
+        border-radius: 36px;
+        overflow: hidden;
+        border: 8px solid #1B1A17;
+      }
+    }
+    .status-bar {
+      background: var(--ink);
+      color: #F4EFE0;
+      padding: 6px 18px 4px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .app-header {
+      background: var(--ink);
+      color: #F4EFE0;
+      padding: 14px 18px 18px;
+    }
+    .tab-bar {
+      background: white;
+      border-top: 1px solid var(--line);
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      padding-bottom: 8px;
+      position: sticky; bottom: 0;
+    }
+    .tab-item {
+      padding: 10px 4px 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 0.65rem; color: var(--ink-mute);
+      cursor: pointer; border: none; background: transparent;
+      transition: color .15s ease;
+    }
+    .tab-item.active { color: var(--ink); }
+    .tab-item.active svg { stroke: var(--gold-warm); }
+    .tab-item svg { width: 22px; height: 22px; stroke: var(--ink-mute); transition: stroke .15s ease; }
+    .content { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.25rem 0.6rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .pill-pending { background: rgba(229,169,59,0.14); color: var(--gold); }
+    .pill-active { background: rgba(46,168,104,0.14); color: var(--success); }
+    .pill-vip { background: rgba(27,26,23,0.08); color: var(--ink); }
+    .pill-nemt { background: rgba(59,110,170,0.12); color: var(--info); }
+    .pill-winnie { background: rgba(94,140,74,0.14); color: #5E8C4A; }
+    .btn-gold {
+      background: var(--gold-warm); color: var(--ink);
+      padding: 14px 20px; border-radius: 12px;
+      font-weight: 600; font-size: 0.95rem;
+      border: none; cursor: pointer; width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform .15s ease;
+    }
+    .btn-gold:active { transform: scale(0.98); }
+    .btn-ink {
+      background: var(--ink); color: #F4EFE0;
+      padding: 14px 20px; border-radius: 12px;
+      font-weight: 600; font-size: 0.95rem;
+      border: none; cursor: pointer; width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-success {
+      background: var(--success); color: white;
+      padding: 16px 20px; border-radius: 12px;
+      font-weight: 700; font-size: 1rem;
+      border: none; cursor: pointer; width: 100%;
+    }
+    .btn-ghost {
+      background: white; color: var(--ink);
+      padding: 12px 16px; border-radius: 10px;
+      font-weight: 500; font-size: 0.9rem;
+      border: 1px solid var(--line); cursor: pointer;
+    }
+    .hidden { display: none !important; }
+    .map-mock {
+      background:
+        linear-gradient(135deg, rgba(46,168,104,0.1), transparent),
+        repeating-linear-gradient(45deg, #E8E1D1 0 2px, transparent 2px 12px),
+        linear-gradient(to bottom, #E0E8DC, #D0DEC6);
+      border-radius: 12px;
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .map-route {
+      position: absolute;
+      top: 35%; left: 12%; right: 12%;
+      height: 4px; background: var(--gold-warm);
+      border-radius: 999px;
+      transform: rotate(-6deg);
+    }
+    .map-pin {
+      position: absolute;
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .map-pin.pickup { background: var(--success); top: 25%; left: 12%; }
+    .map-pin.dropoff { background: var(--danger); top: 50%; right: 12%; }
+    .map-pin.driver {
+      background: var(--info); top: 40%; left: 30%;
+      width: 20px; height: 20px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.25), 0 0 0 0 rgba(59,110,170,0.4); }
+      50% { box-shadow: 0 2px 6px rgba(0,0,0,0.25), 0 0 0 10px rgba(59,110,170,0); }
+    }
+    .progress-fill {
+      height: 6px; border-radius: 999px;
+      background: var(--line); overflow: hidden;
+    }
+    .progress-bar { height: 100%; background: var(--gold-warm); transition: width .3s ease; }
+    .step-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem;
+      background: var(--line); color: var(--ink-soft);
+    }
+    .step-circle.active { background: var(--gold-warm); color: var(--ink); }
+    .step-circle.done { background: var(--success); color: white; }
+    .toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100%);
+      background: var(--ink); color: #F4EFE0;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 12px 24px -8px rgba(0,0,0,0.3);
+      transition: transform .3s ease; z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px; height: 24px;
+    }
+    .switch input { display: none; }
+    .switch-slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #CCC; border-radius: 999px;
+      transition: .3s;
+    }
+    .switch-slider:before {
+      position: absolute; content: "";
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
+      background: white; border-radius: 50%;
+      transition: .3s;
+    }
+    .switch input:checked + .switch-slider { background: var(--success); }
+    .switch input:checked + .switch-slider:before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+
+<div class="device-wrap" id="device">
+
+  <!-- ================ STATUS BAR (always visible) ================ -->
+  <div class="status-bar">
+    <span id="status-time">9:24</span>
+    <span class="flex items-center gap-1">
+      <span style="color: var(--gold-warm);">●●●●</span>
+      📶 5G
+      🔋 87%
+    </span>
+  </div>
+
+  <!-- ============================ TRIPS TAB ============================ -->
+  <div id="screen-trips" class="screen content">
+    <!-- Header -->
+    <div class="app-header">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Today · Friday June 12</div>
+          <h1 class="serif text-2xl font-semibold mt-1" style="color: #F4EFE0;">Good morning, Marcus</h1>
+          <div class="flex items-center gap-3 mt-3 text-xs" style="color: rgba(244,239,224,0.8);">
+            <span class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full" style="background: var(--success);"></span>
+              On duty
+            </span>
+            <span>·</span>
+            <span>4 trips queued</span>
+            <span>·</span>
+            <span>$148 earned today</span>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" checked>
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Trip list -->
+    <div class="p-4 space-y-3">
+      <!-- ACTIVE -->
+      <div class="card" onclick="goto('active', 1)" style="border-color: var(--gold-warm); background: linear-gradient(180deg, #FFFCF5, white);">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-active">● ACTIVE</span>
+              <span class="pill pill-vip">VIP</span>
+            </div>
+            <div class="serif text-lg font-semibold ink">B-52 · LB</div>
+            <div class="text-xs ink-mute mt-0.5">Engagement #1 · Trip #46</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs ink-mute">In</div>
+            <div class="serif text-lg font-bold gold">22 min</div>
+          </div>
+        </div>
+        <div class="space-y-1.5 text-sm ink-soft mb-3">
+          <div class="flex items-start gap-2"><span style="color: var(--success);">●</span> Aesthetic Carolina · 500 S College</div>
+          <div class="flex items-start gap-2"><span style="color: var(--danger);">●</span> 4425 Sharon Rd, Charlotte</div>
+        </div>
+        <button class="btn-gold">On my way →</button>
+      </div>
+
+      <!-- UPCOMING -->
+      <div class="text-xs uppercase tracking-wider ink-mute mt-5 mb-2">Upcoming</div>
+
+      <div class="card" onclick="showToast('Trip detail (not in mockup)')">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-pending">11:00 AM</span>
+              <span class="pill pill-nemt">NEMT</span>
+            </div>
+            <div class="serif text-base font-semibold ink">Margaret H.</div>
+          </div>
+          <div class="text-xs ink-mute">$42</div>
+        </div>
+        <div class="text-xs ink-soft space-y-1">
+          <div>📍 3106 Aransas Rd → Atrium Pineville Dialysis</div>
+          <div class="ink-mute">Round trip · driver waits 4hr · MTM auth verified ✓</div>
+        </div>
+      </div>
+
+      <div class="card" onclick="showToast('Trip detail (not in mockup)')">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-pending">1:30 PM</span>
+              <span class="pill pill-winnie">WINNIE</span>
+            </div>
+            <div class="serif text-base font-semibold ink">Biscuit (Sarah M.)</div>
+          </div>
+          <div class="text-xs ink-mute">$72</div>
+        </div>
+        <div class="text-xs ink-soft space-y-1">
+          <div>🐕 Golden Retriever · 65 lbs · own carrier</div>
+          <div class="ink-mute">1247 Magnolia → Carolina Animal Hospital · round trip</div>
+        </div>
+      </div>
+
+      <div class="card" onclick="showToast('Trip detail (not in mockup)')">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-pending">4:15 PM</span>
+              <span class="pill pill-nemt">NEMT</span>
+            </div>
+            <div class="serif text-base font-semibold ink">Lauren B. (Quick Book)</div>
+          </div>
+          <div class="text-xs ink-mute">$202</div>
+        </div>
+        <div class="text-xs ink-soft space-y-1">
+          <div>🛬 3106 Aransas Rd → CLT Airport (Round Trip)</div>
+          <div class="ink-mute">Luxury SUV · 1 passenger · 2 bags</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ ACTIVE TRIP ============================ -->
+  <div id="screen-active" class="screen content hidden">
+    <div class="app-header">
+      <div class="flex items-center justify-between">
+        <button onclick="goto('trips')" class="text-sm" style="color: rgba(244,239,224,0.7);">← Trips</button>
+        <div class="text-center">
+          <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Active</div>
+          <div class="font-semibold" style="color: #F4EFE0;">B-52 · LB</div>
+        </div>
+        <button class="text-xs" style="color: rgba(244,239,224,0.5);">⋯</button>
+      </div>
+    </div>
+
+    <!-- STEP 1: En route -->
+    <div class="active-step" data-step="1">
+      <div class="p-4 space-y-4">
+        <div class="map-mock">
+          <div class="map-route"></div>
+          <div class="map-pin pickup"></div>
+          <div class="map-pin dropoff"></div>
+          <div class="map-pin driver"></div>
+          <div class="absolute top-3 right-3 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow">📍 ETA 9:46</div>
+        </div>
+
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Heading to</div>
+          <div class="font-semibold ink">Aesthetic Carolina</div>
+          <div class="text-sm ink-soft">500 S College St, Charlotte, NC 28202</div>
+          <div class="text-xs ink-mute mt-1">Pickup at 2:30 PM · 22 min away</div>
+        </div>
+
+        <div class="card" style="background: rgba(229,169,59,0.06); border-color: rgba(229,169,59,0.3);">
+          <div class="flex items-start gap-2 text-sm">
+            <span class="text-base">⚠️</span>
+            <div>
+              <div class="font-semibold ink">Heightened discretion</div>
+              <div class="text-xs ink-soft mt-1">No client identification by name. Side entrance preferred. Private entrance per facility.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-success" onclick="advance(2)">I've arrived</button>
+        <button class="btn-ghost" onclick="showToast('Calling dispatch (mock)')">🚨 Issue · Call dispatch</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Arrived -->
+    <div class="active-step hidden" data-step="2">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.08); border-color: rgba(46,168,104,0.25);">
+          <div class="text-3xl mb-2">📍</div>
+          <div class="font-semibold ink">You've arrived at</div>
+          <div class="text-sm ink-soft">Aesthetic Carolina</div>
+          <div class="text-xs ink-mute mt-2">Customer auto-notified · waiting in lobby</div>
+        </div>
+
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Client check</div>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" class="w-4 h-4"><span>Visual identification confirmed</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" class="w-4 h-4"><span>Discretion protocol acknowledged</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" class="w-4 h-4"><span>Companion present (if applicable)</span>
+            </label>
+          </div>
+        </div>
+
+        <button class="btn-success" onclick="advance(3)">Start trip</button>
+        <button class="btn-ghost" onclick="showToast('Wait time logged')">⏱ Log wait time</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: In progress -->
+    <div class="active-step hidden" data-step="3">
+      <div class="p-4 space-y-4">
+        <div class="map-mock" style="height: 220px;">
+          <div class="map-route"></div>
+          <div class="map-pin pickup"></div>
+          <div class="map-pin dropoff"></div>
+          <div class="map-pin driver" style="top: 45%; left: 55%;"></div>
+          <div class="absolute top-3 right-3 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow">🚗 6 min to dropoff</div>
+          <div class="absolute bottom-3 left-3 right-3 bg-white rounded-lg px-3 py-2 text-xs font-semibold shadow text-center">↗ Continue on E 7th St · 1.2 mi</div>
+        </div>
+
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Destination</div>
+          <div class="font-semibold ink">4425 Sharon Rd, M805</div>
+          <div class="text-sm ink-soft">Charlotte, NC 28211</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button class="btn-ghost text-xs">📞 Call client</button>
+          <button class="btn-ghost text-xs">💬 Send ETA</button>
+        </div>
+
+        <button class="btn-success" onclick="advance(4)">Mark dropoff complete</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Completed -->
+    <div class="active-step hidden" data-step="4">
+      <div class="p-4 space-y-4">
+        <div class="card text-center" style="background: rgba(46,168,104,0.08); border-color: rgba(46,168,104,0.25);">
+          <div class="text-5xl mb-2">✓</div>
+          <div class="serif text-2xl ink font-semibold">Trip Complete</div>
+          <div class="text-sm ink-mute mt-1">B-52 · LB · 22 min · 6.4 mi</div>
+        </div>
+
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-3">Earnings breakdown</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="ink-soft">Base fare</span><span class="font-medium ink">$160.00</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Mileage</span><span class="font-medium ink">$28.67</span></div>
+            <div class="flex justify-between"><span class="ink-soft">Discretion bonus</span><span class="font-medium ink">$13.68</span></div>
+            <div class="flex justify-between pt-2 border-t border-line"><span class="font-semibold ink">Driver pay</span><span class="serif text-lg font-bold gold">$202.35</span></div>
+          </div>
+          <div class="text-xs ink-mute mt-2">Paid out Friday · current pay period</div>
+        </div>
+
+        <div class="card">
+          <div class="text-xs ink-mute uppercase tracking-wider mb-2">Tip from client?</div>
+          <div class="grid grid-cols-4 gap-2">
+            <button class="btn-ghost text-sm">$0</button>
+            <button class="btn-ghost text-sm">$10</button>
+            <button class="btn-ghost text-sm" style="background: rgba(229,169,59,0.1); border-color: var(--gold-warm);">$20</button>
+            <button class="btn-ghost text-sm">$40</button>
+          </div>
+        </div>
+
+        <button class="btn-ink" onclick="goto('trips')">Next trip →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ VEHICLE ============================ -->
+  <div id="screen-vehicle" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">My vehicle</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">VEH-007</h1>
+      <div class="text-xs mt-1" style="color: rgba(244,239,224,0.7);">2024 Cadillac Escalade · Black · ABC-1234</div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Fuel</div>
+          <div class="serif text-xl font-bold gold mt-1">3/4</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Mileage</div>
+          <div class="serif text-xl font-bold ink mt-1">42,108</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Next service</div>
+          <div class="serif text-xl font-bold ink mt-1">1,892</div>
+          <div class="text-[10px] ink-mute">mi remaining</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Service status</div>
+          <span class="pill pill-active">All current</span>
+        </div>
+        <div class="space-y-2.5 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">Last oil change</span><span class="ink font-medium">May 14, 2026 · 38,452 mi</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Tire rotation</span><span class="ink font-medium">Apr 28, 2026</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Annual inspection</span><span class="ink font-medium">Feb 02, 2027 · Due</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Insurance</span><span class="ink font-medium">Valid through 09/2026</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Quick actions</div>
+        <div class="grid grid-cols-2 gap-3">
+          <button class="btn-ghost text-sm flex flex-col gap-1 py-3">
+            <span class="text-xl">⛽</span><span>Log fuel</span>
+          </button>
+          <button class="btn-ghost text-sm flex flex-col gap-1 py-3">
+            <span class="text-xl">🔧</span><span>Report issue</span>
+          </button>
+          <button class="btn-ghost text-sm flex flex-col gap-1 py-3">
+            <span class="text-xl">🧼</span><span>Detail wash</span>
+          </button>
+          <button class="btn-ghost text-sm flex flex-col gap-1 py-3">
+            <span class="text-xl">📄</span><span>Documents</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Recent activity</div>
+        <div class="space-y-3 text-sm">
+          <div class="flex gap-3">
+            <span class="text-base">⛽</span>
+            <div class="flex-1">
+              <div class="font-medium ink">Fueled — 18.2 gal · $74.50</div>
+              <div class="text-xs ink-mute">Today · 8:12 AM · Shell Tryon</div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-base">🧼</span>
+            <div class="flex-1">
+              <div class="font-medium ink">Detail wash logged</div>
+              <div class="text-xs ink-mute">Yesterday · Tassy service center</div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-base">🔧</span>
+            <div class="flex-1">
+              <div class="font-medium ink">Tire rotation</div>
+              <div class="text-xs ink-mute">Apr 28 · Performed by shop</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ EARNINGS ============================ -->
+  <div id="screen-earnings" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Current pay period</div>
+      <h1 class="serif text-2xl font-semibold" style="color: #F4EFE0;">Jun 9 — Jun 15</h1>
+      <div class="text-xs mt-1" style="color: rgba(244,239,224,0.7);">Payout Friday · direct deposit</div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="card text-center" style="background: linear-gradient(180deg, #FFFCF5, white); border-color: var(--gold-warm);">
+        <div class="text-xs ink-mute uppercase tracking-wider">This week</div>
+        <div class="serif text-5xl font-bold gold mt-1">$1,247.80</div>
+        <div class="text-xs ink-mute mt-2">14 trips · 28.4 hrs on-duty · $89/hr avg</div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Tips</div>
+          <div class="serif text-lg font-bold ink mt-1">$184</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Bonuses</div>
+          <div class="serif text-lg font-bold ink mt-1">$87</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-xs ink-mute uppercase tracking-wider">Deductions</div>
+          <div class="serif text-lg font-bold" style="color: var(--danger);">-$23</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Today's trips</div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-start text-sm">
+            <div>
+              <div class="font-medium ink">B-52 · LB <span class="pill pill-vip ml-1">VIP</span></div>
+              <div class="text-xs ink-mute">22 min · 6.4 mi · Engagement #1</div>
+            </div>
+            <div class="text-right">
+              <div class="serif font-bold gold">$202.35</div>
+              <div class="text-[10px] ink-mute">+$20 tip</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Last 4 weeks</div>
+          <button class="text-xs gold">See all →</button>
+        </div>
+        <div class="space-y-2.5">
+          <div class="flex justify-between text-sm"><span class="ink-soft">Jun 2 - Jun 8</span><span class="font-medium ink">$1,189.40</span></div>
+          <div class="flex justify-between text-sm"><span class="ink-soft">May 26 - Jun 1</span><span class="font-medium ink">$1,402.10</span></div>
+          <div class="flex justify-between text-sm"><span class="ink-soft">May 19 - May 25</span><span class="font-medium ink">$978.65</span></div>
+          <div class="flex justify-between text-sm"><span class="ink-soft">May 12 - May 18</span><span class="font-medium ink">$1,317.20</span></div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background: rgba(46,168,104,0.06);">
+        <div class="text-sm ink-soft">YTD earnings</div>
+        <div class="serif text-2xl font-bold ink mt-1">$27,458.91</div>
+        <button class="text-xs gold mt-2">Download tax statement →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ PROFILE ============================ -->
+  <div id="screen-profile" class="screen content hidden">
+    <div class="app-header">
+      <div class="text-xs uppercase tracking-wider" style="color: rgba(244,239,224,0.6);">Driver profile</div>
+      <div class="flex items-center gap-4 mt-2">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center serif font-bold text-xl" style="background: var(--gold-warm); color: var(--ink);">MT</div>
+        <div>
+          <h1 class="serif text-xl font-semibold" style="color: #F4EFE0;">Marcus Taylor</h1>
+          <div class="text-xs" style="color: rgba(244,239,224,0.6);">DRV-007 · Since Jan 2024</div>
+          <div class="flex items-center gap-1 text-sm mt-1" style="color: var(--gold-warm);">★★★★★ <span class="text-xs" style="color: rgba(244,239,224,0.8);">4.94 · 312 trips</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">Service eligibility</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between items-center"><span class="ink-soft">Standard NEMT</span><span class="pill pill-active">✓ Eligible</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">VIP Concierge</span><span class="pill pill-active">✓ CNA-certified</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">Winnie Ride</span><span class="pill pill-active">✓ Pet-trained</span></div>
+          <div class="flex justify-between items-center"><span class="ink-soft">Wheelchair (WAV)</span><span class="pill pill-pending">Training in May 2027</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-xs ink-mute uppercase tracking-wider">Credentials</div>
+          <span class="pill pill-active">All current</span>
+        </div>
+        <div class="space-y-2.5 text-sm">
+          <div class="flex justify-between"><span class="ink-soft">CDL Class C</span><span class="ink font-medium">Exp 08/2028</span></div>
+          <div class="flex justify-between"><span class="ink-soft">Medical card (DOT)</span><span class="ink font-medium">Exp 02/2027</span></div>
+          <div class="flex justify-between"><span class="ink-soft">CNA certification</span><span class="ink font-medium">Exp 06/2027</span></div>
+          <div class="flex justify-between"><span class="ink-soft">CPR / First Aid</span><span class="ink font-medium">Exp 11/2026</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs ink-mute uppercase tracking-wider mb-3">This month</div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div class="serif text-xl font-bold ink">48</div>
+            <div class="text-[10px] ink-mute uppercase">Trips</div>
+          </div>
+          <div>
+            <div class="serif text-xl font-bold ink">4.92</div>
+            <div class="text-[10px] ink-mute uppercase">Rating</div>
+          </div>
+          <div>
+            <div class="serif text-xl font-bold ink">98%</div>
+            <div class="text-[10px] ink-mute uppercase">On-time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <button onclick="showToast('Settings (mock)')" class="flex justify-between items-center w-full">
+          <span class="font-medium ink">Settings & preferences</span>
+          <span class="ink-mute">›</span>
+        </button>
+      </div>
+      <div class="card">
+        <button onclick="showToast('Support (mock)')" class="flex justify-between items-center w-full">
+          <span class="font-medium ink">Contact support</span>
+          <span class="ink-mute">›</span>
+        </button>
+      </div>
+      <div class="card">
+        <button onclick="showToast('Signed out (mock)')" class="flex justify-between items-center w-full" style="color: var(--danger);">
+          <span class="font-medium">Sign out</span>
+          <span>›</span>
+        </button>
+      </div>
+
+      <div class="text-center text-xs ink-mute pt-4">
+        Tassy Trucks · v3.2.4<br>
+        USDOT #3104152 · MC #79222
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ TAB BAR ================ -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="trips" onclick="goto('trips')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+      <span>Trips</span>
+    </button>
+    <button class="tab-item" data-tab="active" onclick="goto('active', 1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span>Active</span>
+    </button>
+    <button class="tab-item" data-tab="vehicle" onclick="goto('vehicle')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l2-5h14l2 5v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></svg>
+      <span>Vehicle</span>
+    </button>
+    <button class="tab-item" data-tab="earnings" onclick="goto('earnings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Earnings</span>
+    </button>
+    <button class="tab-item" data-tab="profile" onclick="goto('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let activeStep = 1;
+  let suppressHistory = false;
+
+  function buildHash(tab, step) {
+    if (tab === 'active' && step) return `#active-${step}`;
+    return `#${tab}`;
+  }
+
+  function pushHistory(tab, step) {
+    if (suppressHistory) return;
+    const hash = buildHash(tab, step);
+    if (location.hash !== hash) {
+      history.pushState({ tab, step }, '', hash);
+    }
+  }
+
+  function parseHash() {
+    const h = location.hash.replace('#', '');
+    if (!h) return { tab: 'trips' };
+    if (h.startsWith('active-')) {
+      return { tab: 'active', step: Math.min(Math.max(parseInt(h.split('-')[1]) || 1, 1), 4) };
+    }
+    if (['trips','active','vehicle','earnings','profile'].includes(h)) {
+      return { tab: h, step: h === 'active' ? 1 : undefined };
+    }
+    return { tab: 'trips' };
+  }
+
+  function goto(tab, step) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    if (tab === 'active') {
+      activeStep = step || 1;
+      document.querySelectorAll('.active-step').forEach(el => {
+        el.classList.toggle('hidden', parseInt(el.dataset.step) !== activeStep);
+      });
+    }
+    pushHistory(tab, tab === 'active' ? activeStep : undefined);
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function advance(step) {
+    activeStep = step;
+    document.querySelectorAll('.active-step').forEach(el => {
+      el.classList.toggle('hidden', parseInt(el.dataset.step) !== step);
+    });
+    pushHistory('active', step);
+    document.querySelector('.content:not(.hidden)')?.scrollTo({ top: 0, behavior: 'auto' });
+    if (step === 4) showToast('Trip complete · payout processing');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function syncFromHash() {
+    const { tab, step } = parseHash();
+    suppressHistory = true;
+    try { goto(tab, step); } finally { suppressHistory = false; }
+  }
+
+  window.addEventListener('popstate', syncFromHash);
+  window.addEventListener('DOMContentLoaded', () => {
+    if (location.hash) syncFromHash();
+    else history.replaceState({ tab: 'trips' }, '', '#trips');
+  });
+
+  // Status bar live time
+  function updateTime() {
+    const d = new Date();
+    document.getElementById('status-time').textContent =
+      d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+  }
+  updateTime();
+  setInterval(updateTime, 30000);
+</script>
+
+</body>
+</html>
