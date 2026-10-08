@@ -178,7 +178,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M3 5a2 2 0 0 1 2-2h2.5a1 1 0 0 1 .96.73l1 3.5a1 1 0 0 1-.27 1L7.7 9.79a14 14 0 0 0 6.5 6.5l1.57-1.49a1 1 0 0 1 1-.27l3.5 1a1 1 0 0 1 .73.96V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5z"/></svg>
           (704) 941-8508
         </a>
-        <a href="https://tassytrucksops.vercel.app/login" class="btn-ghost hidden sm:inline-flex text-sm">Sign in</a>
+        <a href="#" data-feature="Sign In" class="btn-ghost hidden sm:inline-flex text-sm">Sign in</a>
         <a href="#book" class="btn-gold text-sm">Book a Ride
           <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M10.293 3.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1 0 1.414l-6 6a1 1 0 1 1-1.414-1.414L14.586 11H4a1 1 0 1 1 0-2h10.586l-4.293-4.293a1 1 0 0 1 0-1.414z"/></svg>
         </a>
@@ -570,7 +570,7 @@
       </div>
       <div class="flex flex-col items-end gap-3">
         <a href="mailto:booking@tassytrucks.com?subject=Driver%20Application" class="btn-primary">Apply to drive →</a>
-        <a href="https://tassytrucksops.vercel.app/login" class="text-sm ink-mute hover:text-ink">Existing driver? Sign in to the app →</a>
+        <a href="#" data-feature="Driver App" class="text-sm ink-mute hover:text-ink">Existing driver? Sign in to the app →</a>
       </div>
     </div>
   </section>
@@ -620,7 +620,7 @@
             // Try to derive a friendly feature name from the link text
             const text = (link.textContent || '').trim().replace(/[→]/g, '').trim();
             let feature = 'Online Booking';
-            if (text.toLowerCase().includes('book')) feature = text.replace(/book(\s+a)?/i, 'Book').trim() || 'Online Booking';
+            if (link.getAttribute('data-feature')) feature = link.getAttribute('data-feature'); else if (text.toLowerCase().includes('book')) feature = text.replace(/book(\s+a)?/i, 'Book').trim() || 'Online Booking';
             else if (text.toLowerCase().includes('facility')) feature = 'Facility Self-Onboarding';
             else if (text.toLowerCase().includes('drive')) feature = 'Driver Applications';
             else if (text.toLowerCase().includes('story') || text.toLowerCase().includes('about')) feature = 'About Page';
@@ -694,10 +694,10 @@
         <div>
           <div class="text-xs uppercase tracking-[0.2em] mb-4" style="color: rgba(244,239,224,0.45);">Sign in</div>
           <ul class="space-y-2 text-sm" style="color: rgba(244,239,224,0.8);">
-            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Customer</a></li>
-            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Facility portal</a></li>
-            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Driver app</a></li>
-            <li><a href="https://tassytrucksops.vercel.app/login" style="opacity: 0.85;">Staff &amp; dispatch</a></li>
+            <li><a href="#" data-feature="Customer Portal" style="opacity: 0.85;">Customer</a></li>
+            <li><a href="#" data-feature="Facility Portal" style="opacity: 0.85;">Facility portal</a></li>
+            <li><a href="#" data-feature="Driver App" style="opacity: 0.85;">Driver app</a></li>
+            <li><a href="#" data-feature="Staff &amp; Dispatch" style="opacity: 0.85;">Staff &amp; dispatch</a></li>
           </ul>
         </div>
       </div>
